@@ -21,7 +21,7 @@ public:
    */
   obj(unsigned int numPoints, pnt *points);
   virtual ~obj();
-  obj(const obj& orig);
+  //obj(const obj& orig);
   
   /*
    * getters
@@ -37,7 +37,17 @@ public:
   string getString();
   static string getTotalString();
 
+  
+  /*
+   * Transform objects
+   */
+  void translation(int x, int y);
+  void rotation(float alpha);
+  void scale(float x, float y);
+  
 private:
+  pnt getCentroid();
+  
   static unsigned int getNumberFromLine(string line);
   
   static unsigned int nObjects;
