@@ -93,9 +93,10 @@ void obj::load(char* filename){
           
           int x = atoi(line.substr(0, del).c_str());
           int y = atoi(line.substr(del+1).c_str());
-          
           points[j].x = x;
           points[j].y = y;
+          
+          
         }
         else{
           cout << "Missing Point definition\n";
@@ -112,8 +113,6 @@ void obj::load(char* filename){
   }
   else cout << "Unable to open file\n";
   
-//  cout << objectList[0].getString();
-  cout << getTotalString();
   return;
 }
 
@@ -123,6 +122,7 @@ string obj::getString(){
   itoa(nPoints, temp, 10);
   str.append(temp);
   str.append("\n");
+  
   return str;
 };
 
@@ -133,11 +133,25 @@ string obj::getTotalString(){
   str.append(temp);
   str.append("\n");
   
-  cout << objectList[0].getString();
-  
-  for(int i = 0; i < nObjects; i++)
-    cout << i;
-    //    cout << objectList[i].getString();
-  
   return str;
+}
+
+obj::~obj(){
+//  free(pointList);
+}
+
+void obj::save(char* filename){
+  ofstream file(filename);
+  if (file.is_open()){
+    file << nObjects << "\n";
+    for (int i = 0; i < nObjects; i++){
+      file << objectList[i].nPoints << "\n";
+      for (int j = 0 ; j < objectList[i].nPoints; j++){
+        file << objectList[i].pointList[j].x << " " << objectList[i].pointList[j].y << "\n";
+      }
+    }
+    
+    file.close();
+  }
+  else cout << "failed to open save file";
 }
