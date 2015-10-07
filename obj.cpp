@@ -3,6 +3,9 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <math.h>
+
+#define PI 3.14159265
 
 using namespace std;
 
@@ -143,15 +146,80 @@ obj::~obj(){
 void obj::save(char* filename){
   ofstream file(filename);
   if (file.is_open()){
-    file << nObjects << "\n";
+    file << nObjects;
     for (int i = 0; i < nObjects; i++){
-      file << objectList[i].nPoints << "\n";
+      file << "\n" << objectList[i].nPoints;
       for (int j = 0 ; j < objectList[i].nPoints; j++){
-        file << objectList[i].pointList[j].x << " " << objectList[i].pointList[j].y << "\n";
+        file << "\n" << objectList[i].pointList[j].x << " " << objectList[i].pointList[j].y;
       }
     }
     
     file.close();
   }
   else cout << "failed to open save file";
+}
+
+/*
+ * gets the calculated centroid. average of all points
+ */
+obj::pnt obj::getCentroid(){
+  float x = 0;
+  float y = 0;
+  for (int i = 0; i < nPoints; i++){
+    x += pointList[i].x;
+    y += pointList[i].y;
+  }
+  
+  x /= nPoints;
+  y /= nPoints;
+  
+  pnt c;
+  c.x = (int)(x+.5);
+  c.y = (int)(y+.5);
+  return c;
+}
+
+/*
+ * move the object by x and y
+ */
+void obj::translation(int x, int y){
+  for (int i = 0; i < nPoints; i++){
+    pointList[i].x += x;
+    pointList[i].y += y;
+  }
+}
+
+/*
+ * scales object from the centroid
+ */
+void obj::scale(float a, float b){
+  pnt c = getCentroid();
+  
+  //const for centroid scaling. also +.5 for rounding
+  const double px = c.x *(1-a) + .5, py = c.y * (1 - b) + .5;
+  
+  //iterate through each point updating their locations for scale
+  for(int i = 0; i < nPoints; i++){
+    pointList[i].x = (int)(pointList[i].x * a + px);
+    pointList[i].y = (int)(pointList[i].y * b + py);
+  }
+}
+
+/*
+ * rotates object around the centroid
+ */
+void obj::rotation(float alpha){
+  pnt c = getCentroid();
+  
+  //const for sin and cosin calculations
+  const double radians = alpha*PI/180;
+  const double sa = sin(radians), ca = cos(radians);
+  //const for centroid rotation. also +.5 for rounding
+  const double px = c.y*sa - c.x*ca + c.x+.5, py = c.y - c.x*sa - ca*c.y +.5;
+  
+  for(int i = 0; i < nPoints; i++){
+    int x = (int)(pointList[i].x*ca - pointList[i].y*sa + px);
+    pointList[i].y = (int)(pointList[i].x*sa + pointList[i].y*ca + py);
+    pointList[i].x = x;
+  }
 }
