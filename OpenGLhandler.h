@@ -14,6 +14,7 @@ private:
   static void onClose(void);
 
   static algMode aMode;
+  static int MainWindow;
 
   static void display();
   static float *PixelBuffer;

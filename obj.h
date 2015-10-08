@@ -6,11 +6,11 @@
 using namespace std;
 
 class obj{
+public:
   typedef struct p{
     int x;
     int y;
   } pnt;
-public:
   /*
    * Load and save from file
    */
@@ -18,7 +18,13 @@ public:
   inline static void save(){save(storedFileName);};
   static void load(char* filename);
   static void save(char* filename);
-    
+
+  /*
+   * Free memory
+   */  
+  static void freeAll();
+
+  
   /*
    * Default class definitions
    */
@@ -32,6 +38,7 @@ public:
   static obj getObject(int i){return objectList[i];};
   inline unsigned int getNumPoints(){return nPoints;};  
   inline pnt* getPoints(){return pointList;};
+  inline static unsigned int getNumObjects(){return nObjects;};
   
   /*
    * toString items

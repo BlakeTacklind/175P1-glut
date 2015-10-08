@@ -1,10 +1,13 @@
 #include <GL/glut.h>
 #include "OpenGLhandler.h"
+#include "userInterface.h"
+
 #include <iostream>
 using namespace std;
 
 float* OpenGLhandler::PixelBuffer;
 OpenGLhandler::algMode OpenGLhandler::aMode;
+int OpenGLhandler::MainWindow;
 
 void OpenGLhandler::init(int* argc, char** argv)
 {
@@ -15,8 +18,8 @@ void OpenGLhandler::init(int* argc, char** argv)
   
   aMode = DDA;
 
-  bufferObjects(points);
-  //bufferObjects(lines);
+  //bufferObjects(points);
+  bufferObjects(lines);
 
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_SINGLE);
@@ -25,7 +28,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutInitWindowPosition(100, 100);
 
-  int MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 1");
+  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 1");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
 
@@ -39,9 +42,10 @@ void OpenGLhandler::init(int* argc, char** argv)
 }
 
 void OpenGLhandler::onClose(void){
-  //delete PixelBuffer;
-  //freeAll();
-  cout << "closing";
+  delete PixelBuffer;
+  obj::freeAll();
+  userInterface::endUI();
+  //cout << "closing\n";
 }
 
 void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
@@ -51,6 +55,14 @@ void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
   //MakePix(0,0);
 
   //glutPostRedisplay();
+  if(key == 27){
+    onClose();
+    glutDestroyWindow(MainWindow);
+  }
+  else userInterface::keypressed(key);
+
+  //cout << key << endl;
+  //cout << x << ' ' << y << endl;
 }
 
 void OpenGLhandler::MakePix(int x, int y){

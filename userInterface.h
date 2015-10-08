@@ -14,13 +14,15 @@ using namespace std;
 class userInterface {
 public:
   static void init();
-  static void drawUI();
-  
+  static void endUI();
+  static void keypressed(unsigned char key);  
+
   static void printError(string s);
-  inline static void selectObj(unsigned int i){objSelected = i+1;};
+  //inline static void selectObj(unsigned int i){objSelected = i;};
   
 private:
-  static unsigned int objSelected;
+  static void drawUI();
+  static int objSelected;
 };
 
 #endif	/* USERINTERFACE_H */

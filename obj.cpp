@@ -13,6 +13,13 @@ unsigned int obj::nObjects;
 obj* obj::objectList;
 char* obj::storedFileName;
     
+void obj::freeAll(){
+  for(int i=0; i < obj::nObjects; i++){
+    free(obj::getObject(i).getPoints());
+  }
+
+  free(obj::objectList);
+}
 
 obj::obj(unsigned int numPoints, pnt* points){
   nPoints = numPoints;
@@ -121,9 +128,9 @@ void obj::load(char* filename){
 
 string obj::getString(){
   string str = "NumPoints: ";
-  char* temp;
-  itoa(nPoints, temp, 10);
-  str.append(temp);
+  //char* temp;
+  //itoa(nPoints, temp, 10);
+  //str.append(temp);
   str.append("\n");
   
   return str;
@@ -131,9 +138,9 @@ string obj::getString(){
 
 string obj::getTotalString(){
   string str = "Number of Objects: ";
-  char* temp;
-  itoa(nObjects, temp, 10);
-  str.append(temp);
+  //char* temp;
+  //itoa(nObjects, temp, 10);
+  //str.append(temp);
   str.append("\n");
   
   return str;
