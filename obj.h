@@ -1,4 +1,7 @@
 
+#ifndef OBJ_H
+#define	OBJ_H
+
 #include <string>
 using namespace std;
 
@@ -58,3 +61,4 @@ private:
   unsigned int nPoints; 
 };
 
+#endif
