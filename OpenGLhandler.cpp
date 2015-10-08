@@ -16,9 +16,9 @@ void OpenGLhandler::init(int* argc, char** argv)
   //MakePix(10,10);
   //MakePix(1,1);
   
-  aMode = DDA;
+  aMode = BA;
 
-  //bufferObjects(points);
+  bufferObjects(points);
   bufferObjects(lines);
 
   glutInit(argc, argv);
@@ -165,10 +165,10 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
       float m;
       int currY, p;
       int Dx, Dy;
+      bool yNeg;
       //const for BA
       if(aMode == BA){
         currY = sp.y;
-        p = 2 * dy - dx;
         if (dx < 0){
           Dx = -dx;
           Dy = -dy;
@@ -177,17 +177,25 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
           Dx = dx;
           Dy = dy;
         }
+        
+        if(Dy < 0){
+          yNeg = true;
+          Dy = -Dy;
+        }
+        else yNeg = false;
+
+        p = 2 * Dy - Dx;
       }
       //Const for DDA
       else m = ((float)dy)/dx;
 
-      for(int i = 0; i <= abs(dx); i++){
+      for(int i = 0; i <= Dx; i++){
         if(aMode == DDA){
           MakePix(sp.x+i, sp.y+(int)(i*m+.5));
         }
         else if(aMode == BA){
+          if(p>=0) yNeg?currY--:currY++;
           p = p + 2*Dy - (p<0?0:2*Dx);
-          if(p>=0) currY++;
           MakePix(sp.x+i, currY);
         }
       }
@@ -199,10 +207,10 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
       float m;
       int currX, p;
       int Dx, Dy;
+      bool xNeg;
       //const for BA
       if(aMode == BA){
         currX = sp.x;
-        p = 2 * dx - dy;
         if (dy < 0){
           Dx = -dx;
           Dy = -dy;
@@ -211,17 +219,25 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
           Dx = dx;
           Dy = dy;
         }
+        
+        if(Dx < 0){
+          xNeg = true;
+          Dx = -Dx;
+        }
+        else xNeg = false;
+
+        p = 2 * Dx - Dy;
       }
       //Const for DDA
       else m = ((float)dx)/dy;
 
-      for(int i = 0; i <= abs(dy); i++){
+      for(int i = 0; i <= Dy; i++){
         if(aMode == DDA){
           MakePix(sp.x+(int)(i*m+.5), sp.y+i);
         }
         else if(aMode == BA){
-          p = p + 2*Dx -(p<0?0:2*Dy);//(Dx>0?1:-1)*
-          if(p>=0)currX++;// (Dx>0)?currX++:currX--;
+          if(p>=0) xNeg?currX--:currX++;
+          p = p + 2*Dx -(p<0?0:2*Dy);//
           MakePix(currX, sp.y+i);
         }
       }
