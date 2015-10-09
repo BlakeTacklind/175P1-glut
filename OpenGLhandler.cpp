@@ -44,7 +44,11 @@ void OpenGLhandler::init(int* argc, char** argv)
   aMode = DDA;
   dMode = lines;
 
+  cout<<"test2\n";
+
   bufferObjects();
+ cout<<"test2.5\n";
+
 
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_SINGLE);
@@ -56,11 +60,15 @@ void OpenGLhandler::init(int* argc, char** argv)
   MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 1");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
+  cout<<"test3\n";
 
   glutKeyboardFunc(Keystroke);
   //glutCloseFunc(onClose);
+  cout<<"test4\n";
 
   userInterface::init();
+  cout<<"test5\n";
+
   glutMainLoop();
 
   cout << "test1\n";
@@ -121,8 +129,10 @@ void OpenGLhandler::clearBuffer(){
 void OpenGLhandler::bufferObjects(drawMode m){
   //clearBuffer();
 
+  cout << "testa\n";
   //Draw object vertexes
   if (m == points){
+    cout << "testp\n";
     for(int i = 0; i < obj::getNumObjects(); i++){
       obj o = obj::getObject(i);
       for(int j = 0; j < o.getNumPoints(); j++){
@@ -133,23 +143,35 @@ void OpenGLhandler::bufferObjects(drawMode m){
   }
   //Draw object with wireframe
   else if (m == lines){
+    cout << "testl\n";
     for(int i = 0; i < obj::getNumObjects(); i++){
+      cout << "testl.1\n";
       obj o = obj::getObject(i);
+      cout << "testl.2\n";
       obj::pnt p1;
       obj::pnt p2 = o.getPoints()[0];
+      cout<< "test1.3\n";
+      cout << o.getNumPoints() <<endl;
+      cout << "test1.4\n";
       for(int j = 1; j < o.getNumPoints(); j++){
         p1 = p2;
+        cout << "test1.5 " << p1.x <<endl;
         p2 = o.getPoints()[j];
+        cout << "test1.6\n";
         drawLine(p1,p2);
+        cout << "test1.7\n";
       }
-      
+     
+      cout << "testl2\n"; 
       drawLine(o.getPoints()[0], p2);
+      cout << "testl3\n"; 
     }
   }
   else if (m == fill){
     
   }
-
+  
+  cout << "testx\n";
 }
 
 void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){

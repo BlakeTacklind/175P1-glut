@@ -39,7 +39,7 @@ void userInterface::endUI(){
 void userInterface::keypressed(unsigned char key){
   if(key == 'd'){
     OpenGLhandler::tglDrawMode();
-    OpenGLhandler::bufferObjects();
+    //OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
     drawUI();
   }
