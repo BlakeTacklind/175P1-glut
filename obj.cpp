@@ -13,6 +13,130 @@ unsigned int obj::nObjects;
 obj* obj::objectList;
 char* obj::storedFileName;
     
+obj::line::line(pnt a, pnt b){
+  int Dx = b.x - a.x, Dy = b.y - a.y;
+  
+  if (abs(Dx) > abs(Dy)){
+    xTravel = true;
+    
+    if (b.x > a.x){
+      p1 = a;
+      p2 = b;
+      
+      dx = Dx;
+      dy = Dy;
+    }
+    else{
+      p1 = b;
+      p2 = a;
+      
+      dx = -Dx;
+      dy = -Dy;
+    }
+  }
+  else{
+    xTravel = false;
+    
+    if (b.y > a.y){
+      p1 = a;
+      p2 = b;
+      
+      dx = Dx;
+      dy = Dy;
+    }
+    else{
+      p1 = b;
+      p2 = a;
+      
+      dx = -Dx;
+      dy = -Dy;
+    }
+  }
+  
+  Fill(false);
+}
+
+void obj::line::Fill(bool BAmode){
+  fill = new pnt[(xTravel?dx:dy)+1];
+  
+  if(dx == 0){
+    for(int i = 0; i <= dy; i++){
+      fill[i].x = p1.x;
+      fill[i].y = p1.y + i;
+    }
+  }
+  else if(dy == 0){
+    for(int i = 0; i <= dx; i++){
+      fill[i].y = p1.y;
+      fill[i].x = p1.x+i;
+    }
+  }
+  else if(dy == dx){
+    for(int i = 0; i <= dx; i++){
+      fill[i].x = p1.x + i;
+      fill[i].y = p1.y + i;
+    }
+  }
+  else if(dy == -dx){
+    for(int i = 0; i <= dy; i++){
+      fill[i].y = p1.y + i;
+      fill[i].x = p1.x - i;
+    }
+  }
+  else if(BAmode){
+    if(xTravel){
+      int currY, p, Dy;
+      bool yNeg;
+      
+      if(yNeg = (dy < 0))Dy = -dy;
+      else Dy = dy;
+      
+      p = 2*Dy - dx;
+      
+      for(int i = 0; i <= dx; i++){
+        if (p>=0) yNeg?currY--:currY++;
+        p += 2*Dy - (p<0?0:2*dx);
+        fill[i].x = p1.x+i;
+        fill[i].y = currY;
+      }
+    }
+    else{
+      int currX, p, Dx;
+      bool xNeg;
+      
+      if(xNeg = (dx < 0))Dx = -dx;
+      else Dx = dx;
+      
+      p = 2*Dx - dy;
+      
+      for(int i = 0; i <= dy; i++){
+        if (p>=0) xNeg?currX--:currX++;
+        p += 2*Dx - (p<0?0:2*dy);
+        fill[i].y = p1.y+i;
+        fill[i].x = currX;
+      }
+    }
+  }
+  else{
+    if(xTravel){
+      const double m = ((double)dy)/dx;
+      
+      for(int i = 0; i <= dx; i++){
+        fill[i].x = p1.x + i;
+        fill[i].y = p1.y + (int)(i*m+.5);
+      }
+    }
+    else{
+      const double m = ((double)dx)/dy;
+      
+      for(int i = 0; i <= dy; i++){
+        fill[i].y = p1.y + i;
+        fill[i].x = p1.x + (int)(i*m+.5);
+      }
+    }
+  }
+}
+
 void obj::freeAll(){
   for(int i=0; i < obj::nObjects; i++){
     free(obj::getObject(i).getPoints());
