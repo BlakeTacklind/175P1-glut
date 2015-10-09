@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
   //cout << obj::getObject(0).getPoints()[0].y;
   //obj::getObject(2).rotation(30.0);
   //obj::getObject(2).rotation(-30.0);
-  userInterface::init();
+  //userInterface::init();
   //obj::save("objects2");
   OpenGLhandler::init(&argc, argv);
   

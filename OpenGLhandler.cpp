@@ -8,18 +8,43 @@ using namespace std;
 float* OpenGLhandler::PixelBuffer;
 OpenGLhandler::algMode OpenGLhandler::aMode;
 int OpenGLhandler::MainWindow;
+OpenGLhandler::drawMode OpenGLhandler::dMode;
+
+void OpenGLhandler::reDraw(){
+  
+  glutPostRedisplay();
+}
+
+const char* OpenGLhandler::getDrawMode(){
+  if (dMode == points) return "Points";
+  if (dMode == lines) return "Lines";
+  if (dMode == fill) return "Fill";
+}
+
+const char* OpenGLhandler::getAlgMode(){
+  if (aMode == DDA) return "DDA";
+  if (aMode == BA) return "BA";
+}
+
+void OpenGLhandler::tglDrawMode(){
+       if (dMode == points) dMode = lines;
+  else if (dMode == lines ) dMode = fill;
+  else if (dMode == fill  ) dMode = points;
+}
+
+void OpenGLhandler::tglAlgMode(){
+       if (aMode == DDA) aMode = BA;
+  else if (aMode == BA ) aMode = DDA;
+}
 
 void OpenGLhandler::init(int* argc, char** argv)
 {
   PixelBuffer = new float[200 * 200 * 3];
 
-  //MakePix(10,10);
-  //MakePix(1,1);
-  
-  aMode = BA;
+  aMode = DDA;
+  dMode = lines;
 
-  bufferObjects(points);
-  bufferObjects(lines);
+  bufferObjects();
 
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_SINGLE);
@@ -35,6 +60,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   glutKeyboardFunc(Keystroke);
   //glutCloseFunc(onClose);
 
+  userInterface::init();
   glutMainLoop();
 
   cout << "test1\n";
@@ -42,7 +68,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 }
 
 void OpenGLhandler::onClose(void){
-  delete PixelBuffer;
+  delete [] PixelBuffer;
   obj::freeAll();
   userInterface::endUI();
   //cout << "closing\n";
@@ -84,10 +110,17 @@ void OpenGLhandler::display()
   return;
 }
 
+void OpenGLhandler::clearBuffer(){
+  //for (int i = 0; i < 200*200; i++)
+    //PixelBuffer[0] = 0.0;
+}
+
 /*
  * Draw objects depending on draw mode
  */
 void OpenGLhandler::bufferObjects(drawMode m){
+  //clearBuffer();
+
   //Draw object vertexes
   if (m == points){
     for(int i = 0; i < obj::getNumObjects(); i++){

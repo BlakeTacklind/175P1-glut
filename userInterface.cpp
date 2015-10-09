@@ -6,6 +6,8 @@
  */
 
 #include "userInterface.h"
+#include "OpenGLhandler.h"
+//#include <string>
 
 #include <curses.h>
 int userInterface::objSelected;
@@ -20,10 +22,12 @@ void userInterface::init(){
 void userInterface::drawUI(){
   clear();
   printw("USE [ESC] TO END PROGRAM\n");
-  printw("Current Object Selected: ");
-  if (objSelected == -1) printw("None\n");
-  else printw("%i\n", objSelected);
-  printw("Current Action: ");
+  printw("\nDraw Mode: %s", OpenGLhandler::getDrawMode());
+  printw("\nAlgorithm Mode: %s", OpenGLhandler::getAlgMode());
+  printw("\nCurrent Object Selected: ");
+  if (objSelected == -1) printw("None");
+  else printw("%i", objSelected);
+  printw("\nCurrent Action: ");
 
   refresh();
 }
@@ -33,6 +37,17 @@ void userInterface::endUI(){
 }
 
 void userInterface::keypressed(unsigned char key){
-  
+  if(key == 'd'){
+    OpenGLhandler::tglDrawMode();
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
+    drawUI();
+  }
+  else if (key == 'a'){
+    OpenGLhandler::tglAlgMode();
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
+    drawUI();
+  }
 }
 
