@@ -61,8 +61,11 @@ public:
   class line{
     
   public:
-    line(pnt a, pnt b);
-    
+    line(pnt a, pnt b, bool BAmode);
+    virtual ~line();
+
+    inline unsigned int getNumPoints(){return xTravel?dx:dy;};
+    inline pnt getPoint(unsigned int i){return fill[i];};
   private:
     void Fill(bool BAmode);
     

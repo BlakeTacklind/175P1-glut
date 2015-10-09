@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <math.h>
+#include <curses.h>
 
 #define PI 3.14159265
 
@@ -13,7 +14,7 @@ unsigned int obj::nObjects;
 obj* obj::objectList;
 char* obj::storedFileName;
     
-obj::line::line(pnt a, pnt b){
+obj::line::line(pnt a, pnt b, bool BAmode){
   int Dx = b.x - a.x, Dy = b.y - a.y;
   
   if (abs(Dx) > abs(Dy)){
@@ -53,12 +54,16 @@ obj::line::line(pnt a, pnt b){
     }
   }
   
-  Fill(false);
+  Fill(BAmode);
+}
+
+obj::line::~line(){
+  delete [] fill;
 }
 
 void obj::line::Fill(bool BAmode){
-  fill = new pnt[(xTravel?dx:dy)+1];
-  
+  fill = new pnt[(xTravel?dx:dy)+1];  
+
   if(dx == 0){
     for(int i = 0; i <= dy; i++){
       fill[i].x = p1.x;
@@ -84,36 +89,47 @@ void obj::line::Fill(bool BAmode){
     }
   }
   else if(BAmode){
+    //printf("\n\rDraw in BA");
     if(xTravel){
       int currY, p, Dy;
       bool yNeg;
-      
-      if(yNeg = (dy < 0))Dy = -dy;
+
+      currY = p1.y;     
+ 
+      //printf("\n\rtest1");
+
+      if(yNeg = (dy < 0)){
+        Dy = -dy;
+      }
       else Dy = dy;
+      //printf("\n\rcY %i, p %i, dx %i, dy %i", currY, p, dx, Dy);
       
       p = 2*Dy - dx;
       
+      //printf("\n\rcY %i, p %i, dx %i, dy %i", currY, p, dx, Dy);
+
       for(int i = 0; i <= dx; i++){
-        if (p>=0) yNeg?currY--:currY++;
-        p += 2*Dy - (p<0?0:2*dx);
         fill[i].x = p1.x+i;
         fill[i].y = currY;
+        if (p>=0) yNeg?currY--:currY++;
+        p += 2*Dy - (p<0?0:2*dx);
       }
     }
     else{
       int currX, p, Dx;
       bool xNeg;
-      
+      currX = p1.x;
+
       if(xNeg = (dx < 0))Dx = -dx;
       else Dx = dx;
       
       p = 2*Dx - dy;
       
       for(int i = 0; i <= dy; i++){
-        if (p>=0) xNeg?currX--:currX++;
-        p += 2*Dx - (p<0?0:2*dy);
         fill[i].y = p1.y+i;
         fill[i].x = currX;
+        if (p>=0) xNeg?currX--:currX++;
+        p += 2*Dx - (p<0?0:2*dy);
       }
     }
   }
@@ -123,7 +139,7 @@ void obj::line::Fill(bool BAmode){
       
       for(int i = 0; i <= dx; i++){
         fill[i].x = p1.x + i;
-        fill[i].y = p1.y + (int)(i*m+.5);
+        fill[i].y = p1.y + (int)(i*m+(dy>0?.5:-.5));
       }
     }
     else{
@@ -131,7 +147,7 @@ void obj::line::Fill(bool BAmode){
       
       for(int i = 0; i <= dy; i++){
         fill[i].y = p1.y + i;
-        fill[i].x = p1.x + (int)(i*m+.5);
+        fill[i].x = p1.x + (int)(i*m+(dx>0?.5:-.5));
       }
     }
   }

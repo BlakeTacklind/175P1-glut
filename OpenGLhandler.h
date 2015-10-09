@@ -22,6 +22,7 @@ private:
   static void clearBuffer();
   static void MakePix(int x, int y);
   static void drawLine(obj::pnt a, obj::pnt b);
+  static void drawLine(obj::line l);
   static void onClose(void);
   static void bufferObjects(drawMode m);
 

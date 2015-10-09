@@ -41,13 +41,13 @@ void OpenGLhandler::init(int* argc, char** argv)
 {
   PixelBuffer = new float[200 * 200 * 3];
 
-  aMode = DDA;
-  dMode = lines;
+  aMode = BA;
+  dMode = points;
 
-  cout<<"test2\n";
+  //cout<<"test2\n";
 
   bufferObjects();
- cout<<"test2.5\n";
+  //cout<<"test2.5\n";
 
 
   glutInit(argc, argv);
@@ -60,18 +60,18 @@ void OpenGLhandler::init(int* argc, char** argv)
   MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 1");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
-  cout<<"test3\n";
+  //cout<<"test3\n";
 
   glutKeyboardFunc(Keystroke);
   //glutCloseFunc(onClose);
-  cout<<"test4\n";
+  //cout<<"test4\n";
 
   userInterface::init();
-  cout<<"test5\n";
+  //cout<<"test5\n";
 
   glutMainLoop();
 
-  cout << "test1\n";
+  //cout << "test1\n";
   return;
 }
 
@@ -119,20 +119,20 @@ void OpenGLhandler::display()
 }
 
 void OpenGLhandler::clearBuffer(){
-  //for (int i = 0; i < 200*200; i++)
-    //PixelBuffer[0] = 0.0;
+  for (int i = 0; i < 200*200*3; i++)
+    PixelBuffer[i] = 0.0;
 }
 
 /*
  * Draw objects depending on draw mode
  */
 void OpenGLhandler::bufferObjects(drawMode m){
-  //clearBuffer();
+  clearBuffer();
 
-  cout << "testa\n";
+  //cout << "testa\n";
   //Draw object vertexes
   if (m == points){
-    cout << "testp\n";
+    //cout << "testp\n";
     for(int i = 0; i < obj::getNumObjects(); i++){
       obj o = obj::getObject(i);
       for(int j = 0; j < o.getNumPoints(); j++){
@@ -143,40 +143,50 @@ void OpenGLhandler::bufferObjects(drawMode m){
   }
   //Draw object with wireframe
   else if (m == lines){
-    cout << "testl\n";
+    //cout << "testl\n";
     for(int i = 0; i < obj::getNumObjects(); i++){
-      cout << "testl.1\n";
+      //cout << "testl.1\n";
       obj o = obj::getObject(i);
-      cout << "testl.2\n";
+      //cout << "testl.2\n";
       obj::pnt p1;
       obj::pnt p2 = o.getPoints()[0];
-      cout<< "test1.3\n";
-      cout << o.getNumPoints() <<endl;
-      cout << "test1.4\n";
+      //cout<< "test1.3\n";
+      //cout << o.getNumPoints() <<endl;
+      //cout << "test1.4\n";
       for(int j = 1; j < o.getNumPoints(); j++){
         p1 = p2;
-        cout << "test1.5 " << p1.x <<endl;
+        //cout << "test1.5 " << p1.x <<endl;
         p2 = o.getPoints()[j];
-        cout << "test1.6\n";
-        drawLine(p1,p2);
-        cout << "test1.7\n";
+        //cout << "test1.6\n";
+        drawLine(obj::line(p1,p2,aMode==BA));
+        //cout << "test1.7\n";
       }
      
-      cout << "testl2\n"; 
-      drawLine(o.getPoints()[0], p2);
-      cout << "testl3\n"; 
+      //cout << "testl2\n"; 
+      drawLine(obj::line(o.getPoints()[0], p2,aMode==BA));
+      //cout << "testl3\n"; 
     }
   }
   else if (m == fill){
     
   }
   
-  cout << "testx\n";
+  //cout << "testx\n";
+}
+
+void OpenGLhandler::drawLine(obj::line l){
+  const int dist = l.getNumPoints();
+  for(int i = 0; i <= dist; i++){
+    obj::pnt p = l.getPoint(i);
+    MakePix(p.x, p.y);
+  }
 }
 
 void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
+  cout << "testp "<<a.y<<' '<<b.y<<endl;
   const int dx = b.x - a.x;
   const int dy = b.y - a.y;
+  cout << "testp "<<dy<<endl;
 
   /*
    * Special cases
@@ -257,6 +267,7 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
     }
     //Travel in Y direction
     else{
+      cout << "testy1\n";
       //setup for algorithms
       const obj::pnt sp = a.y < b.y ? a : b;
       float m;
@@ -282,10 +293,12 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
         else xNeg = false;
 
         p = 2 * Dx - Dy;
+
       }
       //Const for DDA
       else m = ((float)dx)/dy;
 
+      cout << "testy2 " << Dy << "\n";
       for(int i = 0; i <= Dy; i++){
         if(aMode == DDA){
           MakePix(sp.x+(int)(i*m+.5), sp.y+i);
@@ -296,6 +309,7 @@ void OpenGLhandler::drawLine(const obj::pnt a, const obj::pnt b){
           MakePix(currX, sp.y+i);
         }
       }
+      cout << "testy3\n";
     }
   }
 
