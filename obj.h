@@ -7,6 +7,9 @@ using namespace std;
 
 class obj{
 public:
+  /*
+   * Struct for points
+   */
   typedef struct p{
     int x;
     int y;
@@ -55,10 +58,28 @@ public:
   void rotation(float alpha);
   void scale(float x, float y);
   
-private:
-  pnt getCentroid();
+  class line{
+    
+  public:
+    line(pnt a, pnt b);
+    
+  private:
+    void Fill(bool BAmode);
+    
+    pnt p1;
+    pnt p2;
+    
+    int dx;
+    int dy;
+    
+    bool xTravel;
+    
+    pnt* fill;
+  };
   
-  static unsigned int getNumberFromLine(string line);
+private:
+  //Gets the centroid point of an object
+  pnt getCentroid();
   
   static unsigned int nObjects;
   static obj* objectList;
