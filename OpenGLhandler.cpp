@@ -9,6 +9,10 @@ float* OpenGLhandler::PixelBuffer;
 OpenGLhandler::algMode OpenGLhandler::aMode;
 int OpenGLhandler::MainWindow;
 OpenGLhandler::drawMode OpenGLhandler::dMode;
+int OpenGLhandler::xMin;
+int OpenGLhandler::yMin;
+int OpenGLhandler::xMax;
+int OpenGLhandler::yMax;
 
 void OpenGLhandler::reDraw(){
   
@@ -28,7 +32,7 @@ const char* OpenGLhandler::getAlgMode(){
 
 void OpenGLhandler::tglDrawMode(){
        if (dMode == points) dMode = lines;
-  else if (dMode == lines ) dMode = fill;
+  else if (dMode == lines ) dMode = points;
   else if (dMode == fill  ) dMode = points;
 }
 
@@ -43,6 +47,10 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   aMode = BA;
   dMode = points;
+  xMin = 5;
+  yMin = 12;
+  xMax = 150;
+  yMax = 200;
 
   //cout<<"test2\n";
 
@@ -128,25 +136,30 @@ void OpenGLhandler::clearBuffer(){
  */
 void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
+  cout << "testc\n";
+  obj::clipObjects(xMin, xMax, yMin, yMax);
 
-  //cout << "testa\n";
+  cout << "testa\n";
   //Draw object vertexes
   if (m == points){
-    //cout << "testp\n";
-    for(int i = 0; i < obj::getNumObjects(); i++){
-      obj o = obj::getObject(i);
+    cout << "testp " <<obj::getNumClippedObjects()<< "\n";
+    for(int i = 0; i < obj::getNumClippedObjects(); i++){
+      cout<<"testp1\n";
+      obj o = obj::getClippedObject(i);
+      cout<<"testp2 " <<  o.getNumPoints() << "\n";
       for(int j = 0; j < o.getNumPoints(); j++){
         obj::pnt p = o.getPoints()[j];
         MakePix(p.x, p.y);
       }
+      cout<<"testp3\n";
     }
   }
   //Draw object with wireframe
   else if (m == lines){
     //cout << "testl\n";
-    for(int i = 0; i < obj::getNumObjects(); i++){
+    for(int i = 0; i < obj::getNumClippedObjects(); i++){
       //cout << "testl.1\n";
-      obj o = obj::getObject(i);
+      obj o = obj::getClippedObject(i);
       //cout << "testl.2\n";
       obj::pnt p1;
       obj::pnt p2 = o.getPoints()[0];

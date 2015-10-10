@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <math.h>
 #include <curses.h>
+#include <list>
 
 #define PI 3.14159265
 
@@ -13,7 +14,19 @@ using namespace std;
 unsigned int obj::nObjects;
 obj* obj::objectList;
 char* obj::storedFileName;
-    
+unsigned int obj::nClippedObjects;
+obj* obj::clippedObjects;
+
+void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
+  clippedObjects = new obj[nObjects];
+  nClippedObjects = 0;
+
+  for(int i = 0; i < nObjects; i++){
+    obj o = objectList[i].clip(xmin, xmax, ymin, ymax);
+    if(o.getNumPoints()) clippedObjects[nClippedObjects++];
+  }
+}
+
 obj::line::line(pnt a, pnt b, bool BAmode){
   int Dx = b.x - a.x, Dy = b.y - a.y;
   
@@ -370,3 +383,61 @@ void obj::rotation(float alpha){
     pointList[i].x = x;
   }
 }
+
+typedef struct clippedPoint{
+  obj::pnt p;
+  int ABRL;
+} cpnt;
+
+int setABRL(cpnt p, int xmin, int xmax, int ymin, int ymax){
+       if (p.p.x < xmin) p.ABRL = 0b0001;
+  else if (p.p.x > xmax) p.ABRL = 0b0010;
+  else                   p.ABRL = 0;
+
+       if (p.p.y < ymin) p.ABRL |= 0b0100;
+  else if (p.p.y > ymax) p.ABRL |= 0b1000;
+
+  return p.ABRL;
+}
+
+typedef list<cpnt>::iterator ITR;
+
+/*
+ * Plan is to iterate through every point 
+ */
+obj obj::clip(int xmin, int xmax, int ymin, int ymax){
+  cpnt* cp = new cpnt[nPoints];
+  int location = 0;
+  list<cpnt> lPnt(nPoints);
+
+  //load points into list
+  for(int i = 0; i < nPoints; i++){
+    cp[i].p = pointList[i];
+    location |= setABRL(cp[i], xmin, xmax, ymin, ymax);
+    lPnt.push_back(cp[i]);
+  }
+
+  //actually do the clipping
+  ITR it = lPnt.begin();
+  //cpnt b = *it, a;
+  //int lastABRL = b.ABRL;
+  //it++;
+  //for(; it != lPnt.end(); it++){
+  //  a = b;
+  //  b = *it;
+  //}
+
+  //object out of Viewport!
+  if(lPnt.empty()) return obj(0,0);
+
+  //convert list into a new object and return it
+  it = lPnt.begin();
+  pnt* arr = new pnt[lPnt.size()];
+  for(int i = 0 ; i < lPnt.size(); i++){
+    arr[i] = (*it).p;
+    it++;
+  }
+
+  return obj(lPnt.size(), arr);
+}
+

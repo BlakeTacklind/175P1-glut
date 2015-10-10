@@ -1,6 +1,5 @@
 #include <GL/glut.h>
 #include "obj.h"
-//#include <string>
 using namespace std;
 
 class OpenGLhandler{
@@ -19,19 +18,35 @@ public:
   static void tglAlgMode();
 
 private:
+  //clear Pixel Buffer
   static void clearBuffer();
+
   static void MakePix(int x, int y);
-  static void drawLine(obj::pnt a, obj::pnt b);
+  //line drawing
   static void drawLine(obj::line l);
+  //Old line drawing
+  static void drawLine(obj::pnt a, obj::pnt b);
+  //Free space
   static void onClose(void);
+  //Add objects to buffer
   static void bufferObjects(drawMode m);
 
+  //calculation and draw modes
   static algMode aMode;
   static drawMode dMode;
+
+  //Main window handle
   static int MainWindow;
 
+  //viewport values
+  static int xMin, yMin, xMax, yMax;
+
   static void display();
+  
+  //Pixel Buffer handler
   static float *PixelBuffer;
+  
+  //Keystroke callback
   static void Keystroke(unsigned char key, int x, int y);
 
 };

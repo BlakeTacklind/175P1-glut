@@ -31,14 +31,22 @@ public:
   /*
    * Default class definitions
    */
+  inline obj(){};
   obj(unsigned int numPoints, pnt *points);
   virtual ~obj();
   //obj(const obj& orig);
   
+
+  //Get Clipped object
+  static void clipObjects(int xmin, int xmax, int ymin, int ymax);
+  obj clip(int xmin, int xmax, int ymin, int ymax);
+
   /*
    * getters
    */
-  static obj getObject(int i){return objectList[i];};
+  inline static unsigned int getNumClippedObjects(){return nClippedObjects;};
+  inline static obj getClippedObject(int i){return clippedObjects[i];};
+  inline static obj getObject(int i){return objectList[i];};
   inline unsigned int getNumPoints(){return nPoints;};  
   inline pnt* getPoints(){return pointList;};
   inline static unsigned int getNumObjects(){return nObjects;};
@@ -84,8 +92,12 @@ private:
   //Gets the centroid point of an object
   pnt getCentroid();
   
+  static unsigned int nClippedObjects;
+  static obj* clippedObjects;
+
   static unsigned int nObjects;
   static obj* objectList;
+
   static char* storedFileName;
     
   pnt* pointList;
