@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <math.h>
-#include <curses.h>
+//#include <curses.h>
 #include <list>
 
 #define PI 3.14159265
@@ -402,12 +402,149 @@ int setABRL(cpnt p, int xmin, int xmax, int ymin, int ymax){
   return p.ABRL;
 }
 
+cpnt getEdgePoint(const cpnt in, const cpnt out, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
+  cpnt p;
+  p.ABRL = 0;
+  
+  int dx, dy = out.p.y - in.p.y;
+  
+  //if horizontal
+  if(!dy){
+    p.p.y = in.p.y;
+    if(out.ABRL & 0b0010) p.p.x = xmax;
+    else p.p.x = xmin;
+  }
+  //if vertical
+  else if (!(dx = out.p.x - in.p.x)){
+    p.p.x = in.p.x;
+    if(out.ABRL & 0b1000) p.p.y = ymax;
+    else p.p.y = ymin;
+  }
+  //if m=1
+  else if (dy == dx){
+    if(out.ABRL & 0b1000){
+      p.p.y = ymax;
+      dy = ymax - in.p.y;
+    }
+    else if (out.ABRL & 0b0100){
+      p.p.y = ymin;
+      dy = ymin - in.p.y;
+    }
+    
+    if(out.ABRL & 0b0010){
+      p.p.x = xmax;
+      dx = xmax - in.p.x;
+    }
+    else if(out.ABRL & 0b0001){
+      p.p.x = xmin;
+      dx = xmin - in.p.x;
+    }
+    
+    if (abs(dx) > abs(dy)) p.p.x = in.p.x + dy;
+    else p.p.y = in.p.y + dx;
+  }
+  //if m=-1
+  else if (dy == -dx){
+    if(out.ABRL & 0b1000){
+      p.p.y = ymax;
+      dy = ymax - in.p.y;
+    }
+    else if (out.ABRL & 0b0100){
+      p.p.y = ymin;
+      dy = ymin - in.p.y;
+    }
+    
+    if(out.ABRL & 0b0010){
+      p.p.x = xmax;
+      dx = xmax - in.p.x;
+    }
+    else if(out.ABRL & 0b0001){
+      p.p.x = xmin;
+      dx = xmin - in.p.x;
+    }
+    
+    if (abs(dx) > abs(dy)) p.p.x = in.p.x - dy;
+    else p.p.y = in.p.y - dx;
+  }
+  else{
+    if(BAmode){
+
+    }
+    else{
+      double m = ((double)dy)/dx;
+      
+      //if point is above
+      if(out.ABRL & 0b1000){
+        p.p.y = ymax;
+        p.p.x = (ymax - in.p.y) / m + in.p.x;
+        if (!setABRL(p, xmin, xmax, ymin, ymax)) return p;
+      }
+      //if point is below
+      //mutually exclusive from above
+      else if(out.ABRL & 0b0100){
+        p.p.y = ymin;
+        p.p.x = (ymin - in.p.y) / m + in.p.x;
+        if (!setABRL(p, xmin, xmax, ymin, ymax)) return p;
+      }
+
+      //if the new point is still off to a side
+      
+      //if point is right
+      if(p.ABRL & 0b0010){
+        p.p.x = xmax;
+        p.p.y = (xmax - in.p.x) / m + in.p.y;
+      }
+      //if point is left
+      //mutually exclusive from right
+      else if (p.ABRL & 0b0001){
+        p.p.x = xmin;
+        p.p.y = (xmin - in.p.x) / m + in.p.y;
+      }
+    }
+  }
+  
+  return p;
+}
+
+typedef struct insideLine{
+  bool isInside;
+  cpnt p1, p2;
+} iline;
+
+inline bool isIn(obj::pnt p, const int xmin, const int xmax, const int ymin, const int ymax){
+  return p.x >= xmin && p.x <= xmax && p.y >= ymin && p.y <= ymax;
+}
+
+iline getInsidePoints(const cpnt a, const cpnt b, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
+  obj::line l = obj::line(a, b, BAmode);
+  iline output;
+  output.isInside = false;
+  
+  for (int i = 0; i < l.getNumPoints(); i++){
+    obj::pnt p = l.getPoint(i);
+    if(isIn(p, xmin, xmax, ymin, ymax)){
+      if(!output.isInside){
+        output.isInside = true;
+        output.p1 = p;
+      }
+    }
+    else{
+      if(output.isInside){
+        output.p2 = l.getPoint(i-1);
+        return output;
+      }
+    }
+  }
+  
+  return output;
+}
+
 typedef list<cpnt>::iterator ITR;
 
 /*
- * Plan is to iterate through every point 
+ * Clip object around rectangular bounds
  */
-obj obj::clip(int xmin, int xmax, int ymin, int ymax){
+obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
   //cpnt* cp = new cpnt[nPoints];
   int location = 0;
   list<cpnt> lPnt;
@@ -422,13 +559,48 @@ obj obj::clip(int xmin, int xmax, int ymin, int ymax){
 
   //actually do the clipping
   ITR it = lPnt.begin();
-  //cpnt b = *it, a;
+  cpnt b = &*it;
+  cpnt a;
   //int lastABRL = b.ABRL;
-  //it++;
-  //for(; it != lPnt.end(); it++){
-  //  a = b;
-  //  b = *it;
-  //}
+  it++;
+  for(; it != lPnt.end(); it++){
+    a = b;
+    b = *it;
+    
+    
+    //case going out of frame
+    if(!a.ABRL && b.ABRL){
+      lPnt.insert(it, getEdgePoint(a, b, xmin, xmax, ymin, ymax, false));
+    }
+    //going into frame
+    else if(a.ABRL && !b.ABRL){
+      it--;
+      *it = getEdgePoint(b, a, xmin, xmax, ymin, ymax, false);
+      it++;
+    }
+    //possibly staying out of frame
+    else if(a.ABRL && b.ABRL){
+      //Is out of frame
+      if(a.ABRL & b.ABRL){
+        it--;
+        lPnt.erase(it);
+      }
+      //maybe out of frame
+      else{
+        iline l = getInsidePoints(a, b, xmin, xmax, ymin, ymax, false);
+        if(!l.isInside){
+          it--;
+          lPnt.erase(it);
+        }
+        else{
+          it--;
+          *it = l.p1;
+          it++;
+          lPnt.insert(it, l.p2);
+        }
+      }
+    }
+  }
 
   //object out of Viewport!
   if(lPnt.empty()) return obj(0,0);
