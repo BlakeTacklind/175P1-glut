@@ -516,7 +516,7 @@ inline bool isIn(obj::pnt p, const int xmin, const int xmax, const int ymin, con
 }
 
 iline getInsidePoints(const cpnt a, const cpnt b, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
-  obj::line l = obj::line(a, b, BAmode);
+  obj::line l = obj::line(a.p, b.p, BAmode);
   iline output;
   output.isInside = false;
   
@@ -525,12 +525,18 @@ iline getInsidePoints(const cpnt a, const cpnt b, const int xmin, const int xmax
     if(isIn(p, xmin, xmax, ymin, ymax)){
       if(!output.isInside){
         output.isInside = true;
-        output.p1 = p;
+        cpnt cp;
+        cp.p = p;
+        cp.ABRL = 0;
+        output.p1 = cp;
       }
     }
     else{
       if(output.isInside){
-        output.p2 = l.getPoint(i-1);
+        cpnt cp;
+        cp.p = l.getPoint(i-1);
+        cp.ABRL = 0;
+        output.p2 = cp;
         return output;
       }
     }
@@ -559,7 +565,7 @@ obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
 
   //actually do the clipping
   ITR it = lPnt.begin();
-  cpnt b = &*it;
+  cpnt b = *it;
   cpnt a;
   //int lastABRL = b.ABRL;
   it++;
