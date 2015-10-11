@@ -23,8 +23,10 @@ void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
 
   for(int i = 0; i < nObjects; i++){
     obj o = objectList[i].clip(xmin, xmax, ymin, ymax);
-    if(o.getNumPoints()) clippedObjects[nClippedObjects++];
+    if(o.getNumPoints()) clippedObjects[nClippedObjects++] = o;
+    //cout << "testc " << o.getNumPoints() << endl;
   }
+  //cout<<"testcn "<<clippedObjects[0].getNumPoints()<<endl;
 }
 
 obj::line::line(pnt a, pnt b, bool BAmode){
@@ -406,15 +408,16 @@ typedef list<cpnt>::iterator ITR;
  * Plan is to iterate through every point 
  */
 obj obj::clip(int xmin, int xmax, int ymin, int ymax){
-  cpnt* cp = new cpnt[nPoints];
+  //cpnt* cp = new cpnt[nPoints];
   int location = 0;
-  list<cpnt> lPnt(nPoints);
+  list<cpnt> lPnt;
 
   //load points into list
   for(int i = 0; i < nPoints; i++){
-    cp[i].p = pointList[i];
-    location |= setABRL(cp[i], xmin, xmax, ymin, ymax);
-    lPnt.push_back(cp[i]);
+    cpnt cp;
+    cp.p = pointList[i];
+    location |= setABRL(cp, xmin, xmax, ymin, ymax);
+    lPnt.push_back(cp);
   }
 
   //actually do the clipping
@@ -431,10 +434,12 @@ obj obj::clip(int xmin, int xmax, int ymin, int ymax){
   if(lPnt.empty()) return obj(0,0);
 
   //convert list into a new object and return it
+  //cout << "testc2 "<<lPnt.size()<<endl;
   it = lPnt.begin();
   pnt* arr = new pnt[lPnt.size()];
   for(int i = 0 ; i < lPnt.size(); i++){
     arr[i] = (*it).p;
+    //cout <<"testc3 "<<arr[i].x<<endl;
     it++;
   }
 

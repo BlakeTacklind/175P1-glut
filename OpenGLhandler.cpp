@@ -136,22 +136,22 @@ void OpenGLhandler::clearBuffer(){
  */
 void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
-  cout << "testc\n";
+  //cout << "testc\n";
   obj::clipObjects(xMin, xMax, yMin, yMax);
 
-  cout << "testa\n";
+  //cout << "testa\n";
   //Draw object vertexes
   if (m == points){
-    cout << "testp " <<obj::getNumClippedObjects()<< "\n";
+    //cout << "testp " <<obj::getNumClippedObjects()<< "\n";
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      cout<<"testp1\n";
+      //cout<<"testp1\n";
       obj o = obj::getClippedObject(i);
-      cout<<"testp2 " <<  o.getNumPoints() << "\n";
+      //cout<<"testp2 " <<  obj::getClippedObject(i).getNumPoints() << "\n";
       for(int j = 0; j < o.getNumPoints(); j++){
         obj::pnt p = o.getPoints()[j];
         MakePix(p.x, p.y);
       }
-      cout<<"testp3\n";
+      //cout<<"testp3\n";
     }
   }
   //Draw object with wireframe
