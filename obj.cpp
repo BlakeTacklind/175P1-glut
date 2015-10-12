@@ -547,6 +547,80 @@ iline getInsidePoints(const cpnt a, const cpnt b, const int xmin, const int xmax
 
 typedef list<cpnt>::iterator ITR;
 
+enum workingEdge{YMIN=0b0100, XMIN=0b0001, YMAX=0b1000, XMAX=0b0010};
+
+//When crossing the clipping edge get the point along the edge
+cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, bool BAmode,
+        const int xmin, const int xmax, const int ymin, const int ymax){
+  int dx = b.p.x - a.p.x;
+  int dy = b.p.y - a.p.y;
+  cpnt p;
+  
+  
+  if(we == YMIN || we == YMAX){
+    int edgeVal = (we==YMIN?ymin:ymax);
+    p.p.y = edgeVal;
+    //special case vertical
+    if(dx == 0) p.p.x = a.p.x;
+    //special case m=1
+    else if(dx == dy) p.p.x = a.p.x + dy;
+    //special case m=-1
+    else if(dx == -dy) p.p.x = a.p.x - dy;
+    //BA
+    else if(BAmode);
+    //DDA
+    else p.p.x = a.p.x + (int)((edgeVal - a.p.y) / (((double)dy)/dx) + .5);
+  }
+  else{
+    int edgeVal = (we==XMIN?xmin:xmax);
+    p.p.x = edgeVal;
+    //special case vertical
+    if(dy == 0) p.p.y = a.p.y;
+    //special case m=1
+    else if(dx == dy) p.p.y = a.p.y + dx;
+    //special case m=-1
+    else if(dx == -dy) p.p.y = a.p.y - dx;
+    //BA
+    else if(BAmode);
+    //DDA
+    else p.p.y = a.p.y + (int)((edgeVal - a.p.x) / (((double)dx)/dy) + .5);
+  }
+  
+  return p;
+}
+
+void eliminateExtraPoints(list<cpnt>* lPnt, workingEdge we){
+  for(ITR it = lPnt->begin(); it != lPnt->end(); ){
+    if((*it).ABRL & we) lPnt->erase(it);
+    else it++;
+  }
+}
+
+void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we, 
+        const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
+  if(!(location & we)){
+    ITR it = lPnt->begin();
+    cpnt b = *it;
+    cpnt a;
+    it++;
+    
+    for(; it != lPnt->end(); it++){
+      a = b;
+      b = it;
+
+      //if we are crossing out of the 
+      if(YMIN & a.ABRL & ~b.ABRL){
+        cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
+        setABRL(cp,xmin,xmax,ymin,ymax);
+        lPnt->insert(it, cp);
+      }
+    }
+    
+    eliminateExtraPoints(lPnt, YMIN);
+  }
+  
+}
+
 /*
  * Clip object around rectangular bounds
  */
@@ -562,58 +636,26 @@ obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
     location |= setABRL(cp, xmin, xmax, ymin, ymax);
     lPnt.push_back(cp);
   }
-
+  
   //actually do the clipping
-  ITR it = lPnt.begin();
-  cpnt b = *it;
-  cpnt a;
-  //int lastABRL = b.ABRL;
-  it++;
-  for(; it != lPnt.end(); it++){
-    a = b;
-    b = *it;
-    
-    
-    //case going out of frame
-    if(!a.ABRL && b.ABRL){
-      lPnt.insert(it, getEdgePoint(a, b, xmin, xmax, ymin, ymax, false));
-    }
-    //going into frame
-    else if(a.ABRL && !b.ABRL){
-      it--;
-      *it = getEdgePoint(b, a, xmin, xmax, ymin, ymax, false);
-      it++;
-    }
-    //possibly staying out of frame
-    else if(a.ABRL && b.ABRL){
-      //Is out of frame
-      if(a.ABRL & b.ABRL){
-        it--;
-        lPnt.erase(it);
-      }
-      //maybe out of frame
-      else{
-        iline l = getInsidePoints(a, b, xmin, xmax, ymin, ymax, false);
-        if(!l.isInside){
-          it--;
-          lPnt.erase(it);
-        }
-        else{
-          it--;
-          *it = l.p1;
-          it++;
-          lPnt.insert(it, l.p2);
-        }
-      }
-    }
-  }
+  
+  //cut off @ ymin
+  clipAlongEdge(&lPnt, location, YMIN, xmin, xmax, ymin, ymax, false);
+  //cut off @ ymax
+  clipAlongEdge(&lPnt, location, YMAX, xmin, xmax, ymin, ymax, false);
+  //cut off @ xmin
+  clipAlongEdge(&lPnt, location, XMIN, xmin, xmax, ymin, ymax, false);
+  //cut off @ xmax
+  clipAlongEdge(&lPnt, location, XMAX, xmin, xmax, ymin, ymax, false);
+  
+  
 
   //object out of Viewport!
   if(lPnt.empty()) return obj(0,0);
 
   //convert list into a new object and return it
   //cout << "testc2 "<<lPnt.size()<<endl;
-  it = lPnt.begin();
+  ITR it = lPnt.begin();
   pnt* arr = new pnt[lPnt.size()];
   for(int i = 0 ; i < lPnt.size(); i++){
     arr[i] = (*it).p;
