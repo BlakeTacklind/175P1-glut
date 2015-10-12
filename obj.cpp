@@ -606,7 +606,7 @@ void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we,
     
     for(; it != lPnt->end(); it++){
       a = b;
-      b = it;
+      b = *it;
 
       //if we are crossing out of the 
       if(YMIN & a.ABRL & ~b.ABRL){
