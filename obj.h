@@ -74,6 +74,11 @@ public:
 
     inline unsigned int getNumPoints(){return xTravel?dx:dy;};
     inline pnt getPoint(unsigned int i){return fill[i];};
+    inline bool isHorizontal(){return !dx;};
+    
+    inline pnt getP1(){return p1;};
+    inline pnt getP2(){return p2;};
+    
   private:
     void Fill(bool BAmode);
     

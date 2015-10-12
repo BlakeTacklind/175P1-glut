@@ -30,6 +30,9 @@ private:
   static void onClose(void);
   //Add objects to buffer
   static void bufferObjects(drawMode m);
+  
+  static bool findInList(list<obj::line>* l, int x, int y);
+  static void shortenList(list<obj::line>* l, int y);
 
   //calculation and draw modes
   static algMode aMode;

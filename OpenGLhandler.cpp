@@ -3,6 +3,7 @@
 #include "userInterface.h"
 
 #include <iostream>
+#include <list>
 using namespace std;
 
 float* OpenGLhandler::PixelBuffer;
@@ -136,46 +137,33 @@ void OpenGLhandler::clearBuffer(){
  */
 void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
-  //cout << "testc\n";
   obj::clipObjects(xMin, xMax, yMin, yMax);
 
-  //cout << "testa\n";
   //Draw object vertexes
   if (m == points){
-    //cout << "testp " <<obj::getNumClippedObjects()<< "\n";
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      //cout<<"testp1\n";
       obj o = obj::getClippedObject(i);
-      //cout<<"testp2 " <<  obj::getClippedObject(i).getNumPoints() << "\n";
+      
       for(int j = 0; j < o.getNumPoints(); j++){
         obj::pnt p = o.getPoints()[j];
         MakePix(p.x, p.y);
       }
-      //cout<<"testp3\n";
     }
   }
   //Draw object with wireframe
   else if (m == lines){
-    //cout << "testl\n";
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      //cout << "testl.1\n";
       obj o = obj::getClippedObject(i);
-      //cout << "testl.2\n";
       obj::pnt p1;
       obj::pnt p2 = o.getPoints()[0];
-      //cout<< "test1.3\n";
-      //cout << o.getNumPoints() <<endl;
-      //cout << "test1.4\n";
+      
       for(int j = 1; j < o.getNumPoints(); j++){
         p1 = p2;
-        //cout << "test1.5 " << p1.x <<endl;
         p2 = o.getPoints()[j];
-        //cout << "test1.6\n";
+        
         drawLine(obj::line(p1,p2,aMode==BA));
-        //cout << "test1.7\n";
       }
      
-      //cout << "testl2\n"; 
       //close shape (only if more then a line)
       
       if(o.getNumPoints() > 2)
@@ -185,11 +173,102 @@ void OpenGLhandler::bufferObjects(drawMode m){
       //cout << "testl3\n"; 
     }
   }
+  //Rasterize objects
   else if (m == fill){
+    list<obj::line> lLine;
     
+    //iterate through all objects (after clipping)
+    for(int i = 0; i < obj::getNumClippedObjects(); i++){
+      obj o = obj::getClippedObject(i);
+      
+      //for all polygons get the non-horizontal lines
+      if(o.getNumPoints() > 2){
+        
+        //get line from first and last point
+        obj::line l = obj::line(o.getPoints()[0], o.getPoints()[o.getNumPoints()-1], aMode==BA);
+        if (!l.isHorizontal()) lLine.push_front(l);
+      
+        //get lines from polygon
+        for(int j = 1; j < o.getNumPoints(); j++){
+          obj::line l = obj::line(o.getPoints()[j], o.getPoints()[j-1], aMode==BA);
+          if (!l.isHorizontal()) lLine.push_front(l);
+        }
+      }
+      //draw line object
+      else if(o.getNumPoints() == 2){
+        drawLine(obj::line(o.getPoints()[0], o.getPoints()[1], aMode==BA));
+      }
+      //draw pixel object
+      else if(o.getNumPoints() == 1){
+        MakePix(o.getPoints()[0].x, o.getPoints()[0].y);
+      }
+    }
+    
+    //scan through horizontal lines
+    for (int i = yMin; i <= yMax; i++){
+      list<obj::line> temp(lLine);
+      bool draw = false;
+      
+      //shorten the list to lines that are in this horizontal scan
+      shortenList(&temp, i);
+      
+      //scan each pixel for a line
+      for(int j = xMin; j <= xMax; j++){
+        bool *Draw = findInList(&temp, j, i);
+        
+        //if found odd number of lines flip the parity
+        if(Draw[0]) draw = ~draw;
+        
+        //if found a line or are on draw parity make a pixel
+        if(draw || Draw[1]) MakePix(j, i);
+      }
+    }
   }
   
   //cout << "testx\n";
+}
+
+/*
+ * find if a line is at x location
+ */
+bool* OpenGLhandler::findInList(list<obj::line>* l, int x, int y){
+  bool output1 = false;
+  bool output2 = false;
+  list<obj::line>::iterator it = l->begin();
+  
+  for(; it != l->end();){
+    int i = 0;
+    while((*it).getPoint(i).y != y) i++;
+    
+    if((*it).getPoint(i).x == x){
+      output1 = ~output1;
+      l->erase(it);
+      output2 = true;
+    }
+    else it++;
+    
+  }
+  
+  bool* out = {output1,output2};
+  return out;
+}
+
+void OpenGLhandler::shortenList(list<obj::line>* l, int y){
+  list<obj::line>::iterator it = l->begin();
+  
+  for(; it != l->end();){
+    int y1 = (*it).getP1().y;
+    int y2 = (*it).getP2().y;
+    
+    if(y1 > y2){
+      int temp = y2;
+      y2 = y1;
+      y1 = temp;
+    }
+    
+    if(y > y2 || y < y1) l->erase(it);
+    else it++;
+  }
 }
 
 void OpenGLhandler::drawLine(obj::line l){
