@@ -17,6 +17,16 @@ public:
 
   static void tglDrawMode();
   static void tglAlgMode();
+  
+  inline static int getYmin(){return yMin;};
+  inline static int getYmax(){return yMax;};
+  inline static int getXmin(){return xMin;};
+  inline static int getXmax(){return xMax;};
+  
+  inline static int setYmin(int i){yMin = i;};
+  inline static int setYmax(int i){yMax = i;};
+  inline static int setXmin(int i){xMin = i;};
+  inline static int setXmax(int i){xMax = i;};
 
 private:
   //clear Pixel Buffer

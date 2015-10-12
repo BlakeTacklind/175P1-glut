@@ -22,9 +22,7 @@ public:
   
 private:
   static char* message;
-  static int val1;
-  static int val2;
-  static bool enteringValue;
+  static char* action;
   
   static void drawUI();
   static int objSelected;
