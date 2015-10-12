@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include "obj.h"
+#include <list>
 using namespace std;
 
 class OpenGLhandler{
@@ -31,7 +32,7 @@ private:
   //Add objects to buffer
   static void bufferObjects(drawMode m);
   
-  static bool findInList(list<obj::line>* l, int x, int y);
+  static void findInList(list<obj::line>* l, int x, int y, bool* out);
   static void shortenList(list<obj::line>* l, int y);
 
   //calculation and draw modes

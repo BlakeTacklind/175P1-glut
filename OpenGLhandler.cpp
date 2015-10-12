@@ -214,7 +214,8 @@ void OpenGLhandler::bufferObjects(drawMode m){
       
       //scan each pixel for a line
       for(int j = xMin; j <= xMax; j++){
-        bool *Draw = findInList(&temp, j, i);
+        bool *Draw = new bool[2];
+        findInList(&temp, j, i, Draw);
         
         //if found odd number of lines flip the parity
         if(Draw[0]) draw = ~draw;
@@ -231,7 +232,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
 /*
  * find if a line is at x location
  */
-bool* OpenGLhandler::findInList(list<obj::line>* l, int x, int y){
+void OpenGLhandler::findInList(list<obj::line>* l, int x, int y, bool* out){
   bool output1 = false;
   bool output2 = false;
   list<obj::line>::iterator it = l->begin();
@@ -249,8 +250,8 @@ bool* OpenGLhandler::findInList(list<obj::line>* l, int x, int y){
     
   }
   
-  bool* out = {output1,output2};
-  return out;
+  out[0] = output1;
+  out[1] = output2;
 }
 
 void OpenGLhandler::shortenList(list<obj::line>* l, int y){
