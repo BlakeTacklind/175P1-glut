@@ -32,6 +32,7 @@ private:
   //Add objects to buffer
   static void bufferObjects(drawMode m);
   
+  //functions to for rasterization
   static void findInList(list<obj::line>* l, int x, int y, bool* out);
   static void shortenList(list<obj::line>* l, int y);
 

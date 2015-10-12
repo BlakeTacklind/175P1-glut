@@ -17,10 +17,15 @@ public:
   static void endUI();
   static void keypressed(unsigned char key);  
 
-  static void printError(string s);
+  static void printError(char* s);
   //inline static void selectObj(unsigned int i){objSelected = i;};
   
 private:
+  static char* message;
+  static int val1;
+  static int val2;
+  static bool enteringValue;
+  
   static void drawUI();
   static int objSelected;
 };

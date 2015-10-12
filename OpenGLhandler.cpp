@@ -22,18 +22,18 @@ void OpenGLhandler::reDraw(){
 
 const char* OpenGLhandler::getDrawMode(){
   if (dMode == points) return "Points";
-  if (dMode == lines) return "Lines";
-  if (dMode == fill) return "Fill";
+  if (dMode == lines ) return "Lines";
+  if (dMode == fill  ) return "Fill";
 }
 
 const char* OpenGLhandler::getAlgMode(){
   if (aMode == DDA) return "DDA";
-  if (aMode == BA) return "BA";
+  if (aMode == BA ) return "BA";
 }
 
 void OpenGLhandler::tglDrawMode(){
        if (dMode == points) dMode = lines;
-  else if (dMode == lines ) dMode = points;
+  else if (dMode == lines ) dMode = fill;
   else if (dMode == fill  ) dMode = points;
 }
 
@@ -63,6 +63,9 @@ void OpenGLhandler::init(int* argc, char** argv)
   glutInitDisplayMode(GLUT_SINGLE);
 
   glutInitWindowSize(200, 200);
+
+  cout<<"width: "<< glutGet(GLUT_WINDOW_WIDTH) << "\n";      
+  cout<<"height: "<< glutGet(GLUT_WINDOW_HEIGHT) << "\n";      
 
   glutInitWindowPosition(100, 100);
 

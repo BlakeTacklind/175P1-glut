@@ -26,6 +26,7 @@ void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
     if(o.getNumPoints()) clippedObjects[nClippedObjects++] = o;
     //cout << "testc " << o.getNumPoints() << endl;
   }
+  
   //cout<<"testcn "<<clippedObjects[0].getNumPoints()<<endl;
 }
 
@@ -391,15 +392,15 @@ typedef struct clippedPoint{
   int ABRL;
 } cpnt;
 
-int setABRL(cpnt p, int xmin, int xmax, int ymin, int ymax){
-       if (p.p.x < xmin) p.ABRL = 0b0001;
-  else if (p.p.x > xmax) p.ABRL = 0b0010;
-  else                   p.ABRL = 0;
+int setABRL(cpnt* p, int xmin, int xmax, int ymin, int ymax){
+       if (p->p.x < xmin) p->ABRL = 0b0001;
+  else if (p->p.x > xmax) p->ABRL = 0b0010;
+  else                    p->ABRL = 0;
 
-       if (p.p.y < ymin) p.ABRL |= 0b0100;
-  else if (p.p.y > ymax) p.ABRL |= 0b1000;
+       if (p->p.y < ymin) p->ABRL |= 0b0100;
+  else if (p->p.y > ymax) p->ABRL |= 0b1000;
 
-  return p.ABRL;
+  return p->ABRL;
 }
 
 cpnt getEdgePoint(const cpnt in, const cpnt out, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
@@ -477,14 +478,14 @@ cpnt getEdgePoint(const cpnt in, const cpnt out, const int xmin, const int xmax,
       if(out.ABRL & 0b1000){
         p.p.y = ymax;
         p.p.x = (ymax - in.p.y) / m + in.p.x;
-        if (!setABRL(p, xmin, xmax, ymin, ymax)) return p;
+        if (!setABRL(&p, xmin, xmax, ymin, ymax)) return p;
       }
       //if point is below
       //mutually exclusive from above
       else if(out.ABRL & 0b0100){
         p.p.y = ymin;
         p.p.x = (ymin - in.p.y) / m + in.p.x;
-        if (!setABRL(p, xmin, xmax, ymin, ymax)) return p;
+        if (!setABRL(&p, xmin, xmax, ymin, ymax)) return p;
       }
 
       //if the new point is still off to a side
@@ -590,28 +591,38 @@ cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, bool BAmode,
 }
 
 void eliminateExtraPoints(list<cpnt>* lPnt, workingEdge we){
+  //cout<<"test l1\n";
   for(ITR it = lPnt->begin(); it != lPnt->end(); ){
-    if((*it).ABRL & we) lPnt->erase(it);
-    else it++;
+    //cout<<"test l2\n";
+    if((*it).ABRL & we){/*cout<<"del "<<(*it).ABRL<<endl;*/it=lPnt->erase(it); }
+    else{it++;/*cout<<"dont\n";*/}
+    //cout<<"test l3\n";
   }
+  //cout<<"test l4\n";
 }
 
 void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we, 
         const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
-  if(!(location & we)){
+  //cout<<"teste "<<location<<"\n";
+  if(location & we){
+    //cout<<"needs clipping in "<<we<<endl;
     ITR it = lPnt->begin();
     cpnt b = *it;
     cpnt a;
     
+    //cout<<"b"<<b.p.x<<' '<<b.p.y<<' '<<b.ABRL<<endl;
     //check between first and last points for edge cross
     //Only if object is not a line or point
     if(lPnt->size() > 2){
       a = lPnt->back();
-      
+
+      //cout<<a.ABRL<<' '<<b.ABRL<<' '<<we<<endl;
       if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
+        //cout<<"fclip\n";      
         cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
-        setABRL(cp,xmin,xmax,ymin,ymax);
+        setABRL(&cp,xmin,xmax,ymin,ymax);
         lPnt->insert(it, cp);
+        //cout<<"clip!\n";
       }
     }
     
@@ -621,15 +632,21 @@ void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we,
       a = b;
       b = *it;
 
+
+      //cout<<a.ABRL<<' '<<b.ABRL<<' '<<we<<endl;
       //if we are crossing out of the 
       if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
+        //cout<<"nclip\n";      
         cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
-        setABRL(cp,xmin,xmax,ymin,ymax);
+        setABRL(&cp,xmin,xmax,ymin,ymax);
         lPnt->insert(it, cp);
+        //cout<<"clip!\n";
       }
     }
     
-    eliminateExtraPoints(lPnt, YMIN);
+    //cout<<"test elim "<<lPnt->size()<<endl;
+    eliminateExtraPoints(lPnt, we);
+    //cout<<"test elim2 "<<lPnt->size()<<endl;
   }
   
 }
@@ -642,25 +659,32 @@ obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
   int location = 0;
   list<cpnt> lPnt;
 
+  //cout << "testc1\n";
   //load points into list
   for(int i = 0; i < nPoints; i++){
     cpnt cp;
     cp.p = pointList[i];
-    location |= setABRL(cp, xmin, xmax, ymin, ymax);
+    location |= setABRL(&cp, xmin, xmax, ymin, ymax);
     lPnt.push_back(cp);
   }
   
+  
   //actually do the clipping
   
+  //cout << "testc2\n";
   //cut off @ ymin
   clipAlongEdge(&lPnt, location, YMIN, xmin, xmax, ymin, ymax, false);
+  //cout << "testc3\n";
   //cut off @ ymax
   clipAlongEdge(&lPnt, location, YMAX, xmin, xmax, ymin, ymax, false);
+  //cout << "testc4\n";
   //cut off @ xmin
   clipAlongEdge(&lPnt, location, XMIN, xmin, xmax, ymin, ymax, false);
+  //cout << "testc5\n";
   //cut off @ xmax
   clipAlongEdge(&lPnt, location, XMAX, xmin, xmax, ymin, ymax, false);
   
+  //cout << "testc6\n";
   
 
   //object out of Viewport!
