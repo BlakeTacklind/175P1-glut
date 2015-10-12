@@ -176,7 +176,12 @@ void OpenGLhandler::bufferObjects(drawMode m){
       }
      
       //cout << "testl2\n"; 
-      drawLine(obj::line(o.getPoints()[0], p2,aMode==BA));
+      //close shape (only if more then a line)
+      
+      if(o.getNumPoints() > 2)
+        drawLine(obj::line(o.getPoints()[0], p2,aMode==BA));
+      else if (o.getNumPoints() == 1)
+        MakePix(p2.x, p2.y);
       //cout << "testl3\n"; 
     }
   }

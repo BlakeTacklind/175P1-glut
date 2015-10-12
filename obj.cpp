@@ -602,6 +602,19 @@ void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we,
     ITR it = lPnt->begin();
     cpnt b = *it;
     cpnt a;
+    
+    //check between first and last points for edge cross
+    //Only if object is not a line or point
+    if(lPnt->size() > 2){
+      a = lPnt->back();
+      
+      if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
+        cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
+        setABRL(cp,xmin,xmax,ymin,ymax);
+        lPnt->insert(it, cp);
+      }
+    }
+    
     it++;
     
     for(; it != lPnt->end(); it++){
@@ -614,16 +627,6 @@ void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we,
         setABRL(cp,xmin,xmax,ymin,ymax);
         lPnt->insert(it, cp);
       }
-    }
-    
-    //check between first and last points for edge cross
-    a = lPnt->front();
-    b = lPnt->back();
-    
-    if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
-      cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
-      setABRL(cp,xmin,xmax,ymin,ymax);
-      lPnt->insert(it, cp);
     }
     
     eliminateExtraPoints(lPnt, YMIN);
