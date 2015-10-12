@@ -609,11 +609,21 @@ void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we,
       b = *it;
 
       //if we are crossing out of the 
-      if(YMIN & a.ABRL & ~b.ABRL){
+      if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
         cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
         setABRL(cp,xmin,xmax,ymin,ymax);
         lPnt->insert(it, cp);
       }
+    }
+    
+    //check between first and last points for edge cross
+    a = lPnt->front();
+    b = lPnt->back();
+    
+    if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
+      cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
+      setABRL(cp,xmin,xmax,ymin,ymax);
+      lPnt->insert(it, cp);
     }
     
     eliminateExtraPoints(lPnt, YMIN);
