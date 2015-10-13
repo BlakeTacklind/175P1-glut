@@ -3,6 +3,8 @@
 #define	OBJ_H
 
 #include <string>
+#include <list>
+#include "line.h"
 
 using namespace std;
 

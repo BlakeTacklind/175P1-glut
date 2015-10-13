@@ -34,8 +34,7 @@ void userInterface::drawUI(){
 }
 
 void userInterface::printError(char* mes){
-  action = "";
-  message = mes;
+  action = mes;
   drawUI();
 }
 
