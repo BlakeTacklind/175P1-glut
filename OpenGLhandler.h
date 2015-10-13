@@ -29,6 +29,9 @@ public:
   inline static int setYmax(int i){yMax = i;};
   inline static int setXmin(int i){xMin = i;};
   inline static int setXmax(int i){xMax = i;};
+  
+  inline static int getScreenWidth (){return width; };
+  inline static int getScreenHeight(){return height;};
 
 private:
   //clear Pixel Buffer

@@ -17,17 +17,31 @@ int OpenGLhandler::yMax;
 
 void OpenGLhandler::init(int* argc, char** argv)
 {
-  width = 200;
-  height = 200;
+  if (argc == 3){
+    int val1 = atoi(argv[1]);
+    int val2 = atoi(argv[2]);
+    if(val1 > 0 && val2 > 0){
+      width = val1;
+      height = val2;
+    }
+    else{
+      width = 200;
+      height = 200;
+    }
+  }
+  else{
+    width = 200;
+    height = 200;
+  }
   
   PixelBuffer = new float[width * height * 3];
 
   aMode = DDA;
   dMode = fill;
-  xMin = 5;
-  yMin = 12;
-  xMax = 150;
-  yMax = 200;
+  xMin = 0;
+  yMin = 0;
+  xMax = width;
+  yMax = height;
 
   bufferObjects();
 
@@ -74,8 +88,7 @@ void OpenGLhandler::MakePix(int x, int y){
   PixelBuffer[(y*width + x) * 3 + 2] = 1;
 }
 
-void OpenGLhandler::display()
-{
+void OpenGLhandler::display(){
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
 

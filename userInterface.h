@@ -20,7 +20,6 @@ public:
   static void printError(char* s);
   
 private:
-  static char* message;
   static char* action;
   
   static void drawUI();
