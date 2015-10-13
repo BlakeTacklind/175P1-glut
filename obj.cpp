@@ -34,6 +34,7 @@ bool AllCheck(line* l, int i, int x, int y, bool drawing){
  * on input out[0] is if algorithm is currently drawing
  */
 void findInList(list<line*> &l, int x, int y, bool* out){
+  const bool drawing = out[0];
   bool output1 = false;
   bool output2 = false;
   list<line*>::iterator it = l.begin();
@@ -56,13 +57,19 @@ void findInList(list<line*> &l, int x, int y, bool* out){
     }
     
     int i = 0;
-    //find where line meets scan line
-    //TODO: change so effective x,y is found with x traveling lines
+    //find where line meets scan line, effectively
     //this works only because list has been shortened
-    while((*it)->getPoint(i).y != y) i++;
+    while((*it)->getPoint(i).y != y || 
+            //continue searching if the line travels in x and we are currently drawing
+            ((*it)->getXtravel() && drawing && 
+            //and its the last point
+            (i == (*it)->getNumPoints()-1 || 
+            //or its the last point on this scan line
+            (i < (*it)->getNumPoints()-1 && (*it)->getPoint(i+1).x != x))))
+      i++;
     
     //check if line effectively crosses
-    if(AllCheck((*it), i, x, y, out[0])){
+    if((*it)->getPoint(i).x == x){
       //add line to list of lines passed at this point
       passedList.push_front(*it);      
 
