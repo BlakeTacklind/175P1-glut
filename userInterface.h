@@ -18,7 +18,6 @@ public:
   static void keypressed(unsigned char key);  
 
   static void printError(char* s);
-  //inline static void selectObj(unsigned int i){objSelected = i;};
   
 private:
   static char* message;

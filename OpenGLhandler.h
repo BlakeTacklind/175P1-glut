@@ -43,10 +43,6 @@ private:
   static void onClose(void);
   //Add objects to buffer
   static void bufferObjects(drawMode m);
-  
-  //functions to for rasterization
-  static void findInList(list<line*> &l, int x, int y, bool* out);
-  static void shortenList(list<line*> &l, int y);
 
   //calculation and draw modes
   static algMode aMode;
@@ -54,6 +50,9 @@ private:
 
   //Main window handle
   static int MainWindow;
+  //Window sizes
+  static unsigned int width;
+  static unsigned int height;
 
   //viewport values
   static int xMin, yMin, xMax, yMax;
