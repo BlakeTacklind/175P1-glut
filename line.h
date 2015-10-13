@@ -3,33 +3,34 @@
 #define LINE_H
 
 #include "obj.h"
+#include "types.h"
 
 class line{
   
 public:
-  line(obj::pnt a, obj::pnt b, bool BAmode);
+  line(pnt a, pnt b, bool BAmode);
   virtual ~line();
 
   inline unsigned int getNumPoints(){return (xTravel?dx:dy) + 1;};
-  inline obj::pnt getPoint(unsigned int i){return fill[i];};
+  inline pnt getPoint(unsigned int i){return fill[i];};
   inline bool isHorizontal(){return !dy;};
   inline bool getXtravel(){return xTravel;};
   
-  inline obj::pnt getP1(){return p1;};
-  inline obj::pnt getP2(){return p2;};
+  inline pnt getP1(){return p1;};
+  inline pnt getP2(){return p2;};
   
 private:
   void Fill(bool BAmode);
   
-  obj::pnt p1;
-  obj::pnt p2;
+  pnt p1;
+  pnt p2;
   
   int dx;
   int dy;
   
   bool xTravel;
   
-  obj::pnt* fill;
+  pnt* fill;
 };
 
 #endif

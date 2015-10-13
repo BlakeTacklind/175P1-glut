@@ -7,7 +7,7 @@
 /*
  * create a line and fill its points using the correct algorithm
  */
-line::line(obj::pnt a, obj::pnt b, bool BAmode){
+line::line(pnt a, pnt b, bool BAmode){
   int Dx = b.x - a.x, Dy = b.y - a.y;
   
   //determine which direction to travel
@@ -59,7 +59,7 @@ line::~line(){
 
 //get the points on the line with the proper algorithm
 void line::Fill(bool BAmode){
-  fill = new obj::pnt[getNumPoints()];  
+  fill = new pnt[getNumPoints()];  
 
   //special case vertical
   if(dx == 0){

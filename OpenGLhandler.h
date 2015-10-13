@@ -40,8 +40,6 @@ private:
   static void MakePix(int x, int y);
   //line drawing
   static void drawLine(line* l);
-  //Old line drawing
-  static void drawLine(obj::pnt a, obj::pnt b);
   //Free space
   static void onClose(void);
   //Add objects to buffer

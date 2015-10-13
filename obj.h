@@ -5,18 +5,12 @@
 #include <string>
 #include <list>
 #include "line.h"
+#include "types.h"
 
 using namespace std;
 
 class obj{
 public:
-  /*
-   * Struct for points
-   */
-  typedef struct p{
-    int x;
-    int y;
-  } pnt;
   /*
    * Load and save from file
    */

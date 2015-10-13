@@ -378,7 +378,7 @@ void obj::freeAll(){
 /*
  * gets the calculated centroid. average of all points
  */
-obj::pnt obj::getCentroid(){
+pnt obj::getCentroid(){
   float x = 0;
   float y = 0;
   for (int i = 0; i < nPoints; i++){
@@ -451,7 +451,7 @@ void obj::rotation(float alpha){
 
 //A type for clipped points with Above, Below, Right, Left stored
 typedef struct clippedPoint{
-  obj::pnt p;
+  pnt p;
   int ABRL;
 } cpnt;
 //enum for the ABRL edge being worked

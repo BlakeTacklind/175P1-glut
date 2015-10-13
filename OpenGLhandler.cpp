@@ -118,7 +118,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
       obj o = obj::getClippedObject(i);
       
       for(int j = 0; j < o.getNumPoints(); j++){
-        obj::pnt p = o.getPoints()[j];
+        pnt p = o.getPoints()[j];
         MakePix(p.x, p.y);
       }
     }
@@ -127,8 +127,8 @@ void OpenGLhandler::bufferObjects(drawMode m){
   else if (m == lines){
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
       obj o = obj::getClippedObject(i);
-      obj::pnt p1;
-      obj::pnt p2 = o.getPoints()[0];
+      pnt p1;
+      pnt p2 = o.getPoints()[0];
       
       for(int j = 1; j < o.getNumPoints(); j++){
         p1 = p2;
@@ -159,7 +159,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
 void OpenGLhandler::drawLine(line* l){
   const int dist = l.getNumPoints();
   for(int i = 0; i <= dist; i++){
-    obj::pnt p = l.getPoint(i);
+    pnt p = l.getPoint(i);
     MakePix(p.x, p.y);
   }
   
