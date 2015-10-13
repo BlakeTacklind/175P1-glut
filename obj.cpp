@@ -19,237 +19,15 @@ unsigned int obj::nClippedObjects;
 obj* obj::clippedObjects;
 
 /*
- * Does a complex check
+ * Default constructor
  */
-bool AllCheck(line* l, int i, int x, int y, bool drawing){
-  //if we found a match and we are not drawing or looking at a line that travels vertically
-  if((!drawing || !l->getXtravel()) && l->getPoint(i).x == x) return true;
-  //however if the line travels in x direction and we are currently drawing
-  //we want to switch at the last point on that line
-  return (drawing && l->getXtravel() && l->getPoint(i).x == x && (i == l->getNumPoints()-1 || (i < l->getNumPoints()-1 && l->getPoint(i+1).x != x)));
-}
-
-/*
- * find if a lines at (x, y) and indicate if we should switch parity
- * on input out[0] is if algorithm is currently drawing
- */
-void findInList(list<line*> &l, int x, int y, bool* out){
-  const bool drawing = out[0];
-  bool output1 = false;
-  bool output2 = false;
-  list<line*>::iterator it = l.begin();
-  list<line*> passedList;
-  
-  
-  for(; it != l.end();){
-    //if the line being check is horizontal.
-    //A simple check can be performed to see it the point is inside
-    //This assumes the list has been shortened
-    if((*it)->isHorizontal() && x >= (*it)->getP1().x && x <= (*it)->getP2().x){
-      //set to draw on and mark to draw at least this point
-      out[0] = !out[0];
-      out[1] = true;
-      
-      //TODO: move element to front of list for faster drawing later
-      //TODO: remove from list if scan has moved beyond line
-
-      return;
-    }
-    
-    int i = 0;
-    //find where line meets scan line, effectively
-    //this works only because list has been shortened
-    while((*it)->getPoint(i).y != y || 
-            //continue searching if the line travels in x and we are currently drawing
-            ((*it)->getXtravel() && drawing && 
-            //and its the last point
-            (i == (*it)->getNumPoints()-1 || 
-            //or its the last point on this scan line
-            (i < (*it)->getNumPoints()-1 && (*it)->getPoint(i+1).x != x))))
-      i++;
-    
-    //check if line effectively crosses
-    if((*it)->getPoint(i).x == x){
-      //add line to list of lines passed at this point
-      passedList.push_front(*it);      
-
-      //don't let line switch the parity again on this scan line
-      it = l.erase(it);
-
-      //change parity
-      output1 = !output1;
-      //mark that scan passed a line
-      output2 = true;
-    }
-    else it++;
-
-  }
-  
-  /*
-   * In the case of a complex point:
-   *   indicated by more then one line passing through point
-   * 
-   * Theory:
-   * At any single complex point we examine what happens above and below
-   * the the point. Each pair of lines that are on one side of above and
-   * below the point indicates "in for one pixel" condition. If this isn't
-   * the case switch drawing parity.
-   * A line through the point is BOTH above and below. Two lines meeting
-   * on a vertex at the point is when it may or may not switch parity. 
-   * If the lines are on the same side of the horizontal -> in for one
-   * or the lines are on the opposite sides -> switch parity
-   * 
-   * The precondition that there are no horizontal lines is important
-   * In practice:
-   * Since the number of lines above + below is even. we only need to check
-   * even and odd relation of one side. In this case top. Due to straight lines
-   * there may be only one or the other point top. The other will be bottom or
-   * on the line. 
-   */
-  if(passedList.size() > 1){
-    int above = 0;
-    for(it = passedList.begin(); it != passedList.end(); it++)
-      if((*it)->getP1().y > y || (*it)->getP2().y > y) above++;    
-    
-    output1 = above % 2;
-  } 
-
-  out[0] = output1;
-  out[1] = output2;
-}
-
-/*
- * Shortens the list of lines to be scanned across by checking their heights
- * vs the current scan line
- */
-void shortenList(list<line*> &l, int y){
-  list<line*>::iterator it = l.begin();
-  
-  while(it != l.end()){
-    int y1 = (*it)->getP1().y;
-    int y2 = (*it)->getP2().y;
-    
-    //ensure y1 is the smaller y value
-    if(y1 > y2){
-      int temp = y2;
-      y2 = y1;
-      y1 = temp;
-    }
-
-    //check too keep is line on scan line
-    if(y > y2 || y < y1) it = l.erase(it);
-    else it++;
-  }
-}
-
-/*
- * fills in pixels of object using the passed function and appropriate 
- * algorithm mode
- */
-void obj::fill(void (*MakePix)(int, int), bool BAmode){
-  
-  //if object is a polygon get the list of lines
-  if(getNumPoints() > 2){
-    //initialize rastering edges
-    yMin = yMax = getPoints()[0].y;
-    xMin = xMax = getPoints()[0].x;
-
-    list<line*> lLine;
-    
-    //get line from first and last point
-    lLine.push_front(new line(getPoints()[0], getPoints()[getNumPoints()-1], BAmode));
-    
-    //get all other lines
-    for(int j = 1; j < getNumPoints(); j++){
-      //add lines to list
-      lLine.push_front(new line(getPoints()[j], getPoints()[j-1], BAmode));
-      
-      //update outside edge box
-           if(getPoints()[j].y > yMax) yMax = getPoints()[j].y;
-      else if(getPoints()[j].y < yMin) yMin = getPoints()[j].y;
-
-           if(getPoints()[j].x > xMax) xMax = getPoints()[j].x;
-      else if(getPoints()[j].x < xMin) xMin = getPoints()[j].x;
-      
-    }
-    
-    //scan through all horizontal lines in object
-    for (int i = yMin; i <= yMax; i++){
-      list<line*> temp(lLine);
-      //initialize draw parity
-      bool draw = false;
-      
-      //shorten the list to lines that are in this horizontal scan
-      shortenList(temp, i);
-      
-      bool *Draw = new bool[2];
-
-      //scan each pixel in scan line
-      for(int j = xMin; j <= xMax; j++){
-        //Get current draw state for findInList
-        Draw[0] = draw;
-        
-        //find lines at point, remove them from list, and indicate a change
-        //in draw parity
-        findInList(temp, j, i, Draw);
-        
-        //if found odd number of lines flip the parity
-        if(Draw[0]) draw = !draw;
-        
-        //if found a line or are on draw parity make a pixel
-        if(draw || Draw[1]) MakePix(j, i);
-        
-      }
-      
-      //clean up
-      delete [] Draw;
-    }
-
-    //free line space created
-    for(list<line*>::iterator it = lLine.begin(); it != lLine.end(); it++){
-      delete *it;
-    }
-    
-  }
-  //if object was a line draw line object
-  else if(getNumPoints() == 2){
-    line* l = new line(getPoints()[0], getPoints()[1], BAmode);
-    for(int i = 0; i < l->getNumPoints(); i++){
-      MakePix(l->getPoint(i).x, l->getPoint(i).y);
-    }
-    delete l;
-  }
-  //draw object if it is a pixel object
-  else if(getNumPoints() == 1){
-    MakePix(getPoints()[0].x, getPoints()[0].y);
-  }
-
-}
-
-/*
- * clip all objects currently stored and put them into their own storage
- */
-void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
-  clippedObjects = new obj[nObjects];
-  nClippedObjects = 0;
-
-  for(int i = 0; i < nObjects; i++){
-    obj o = objectList[i].clip(xmin, xmax, ymin, ymax);
-    if(o.getNumPoints()) clippedObjects[nClippedObjects++] = o;
-  }
-}
-
-void obj::freeAll(){
-  for(int i=0; i < obj::nObjects; i++){
-    delete [] obj::getObject(i).getPoints();
-  }
-
-  delete [] obj::objectList;
-}
-
 obj::obj(unsigned int numPoints, pnt* points){
   nPoints = numPoints;
   pointList = points;
+}
+
+obj::~obj(){
+  //delete [] pointList;
 }
 
 /*
@@ -283,7 +61,7 @@ void obj::load(char* filename){
       }
       
       nObjects = num;
-      objectList = new obj[nObjects];//(obj*)malloc(sizeof(obj) * nObjects);
+      objectList = new obj[nObjects];
     }
     else{
       cout << "Empty file!\n";
@@ -374,9 +152,228 @@ void obj::save(char* filename){
   else cout << "failed to open save file";
 }
 
-obj::~obj(){
-  //free(pointList);
+/*
+ * fills in pixels of object using the passed function and appropriate 
+ * algorithm mode
+ */
+void obj::fill(void (*MakePix)(int, int), bool BAmode){
+  
+  //if object is a polygon get the list of lines
+  if(getNumPoints() > 2){
+    //initialize rastering edges
+    yMin = yMax = getPoints()[0].y;
+    xMin = xMax = getPoints()[0].x;
+
+    list<line*> lLine;
+    
+    //get line from first and last point
+    lLine.push_front(new line(getPoints()[0], getPoints()[getNumPoints()-1], BAmode));
+    
+    //get all other lines
+    for(int j = 1; j < getNumPoints(); j++){
+      //add lines to list
+      lLine.push_front(new line(getPoints()[j], getPoints()[j-1], BAmode));
+      
+      //update outside edge box
+           if(getPoints()[j].y > yMax) yMax = getPoints()[j].y;
+      else if(getPoints()[j].y < yMin) yMin = getPoints()[j].y;
+
+           if(getPoints()[j].x > xMax) xMax = getPoints()[j].x;
+      else if(getPoints()[j].x < xMin) xMin = getPoints()[j].x;
+      
+    }
+    
+    //scan through all horizontal lines in object
+    for (int i = yMin; i <= yMax; i++){
+      list<line*> temp(lLine);
+      //initialize draw parity
+      bool draw = false;
+      
+      //shorten the list to lines that are in this horizontal scan
+      shortenList(temp, i);
+      
+      bool *Draw = new bool[2];
+
+      //scan each pixel in scan line
+      for(int j = xMin; j <= xMax; j++){
+        //Get current draw state for findInList
+        Draw[0] = draw;
+        
+        //find lines at point, remove them from list, and indicate a change
+        //in draw parity
+        findInList(temp, j, i, Draw);
+        
+        //if found odd number of lines flip the parity
+        if(Draw[0]) draw = !draw;
+        
+        //if found a line or are on draw parity make a pixel
+        if(draw || Draw[1]) MakePix(j, i);
+        
+      }
+      
+      //clean up
+      delete [] Draw;
+    }
+
+    //free line space created
+    for(list<line*>::iterator it = lLine.begin(); it != lLine.end(); it++){
+      delete *it;
+    }
+    
+  }
+  //if object was a line draw line object
+  else if(getNumPoints() == 2){
+    line* l = new line(getPoints()[0], getPoints()[1], BAmode);
+    for(int i = 0; i < l->getNumPoints(); i++){
+      MakePix(l->getPoint(i).x, l->getPoint(i).y);
+    }
+    delete l;
+  }
+  //draw object if it is a pixel object
+  else if(getNumPoints() == 1){
+    MakePix(getPoints()[0].x, getPoints()[0].y);
+  }
+
 }
+
+/*
+ * find if a lines at (x, y) and indicate if we should switch parity
+ * on input out[0] is if algorithm is currently drawing
+ */
+void obj::findInList(list<line*> &l, int x, int y, bool* out){
+  const bool drawing = out[0];
+  bool output1 = false;
+  bool output2 = false;
+  list<line*>::iterator it = l.begin();
+  list<line*> passedList;
+  
+  
+  for(; it != l.end();){
+    //if the line being check is horizontal.
+    //A simple check can be performed to see it the point is inside
+    //This assumes the list has been shortened
+    if((*it)->isHorizontal() && x >= (*it)->getP1().x && x <= (*it)->getP2().x){
+      //set to draw on and mark to draw at least this point
+      out[0] = !out[0];
+      out[1] = true;
+      
+      //TODO: move element to front of list for faster drawing later
+      //TODO: remove from list if scan has moved beyond line
+
+      return;
+    }
+    
+    int i = 0;
+    //find where line meets scan line, effectively
+    //this works only because list has been shortened
+    while((*it)->getPoint(i).y != y || 
+            //continue searching if the line travels in x and we are currently drawing
+            ((*it)->getXtravel() && drawing && 
+            //and its the last point
+            (i == (*it)->getNumPoints()-1 || 
+            //or its the last point on this scan line
+            (i < (*it)->getNumPoints()-1 && (*it)->getPoint(i+1).x != x))))
+      i++;
+    
+    //check if line effectively crosses
+    if((*it)->getPoint(i).x == x){
+      //add line to list of lines passed at this point
+      passedList.push_front(*it);      
+
+      //don't let line switch the parity again on this scan line
+      it = l.erase(it);
+
+      //change parity
+      output1 = !output1;
+      //mark that scan passed a line
+      output2 = true;
+    }
+    else it++;
+
+  }
+  
+  /*
+   * In the case of a complex point:
+   *   indicated by more then one line passing through point
+   * 
+   * Theory:
+   * At any single complex point we examine what happens above and below
+   * the the point. Each pair of lines that are on one side of above and
+   * below the point indicates "in for one pixel" condition. If this isn't
+   * the case switch drawing parity.
+   * A line through the point is BOTH above and below. Two lines meeting
+   * on a vertex at the point is when it may or may not switch parity. 
+   * If the lines are on the same side of the horizontal -> in for one
+   * or the lines are on the opposite sides -> switch parity
+   * 
+   * The precondition that there are no horizontal lines is important
+   * In practice:
+   * Since the number of lines above + below is even. we only need to check
+   * even and odd relation of one side. In this case top. Due to straight lines
+   * there may be only one or the other point top. The other will be bottom or
+   * on the line. 
+   */
+  if(passedList.size() > 1){
+    int above = 0;
+    for(it = passedList.begin(); it != passedList.end(); it++)
+      if((*it)->getP1().y > y || (*it)->getP2().y > y) above++;    
+    
+    output1 = above % 2;
+  } 
+
+  out[0] = output1;
+  out[1] = output2;
+}
+
+/*
+ * Shortens the list of lines to be scanned across by checking their heights
+ * vs the current scan line
+ */
+void obj::shortenList(list<line*> &l, int y){
+  list<line*>::iterator it = l.begin();
+  
+  while(it != l.end()){
+    int y1 = (*it)->getP1().y;
+    int y2 = (*it)->getP2().y;
+    
+    //ensure y1 is the smaller y value
+    if(y1 > y2){
+      int temp = y2;
+      y2 = y1;
+      y1 = temp;
+    }
+
+    //check too keep is line on scan line
+    if(y > y2 || y < y1) it = l.erase(it);
+    else it++;
+  }
+}
+
+/*
+ * clip all objects currently stored and put them into their own storage
+ */
+void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
+  clippedObjects = new obj[nObjects];
+  nClippedObjects = 0;
+
+  for(int i = 0; i < nObjects; i++){
+    obj o = objectList[i].clip(xmin, xmax, ymin, ymax);
+    if(o.getNumPoints()) clippedObjects[nClippedObjects++] = o;
+  }
+}
+
+void obj::freeAll(){
+  for(int i=0; i < obj::nObjects; i++){
+    delete [] obj::getObject(i).getPoints();
+  }
+
+  delete [] obj::objectList;
+}
+
+/* 
+ * 2D Transformations
+ *    translation, scale, and rotation about centroid
+ */
 
 /*
  * gets the calculated centroid. average of all points
@@ -445,7 +442,7 @@ void obj::rotation(float alpha){
 
 /*
  * Clipping Section
- *    A combination of Cohen-Sutherland and Sutherland-Hodgman
+ *    Using Sutherland-Hodgman Algorithm
  * 
  * The Plan:
  * For each line that crosses an edge add the point along the edge that is on

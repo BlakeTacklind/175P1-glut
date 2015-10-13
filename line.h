@@ -9,10 +9,8 @@ class line{
 public:
   line(obj::pnt a, obj::pnt b, bool BAmode);
   virtual ~line();
-  //line(const line &orig);
-  //line& operator= (const line& other);
 
-  inline unsigned int getNumPoints(){return xTravel?dx:dy;};
+  inline unsigned int getNumPoints(){return (xTravel?dx:dy) + 1;};
   inline obj::pnt getPoint(unsigned int i){return fill[i];};
   inline bool isHorizontal(){return !dy;};
   inline bool getXtravel(){return xTravel;};

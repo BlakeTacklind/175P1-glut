@@ -64,6 +64,8 @@ private:
   obj clip(int xmin, int xmax, int ymin, int ymax);
   //Gets the centroid point of an object
   pnt getCentroid();
+  void findInList(list<line*> &l, int x, int y, bool* out);
+  void shortenList(list<line*> &l, int y);
   
   /*
    * variables
