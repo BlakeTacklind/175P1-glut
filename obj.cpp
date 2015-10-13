@@ -4,7 +4,6 @@
 #include <string>
 #include <cstdlib>
 #include <math.h>
-//#include <curses.h>
 #include <list>
 #include <cstring>
 #include "line.h"
@@ -31,7 +30,8 @@ bool AllCheck(line* l, int i, int x, int y, bool drawing){
 }
 
 /*
- * find if a line is at x location
+ * find if a lines at (x, y) and indicate if we should switch parity
+ * on input out[0] is if algorithm is currently drawing
  */
 void findInList(list<line*> &l, int x, int y, bool* out){
   bool output1 = false;
@@ -39,70 +39,106 @@ void findInList(list<line*> &l, int x, int y, bool* out){
   list<line*>::iterator it = l.begin();
   list<line*> passedList;
   
-  //cout<<"testf1\n";
+  
   for(; it != l.end();){
-
+    //if the line being check is horizontal.
+    //A simple check can be performed to see it the point is inside
+    //This assumes the list has been shortened
     if((*it)->isHorizontal() && x >= (*it)->getP1().x && x <= (*it)->getP2().x){
+      //set to draw on and mark to draw at least this point
       out[0] = !out[0];
       out[1] = true;
+      
+      //TODO: move element to front of list for faster drawing later
+      //TODO: remove from list if scan has moved beyond line
 
       return;
     }
-    //cout<<"testf2\n";
-    int i = 0;
-    //find point on scan line
-    while((*it)->getPoint(i).y != y) i++;
-    //cout<<"testf3\n";
     
+    int i = 0;
+    //find where line meets scan line
+    //TODO: change so effective x,y is found with x traveling lines
+    //this works only because list has been shortened
+    while((*it)->getPoint(i).y != y) i++;
+    
+    //check if line effectively crosses
     if(AllCheck((*it), i, x, y, out[0])){
-      //cout<<"before\n";
-      //printList(l);
+      //add line to list of lines passed at this point
       passedList.push_front(*it);      
 
-      output1 = !output1;//?false:true;
+      //don't let line switch the parity again on this scan line
       it = l.erase(it);
 
+      //change parity
+      output1 = !output1;
+      //mark that scan passed a line
       output2 = true;
-      //cout<<"after\n";
-      //printList(l);
-      //cout<<"testf4\n";
     }
     else it++;
 
-    //cout<<"testf5\n";    
   }
-  //if(output1) cout<<"testf5\n";
-  //if(output2) cout<<"testf6\n";
+  
+  /*
+   * In the case of a complex point:
+   *   indicated by more then one line passing through point
+   * 
+   * Theory:
+   * At any single complex point we examine what happens above and below
+   * the the point. Each pair of lines that are on one side of above and
+   * below the point indicates "in for one pixel" condition. If this isn't
+   * the case switch drawing parity.
+   * A line through the point is BOTH above and below. Two lines meeting
+   * on a vertex at the point is when it may or may not switch parity. 
+   * If the lines are on the same side of the horizontal -> in for one
+   * or the lines are on the opposite sides -> switch parity
+   * 
+   * The precondition that there are no horizontal lines is important
+   * In practice:
+   * Since the number of lines above + below is even. we only need to check
+   * even and odd relation of one side. In this case top. Due to straight lines
+   * there may be only one or the other point top. The other will be bottom or
+   * on the line. 
+   */
   if(passedList.size() > 1){
+    int above = 0;
+    for(it = passedList.begin(); it != passedList.end(); it++)
+      if((*it)->getP1().y > y || (*it)->getP2().y > y) above++;    
     
+    output1 = above % 2;
   } 
 
   out[0] = output1;
   out[1] = output2;
 }
 
+/*
+ * Shortens the list of lines to be scanned across by checking their heights
+ * vs the current scan line
+ */
 void shortenList(list<line*> &l, int y){
   list<line*>::iterator it = l.begin();
   
-    //printList(l);
-
   while(it != l.end()){
     int y1 = (*it)->getP1().y;
     int y2 = (*it)->getP2().y;
     
+    //ensure y1 is the smaller y value
     if(y1 > y2){
       int temp = y2;
       y2 = y1;
       y1 = temp;
     }
-    //cout<<"yo ho "<< y << ' '<<y1<<' '<<y2<<endl;
 
-    if(y > y2 || y < y1){it = l.erase(it); /*cout<<"teste\n";*/}
+    //check too keep is line on scan line
+    if(y > y2 || y < y1) it = l.erase(it);
     else it++;
   }
-  //cout<<"testf\n";
 }
 
+/*
+ * fills in pixels of object using the passed function and appropriate 
+ * algorithm mode
+ */
 void obj::fill(void (*MakePix)(int, int), bool BAmode){
 
 
