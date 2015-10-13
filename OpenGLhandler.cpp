@@ -135,22 +135,23 @@ void OpenGLhandler::clearBuffer(){
     PixelBuffer[i] = 0.0;
 }
 
-void printElement(line o){
-  cout<<o.getP1().x<<' '<<o.getP1().y<<' '<<o.getP2().x<<' '<<o.getP2().y<<endl;
+void printElement(line* l){
+  cout<<l->getP1().x<<' '<<l->getP1().y<<' '<<l->getP2().x<<' '<<l->getP2().y<<endl;
 }
 
-void printList(list<line>* l){
-  list<line>::iterator it = l->begin();
-  list<line>::iterator end = l->end();
+void printList(list<line*> &l){
+  list<line*>::iterator it = l.begin();
+  list<line*>::iterator end = l.end();
 
-  cout<<"print size "<<l->size()<<endl;
+  cout<<"print size "<<l.size()<<endl;
   for(int i = 0; it!= end; it++){
     //cout<<"testp1\n";
-    printElement(*(it));
+    printElement(*it);
     //cout<<"testp2"<<l->size()<<"\n";
   }
   cout<<"end print\n";
 }
+
 
 /*
  * Draw objects depending on draw mode
@@ -158,26 +159,26 @@ void printList(list<line>* l){
 void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
 
-  cout<<"testc1\n";
+  //cout<<"testc1\n";
   obj::clipObjects(xMin, xMax, yMin, yMax);
-  cout<<"testc2\n";
+  //cout<<"testc2\n";
 
   //Draw object vertexes
   if (m == points){
-    cout<<"testc3\n";
+    //cout<<"testc3\n";
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      cout<<"testp1\n";
+      //cout<<"testp1\n";
       obj o = obj::getClippedObject(i);
       
-      cout<<"testp2\n";
+      //cout<<"testp2\n";
       for(int j = 0; j < o.getNumPoints(); j++){
         obj::pnt p = o.getPoints()[j];
         MakePix(p.x, p.y);
       }
-      cout<<"testp3\n";
+      //cout<<"testp3\n";
     }
     
-    cout<<"testc done\n";
+    //cout<<"testc done\n";
   }
   //Draw object with wireframe
   else if (m == lines){
@@ -189,14 +190,18 @@ void OpenGLhandler::bufferObjects(drawMode m){
       for(int j = 1; j < o.getNumPoints(); j++){
         p1 = p2;
         p2 = o.getPoints()[j];
-        
-        drawLine(line(p1,p2,aMode==BA));
+        line* l = new line(p1,p2,aMode==BA);
+        drawLine(*l);
+        delete l;
       }
      
       //close shape (only if more then a line)
       
-      if(o.getNumPoints() > 2)
-        drawLine(line(o.getPoints()[0], p2,aMode==BA));
+      if(o.getNumPoints() > 2){
+        line* l = new line(o.getPoints()[0], p2,aMode==BA);
+        drawLine(*l);
+        delete l;
+      }
       else if (o.getNumPoints() == 1)
         MakePix(p2.x, p2.y);
       //cout << "testl3\n"; 
@@ -204,125 +209,171 @@ void OpenGLhandler::bufferObjects(drawMode m){
   }
   //Rasterize objects
   else if (m == fill){
-    cout<<"test first\n";
+    //cout<<"test first\n";
 
-    list<line> lLine;
+    list<line*> lLine;
 
-    cout<<"test 2 "<<obj::getNumClippedObjects()<<endl;
+    //cout<<"test 2 "<<obj::getNumClippedObjects()<<endl;
     //iterate through all objects (after clipping)
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
       obj o = obj::getClippedObject(i);
       
-      cout<<"testb1\n";
+      //cout<<"testb1\n";
       //for all polygons get the non-horizontal lines
       if(o.getNumPoints() > 2){
-        cout<<"testb2\n";
+        //cout<<"testb2\n";
         //get line from first and last point
-        line l = line(o.getPoints()[0], o.getPoints()[o.getNumPoints()-1], aMode==BA);
-        cout<<"testb3\n";
-        if (!l.isHorizontal()) lLine.push_front(l);
-      
-        cout<<"testb5 " <<o.getNumPoints()<<"\n";
-        //get lines from polygon
-        for(int j = 1; j < o.getNumPoints(); j++){
-          cout<<"testb6\n";
-          l = line(o.getPoints()[j], o.getPoints()[j-1], aMode==BA);
-          if (!l.isHorizontal()) lLine.push_front(l);
-          cout<<"testb7\n";
+        {
+          
+          //cout<<"testb3\n";
+          if (o.getPoints()[0].y - o.getPoints()[o.getNumPoints()-1].y){
+            lLine.push_front(new line(o.getPoints()[0], o.getPoints()[o.getNumPoints()-1], aMode==BA));
+            //printList(lLine);
+          }
         }
 
-        cout<<"testb4\n";
+        //cout<<"testb5 " <<o.getNumPoints()<<"\n";
+        //get lines from polygon
+        for(int j = 1; j < o.getNumPoints(); j++){
+          //cout<<"testb6\n";
+          
+          //if not horizontal add line to list
+          if (o.getPoints()[j].y - o.getPoints()[j-1].y){
+            lLine.push_front(new line(o.getPoints()[j], o.getPoints()[j-1], aMode==BA));
+            //printList(lLine);
+          }
+         // cout<<"testb7\n";
+        }
+
+        //cout<<"testb4\n";
       }
       //draw line object
       else if(o.getNumPoints() == 2){
-        drawLine(line(o.getPoints()[0], o.getPoints()[1], aMode==BA));
+        line* l = new line(o.getPoints()[0], o.getPoints()[1], aMode==BA);
+        drawLine(*l);
+        delete l;
       }
       //draw pixel object
       else if(o.getNumPoints() == 1){
         MakePix(o.getPoints()[0].x, o.getPoints()[0].y);
       }
 
-      cout<<"testb8 ";//<<obj::getNumClippedObjects()<<endl;
+      //cout<<"testb8 "<<obj::getNumClippedObjects()<<endl;
     }
     
-    cout << "test third\n";
+    //cout << "test third\n";
     //scan through horizontal lines
     for (int i = yMin; i <= yMax; i++){
-      list<line> temp(lLine);
-      cout<<"test "<<i<<endl;
+      list<line*> temp(lLine);
+      //cout<<"test "<<i<<endl;
       bool draw = false;
       
-      printList(&temp);
+      //printList(temp);
 
       //shorten the list to lines that are in this horizontal scan
-      //shortenList(&temp, i);
+      shortenList(temp, i);
+      //printList(temp);
       
-      cout<<"tests "<<temp.size()<<endl;
+      //cout<<"tests "<<temp.size()<<endl;
       //scan each pixel for a line
+      bool *Draw = new bool[2];
+
       for(int j = xMin; j <= xMax; j++){
-        bool *Draw = new bool[2];
-        findInList(&temp, j, i, Draw);
+        //cout<<"tests1 "<< j << ' '<< i<<endl;
+        findInList(temp, j, i, Draw);
+        //cout<<"tests2\n";
         
         //if found odd number of lines flip the parity
-        if(Draw[0]) draw = ~draw;
+        if(Draw[0]){
+          //cout<<"-----------------test "<<j<<' '<<i<<endl;
+          draw = !draw;//?false:true;
+        }
         
         //if found a line or are on draw parity make a pixel
         if(draw || Draw[1]) MakePix(j, i);
+        //cout<<"tests3\n";
+        Draw[0] = draw;
       }
+      //cout <<"tests4\n";
+      delete [] Draw;
+    }
+
+    //free line space created
+    for(list<line*>::iterator it = lLine.begin(); it != lLine.end(); it++){
+      delete *it;
     }
   }
-  
+
   //cout << "testx\n";
+}
+
+bool AllCheck(line* l, int i, int x, int y, bool drawing){
+  if((!drawing || !l->getXtravel()) && l->getPoint(i).x == x) return true;
+  
 }
 
 /*
  * find if a line is at x location
  */
-void OpenGLhandler::findInList(list<line>* l, int x, int y, bool* out){
+void OpenGLhandler::findInList(list<line*> &l, int x, int y, bool* out){
   bool output1 = false;
   bool output2 = false;
-  list<line>::iterator it = l->begin();
+  list<line*>::iterator it = l.begin();
   
-  for(; it != l->end();){
+  //cout<<"testf1\n";
+  for(; it != l.end();){
+    //cout<<"testf2\n";
     int i = 0;
-    while((*it).getPoint(i).y != y) i++;
+    //find point on scan line
+    while((*it)->getPoint(i).y != y) i++;
+    //cout<<"testf3\n";
     
-    if((*it).getPoint(i).x == x){
-      output1 = ~output1;
-      l->erase(it);
+    //however if the line travels in x direction and we are currently drawing
+    //we want to find the LAST point
+    if((*it)->getPoint(i).x == x){
+      //cout<<"before\n";
+      //printList(l);
+      output1 = !output1;//?false:true;
+      it = l.erase(it);
       output2 = true;
+      //cout<<"after\n";
+      //printList(l);
+      //cout<<"testf4\n";
     }
     else it++;
-    
+
+    //cout<<"testf5\n";    
   }
+  //if(output1) cout<<"testf5\n";
+  //if(output2) cout<<"testf6\n";
   
   out[0] = output1;
   out[1] = output2;
 }
 
-void OpenGLhandler::shortenList(list<line>* l, int y){
-  list<line>::iterator it = l->begin();
+void OpenGLhandler::shortenList(list<line*> &l, int y){
+  list<line*>::iterator it = l.begin();
   
-    printList(l);
+    //printList(l);
 
-  while(it != l->end()){
-    int y1 = (*it).getP1().y;
-    int y2 = (*it).getP2().y;
+  while(it != l.end()){
+    int y1 = (*it)->getP1().y;
+    int y2 = (*it)->getP2().y;
     
     if(y1 > y2){
       int temp = y2;
       y2 = y1;
       y1 = temp;
     }
-    cout<<"yo ho "<<y1<<' '<<y2<<endl;
+    //cout<<"yo ho "<< y << ' '<<y1<<' '<<y2<<endl;
 
-    if(y > y2 || y < y1){it = l->erase(it); cout<<"teste\n";}
+    if(y > y2 || y < y1){it = l.erase(it); /*cout<<"teste\n";*/}
     else it++;
   }
-  cout<<"testf\n";
+  //cout<<"testf\n";
 }
 
-void OpenGLhandler::drawLine(line l){
+void OpenGLhandler::drawLine(line &l){
   const int dist = l.getNumPoints();
   for(int i = 0; i <= dist; i++){
     obj::pnt p = l.getPoint(i);

@@ -15,6 +15,7 @@ public:
   inline unsigned int getNumPoints(){return xTravel?dx:dy;};
   inline obj::pnt getPoint(unsigned int i){return fill[i];};
   inline bool isHorizontal(){return !dy;};
+  inline bool getXtravel(){return xTravel;};
   
   inline obj::pnt getP1(){return p1;};
   inline obj::pnt getP2(){return p2;};
