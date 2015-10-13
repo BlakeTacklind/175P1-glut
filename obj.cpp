@@ -6,6 +6,8 @@
 #include <math.h>
 //#include <curses.h>
 #include <list>
+#include <cstring>
+#include "line.h"
 
 #define PI 3.14159265
 
@@ -17,6 +19,38 @@ char* obj::storedFileName;
 unsigned int obj::nClippedObjects;
 obj* obj::clippedObjects;
 
+obj::obj(const obj& orig){
+  nPoints = orig.nPoints;
+  pointList = (pnt*)malloc(nPoints * sizeof(pnt));
+  memcpy(pointList, orig.pointList, nPoints);
+}
+
+/*
+line::line(const line& orig){
+  p1 = orig.p1;
+  p2 = orig.p2;
+  dx = orig.dx;
+  dy = orig.dy;
+
+  xTravel = orig.xTravel;
+
+  memcpy(fill, orig.fill, orig.getNumPoints());
+}*/
+/*
+line& operator= (const line& other){
+  if(this != &other){
+    p1 = orig.p1;
+    p2 = orig.p2;
+    dx = orig.dx;
+    dy = orig.dy;
+
+    xTravel = orig.xTravel;
+    memcpy(fill, other.fill, other.getNumPoints());
+  }
+
+  return *this;
+}
+*/
 void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
   clippedObjects = new obj[nObjects];
   nClippedObjects = 0;
@@ -29,8 +63,8 @@ void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
   
   //cout<<"testcn "<<clippedObjects[0].getNumPoints()<<endl;
 }
-
-obj::line::line(pnt a, pnt b, bool BAmode){
+/*
+line::line(pnt a, pnt b, bool BAmode){
   int Dx = b.x - a.x, Dy = b.y - a.y;
   
   if (abs(Dx) > abs(Dy)){
@@ -73,11 +107,11 @@ obj::line::line(pnt a, pnt b, bool BAmode){
   Fill(BAmode);
 }
 
-obj::line::~line(){
+line::~line(){
   delete [] fill;
 }
 
-void obj::line::Fill(bool BAmode){
+void line::Fill(bool BAmode){
   fill = new pnt[(xTravel?dx:dy)+1];  
 
   if(dx == 0){
@@ -168,7 +202,7 @@ void obj::line::Fill(bool BAmode){
     }
   }
 }
-
+*/
 void obj::freeAll(){
   for(int i=0; i < obj::nObjects; i++){
     free(obj::getObject(i).getPoints());
@@ -303,7 +337,7 @@ string obj::getTotalString(){
 }
 
 obj::~obj(){
-//  free(pointList);
+  free(pointList);
 }
 
 void obj::save(char* filename){
@@ -517,7 +551,7 @@ inline bool isIn(obj::pnt p, const int xmin, const int xmax, const int ymin, con
 }
 
 iline getInsidePoints(const cpnt a, const cpnt b, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
-  obj::line l = obj::line(a.p, b.p, BAmode);
+  line l = line(a.p, b.p, BAmode);
   iline output;
   output.isInside = false;
   
@@ -564,9 +598,9 @@ cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, bool BAmode,
     //special case vertical
     if(dx == 0) p.p.x = a.p.x;
     //special case m=1
-    else if(dx == dy) p.p.x = a.p.x + dy;
+    else if(dx == dy) p.p.x = a.p.x + edgeVal - a.p.y;
     //special case m=-1
-    else if(dx == -dy) p.p.x = a.p.x - dy;
+    else if(dx == -dy) p.p.x = a.p.x - edgeVal + a.p.y;
     //BA
     else if(BAmode);
     //DDA
@@ -578,9 +612,9 @@ cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, bool BAmode,
     //special case vertical
     if(dy == 0) p.p.y = a.p.y;
     //special case m=1
-    else if(dx == dy) p.p.y = a.p.y + dx;
+    else if(dx == dy) p.p.y = a.p.y + edgeVal - a.p.x;
     //special case m=-1
-    else if(dx == -dy) p.p.y = a.p.y - dx;
+    else if(dx == -dy) p.p.y = a.p.y - edgeVal + a.p.y;
     //BA
     else if(BAmode);
     //DDA

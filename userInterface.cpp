@@ -12,6 +12,7 @@
 #include <curses.h>
 int userInterface::objSelected;
 char* userInterface::message;
+char* userInterface::action;
 
 void userInterface::init(){
   initscr();
@@ -115,7 +116,7 @@ void userInterface::keypressed(unsigned char key){
     char str[80];
     getstr(str);
     float val = atof(str);
-    char str[80];
+
     getstr(str);
     
     action = "";
@@ -148,12 +149,14 @@ void userInterface::keypressed(unsigned char key){
   }
   else if(key == 'v'){
     action = "Resize viewport: choose which edge to resize\n"
-            "[w]-ymax\n[s]-ymin\n[a]-xmin\n[d]-xmax";
+            "use arrows keys to determine which side";
     drawUI();
     
     char k = getch();
-    
-    if(k == 'w'){
+   if (k == '\033'){
+   getch();
+   k = getch();
+    if(k == 'A'){
       action = "enter value for Ymax";
       drawUI();
       
@@ -169,7 +172,7 @@ void userInterface::keypressed(unsigned char key){
       
       OpenGLhandler::setYmax(val);
     }
-    else if(k == 's'){
+    else if(k == 'B'){
       action = "enter value for Ymin";
       drawUI();
       
@@ -185,7 +188,7 @@ void userInterface::keypressed(unsigned char key){
       
       OpenGLhandler::setYmin(val);
     }
-    else if(k == 'a'){
+    else if(k == 'D'){
       action = "enter value for Xmin";
       drawUI();
       
@@ -194,14 +197,14 @@ void userInterface::keypressed(unsigned char key){
       
       int val = atoi(str);
       
-      if(val < OpenGLhandler::getXmax()){
-        printError("Xmax can't be less then Xmin");
+      if(val > OpenGLhandler::getXmax()){
+        printError("Xmin can't be greater then Xmax");
         return;
       }
       
       OpenGLhandler::setXmin(val);
     }
-    else if(k == 'd'){
+    else if(k == 'C'){
       action = "enter value for Xmax";
       drawUI();
       
@@ -211,13 +214,13 @@ void userInterface::keypressed(unsigned char key){
       int val = atoi(str);
       
       if(val < OpenGLhandler::getXmin()){
-        printError("Xmin can't be greater then Xmax");
+        printError("Xmax can't be less then Xmin");
         return;
       }
       
       OpenGLhandler::setXmax(val);
     }
-    
+    }
     action = "";
     drawUI();
     OpenGLhandler::bufferObjects();

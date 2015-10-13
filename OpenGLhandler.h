@@ -1,6 +1,8 @@
 #include <GL/glut.h>
 #include "obj.h"
 #include <list>
+#include "line.h"
+
 using namespace std;
 
 class OpenGLhandler{
@@ -34,7 +36,7 @@ private:
 
   static void MakePix(int x, int y);
   //line drawing
-  static void drawLine(obj::line l);
+  static void drawLine(line l);
   //Old line drawing
   static void drawLine(obj::pnt a, obj::pnt b);
   //Free space
@@ -43,8 +45,8 @@ private:
   static void bufferObjects(drawMode m);
   
   //functions to for rasterization
-  static void findInList(list<obj::line>* l, int x, int y, bool* out);
-  static void shortenList(list<obj::line>* l, int y);
+  static void findInList(list<line>* l, int x, int y, bool* out);
+  static void shortenList(list<line>* l, int y);
 
   //calculation and draw modes
   static algMode aMode;

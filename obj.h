@@ -31,10 +31,10 @@ public:
   /*
    * Default class definitions
    */
-  inline obj(){};
+  inline obj(){nPoints = 0;};
   obj(unsigned int numPoints, pnt *points);
   virtual ~obj();
-  //obj(const obj& orig);
+  obj(const obj& orig);
   
 
   //Get Clipped object
@@ -65,16 +65,18 @@ public:
   void translation(int x, int y);
   void rotation(float alpha);
   void scale(float x, float y);
-  
+ /* 
   class line{
     
   public:
     line(pnt a, pnt b, bool BAmode);
     virtual ~line();
+    line(const line &orig);
+    //line& operator= (const line& other);
 
     inline unsigned int getNumPoints(){return xTravel?dx:dy;};
     inline pnt getPoint(unsigned int i){return fill[i];};
-    inline bool isHorizontal(){return !dx;};
+    inline bool isHorizontal(){return !dy;};
     
     inline pnt getP1(){return p1;};
     inline pnt getP2(){return p2;};
@@ -92,7 +94,7 @@ public:
     
     pnt* fill;
   };
-  
+  */
 private:
   //Gets the centroid point of an object
   pnt getCentroid();
