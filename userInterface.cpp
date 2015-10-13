@@ -127,7 +127,7 @@ void userInterface::keypressed(unsigned char key){
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
   }
-  else if(key == 's'){
+  else if(key == 'c'){
     action = "Enter id of object to be selected";
     drawUI();
     
@@ -230,7 +230,7 @@ void userInterface::keypressed(unsigned char key){
     clear();
     printw("USE [ESC] TO END PROGRAM, press [h] for help\n");
     printw("bracketed letter indicates which to press");
-    printw("[s]elect object mode\n");
+    printw("sele[c]t object mode\n");
     printw("toggle [a]lgorithm switch\n");
     printw("toggle [d]raw mode\n");
     printw("[t]ranslate selected object\n");
@@ -269,6 +269,8 @@ void userInterface::keypressed(unsigned char key){
     message = "file loaded!";
     action = "";
     drawUI();
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
   }
   
 }

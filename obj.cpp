@@ -26,8 +26,8 @@ bool AllCheck(line* l, int i, int x, int y, bool drawing){
   //if we found a match and we are not drawing or looking at a line that travels vertically
   if((!drawing || !l->getXtravel()) && l->getPoint(i).x == x) return true;
   //however if the line travels in x direction and we are currently drawing
-  //we want to find the LAST point
-  return (drawing && l->getXtravel() && i < l->getNumPoints()-1 && l->getPoint(i).x == x && l->getPoint(i+1).x != x);
+  //we want to switch at the last point on that line
+  return (drawing && l->getXtravel() && l->getPoint(i).x == x && (i == l->getNumPoints()-1 || (i < l->getNumPoints()-1 && l->getPoint(i+1).x != x)));
 }
 
 /*
@@ -37,9 +37,17 @@ void findInList(list<line*> &l, int x, int y, bool* out){
   bool output1 = false;
   bool output2 = false;
   list<line*>::iterator it = l.begin();
+  list<line*> passedList;
   
   //cout<<"testf1\n";
   for(; it != l.end();){
+
+    if((*it)->isHorizontal() && x >= (*it)->getP1().x && x <= (*it)->getP2().x){
+      out[0] = !out[0];
+      out[1] = true;
+
+      return;
+    }
     //cout<<"testf2\n";
     int i = 0;
     //find point on scan line
@@ -49,8 +57,11 @@ void findInList(list<line*> &l, int x, int y, bool* out){
     if(AllCheck((*it), i, x, y, out[0])){
       //cout<<"before\n";
       //printList(l);
+      passedList.push_front(*it);      
+
       output1 = !output1;//?false:true;
       it = l.erase(it);
+
       output2 = true;
       //cout<<"after\n";
       //printList(l);
@@ -62,7 +73,10 @@ void findInList(list<line*> &l, int x, int y, bool* out){
   }
   //if(output1) cout<<"testf5\n";
   //if(output2) cout<<"testf6\n";
-  
+  if(passedList.size() > 1){
+    
+  } 
+
   out[0] = output1;
   out[1] = output2;
 }
@@ -102,10 +116,10 @@ void obj::fill(void (*MakePix)(int, int), bool BAmode){
 
         //cout<<"testb2\n";
     //get line from first and last point
-    {
-      if (getPoints()[0].y - getPoints()[getNumPoints()-1].y)
-        lLine.push_front(new line(getPoints()[0], getPoints()[getNumPoints()-1], BAmode));
-    }
+    
+    //  if (getPoints()[0].y - getPoints()[getNumPoints()-1].y)
+    lLine.push_front(new line(getPoints()[0], getPoints()[getNumPoints()-1], BAmode));
+    
 
     //cout<<"testb5 " <<o.getNumPoints()<<"\n";
     //get lines from polygon
@@ -113,15 +127,15 @@ void obj::fill(void (*MakePix)(int, int), bool BAmode){
       //cout<<"testb6\n";
           
           //if not horizontal add line to list
-      if (getPoints()[j].y - getPoints()[j-1].y){
-        lLine.push_front(new line(getPoints()[j], getPoints()[j-1], BAmode));
-             if(getPoints()[j].y > yMax) yMax = getPoints()[j].y;
-        else if(getPoints()[j].y < yMin) yMin = getPoints()[j].y;
+      //if (getPoints()[j].y - getPoints()[j-1].y){
+      lLine.push_front(new line(getPoints()[j], getPoints()[j-1], BAmode));
+           if(getPoints()[j].y > yMax) yMax = getPoints()[j].y;
+      else if(getPoints()[j].y < yMin) yMin = getPoints()[j].y;
 
-             if(getPoints()[j].x > xMax) xMax = getPoints()[j].x;
-        else if(getPoints()[j].x < xMin) xMin = getPoints()[j].x;
+           if(getPoints()[j].x > xMax) xMax = getPoints()[j].x;
+      else if(getPoints()[j].x < xMin) xMin = getPoints()[j].x;
             //printList(lLine);
-      }
+      //}
          // cout<<"testb7\n";
     }
       //scan through horizontal lines
