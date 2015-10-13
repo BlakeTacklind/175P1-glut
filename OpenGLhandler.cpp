@@ -46,6 +46,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   xMax = width;
   yMax = height;
 
+  //Draw shapes
   bufferObjects();
 
 
@@ -61,8 +62,6 @@ void OpenGLhandler::init(int* argc, char** argv)
   glutDisplayFunc(display);
 
   glutKeyboardFunc(Keystroke);
-
-  userInterface::init();
   
   glutMainLoop();
 
