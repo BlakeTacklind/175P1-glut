@@ -3,7 +3,6 @@
 #define	OBJ_H
 
 #include <string>
-//#include <cstring>
 
 using namespace std;
 
@@ -29,24 +28,22 @@ public:
    */  
   static void freeAll();
 
-  
   /*
    * Default class definitions
    */
   inline obj(){nPoints = 0;};
   obj(unsigned int numPoints, pnt *points);
   virtual ~obj();
-  //obj(const obj& orig);
-  //inline obj& operator= (const obj& other);  
 
-  //Get Clipped object
+  //Clipping object functions
   static void clipObjects(int xmin, int xmax, int ymin, int ymax);
-  obj clip(int xmin, int xmax, int ymin, int ymax);
+  inline static void cleanClippedObects(){delete [] clippedObjects;};
 
+  //Fill the points of the objects
   void fill(void (*MakePix)(int, int), bool BAmode);
 
   /*
-   * getters
+   * Getters
    */
   inline static unsigned int getNumClippedObjects(){return nClippedObjects;};
   inline static obj getClippedObject(int i){return clippedObjects[i];};
@@ -56,14 +53,6 @@ public:
   inline static unsigned int getNumObjects(){return nObjects;};
   
   /*
-   * toString items
-   * Doesn't work well
-   */
-  string getString();
-  static string getTotalString();
-
-  
-  /*
    * Transform objects
    */
   void translation(int x, int y);
@@ -71,8 +60,14 @@ public:
   void scale(float x, float y);
  
 private:
+  //clip this object
+  obj clip(int xmin, int xmax, int ymin, int ymax);
   //Gets the centroid point of an object
   pnt getCentroid();
+  
+  /*
+   * variables
+   */
   
   static unsigned int nClippedObjects;
   static obj* clippedObjects;

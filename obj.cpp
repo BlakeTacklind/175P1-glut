@@ -147,73 +147,61 @@ void shortenList(list<line*> &l, int y){
  * algorithm mode
  */
 void obj::fill(void (*MakePix)(int, int), bool BAmode){
-
-
-      //cout<<"testb1\n";
-      //for all polygons get the non-horizontal lines
+  
+  //if object is a polygon get the list of lines
   if(getNumPoints() > 2){
+    //initialize rastering edges
     yMin = yMax = getPoints()[0].y;
     xMin = xMax = getPoints()[0].x;
 
     list<line*> lLine;
-
-        //cout<<"testb2\n";
-    //get line from first and last point
     
-    //  if (getPoints()[0].y - getPoints()[getNumPoints()-1].y)
+    //get line from first and last point
     lLine.push_front(new line(getPoints()[0], getPoints()[getNumPoints()-1], BAmode));
     
-
-    //cout<<"testb5 " <<o.getNumPoints()<<"\n";
-    //get lines from polygon
+    //get all other lines
     for(int j = 1; j < getNumPoints(); j++){
-      //cout<<"testb6\n";
-          
-          //if not horizontal add line to list
-      //if (getPoints()[j].y - getPoints()[j-1].y){
+      //add lines to list
       lLine.push_front(new line(getPoints()[j], getPoints()[j-1], BAmode));
+      
+      //update outside edge box
            if(getPoints()[j].y > yMax) yMax = getPoints()[j].y;
       else if(getPoints()[j].y < yMin) yMin = getPoints()[j].y;
 
            if(getPoints()[j].x > xMax) xMax = getPoints()[j].x;
       else if(getPoints()[j].x < xMin) xMin = getPoints()[j].x;
-            //printList(lLine);
-      //}
-         // cout<<"testb7\n";
+      
     }
-      //scan through horizontal lines
+    
+    //scan through all horizontal lines in object
     for (int i = yMin; i <= yMax; i++){
       list<line*> temp(lLine);
-      //cout<<"test "<<i<<endl;
+      //initialize draw parity
       bool draw = false;
       
-      //printList(temp);
-
       //shorten the list to lines that are in this horizontal scan
       shortenList(temp, i);
-      //printList(temp);
       
-      //cout<<"tests "<<temp.size()<<endl;
-      //scan each pixel for a line
       bool *Draw = new bool[2];
 
+      //scan each pixel in scan line
       for(int j = xMin; j <= xMax; j++){
-        //cout<<"tests1 "<< j << ' '<< i<<endl;
+        //Get current draw state for findInList
+        Draw[0] = draw;
+        
+        //find lines at point, remove them from list, and indicate a change
+        //in draw parity
         findInList(temp, j, i, Draw);
-        //cout<<"tests2\n";
         
         //if found odd number of lines flip the parity
-        if(Draw[0]){
-          //cout<<"-----------------test "<<j<<' '<<i<<endl;
-          draw = !draw;//?false:true;
-        }
+        if(Draw[0]) draw = !draw;
         
         //if found a line or are on draw parity make a pixel
         if(draw || Draw[1]) MakePix(j, i);
-        //cout<<"tests3\n";
-        Draw[0] = draw;
+        
       }
-      //cout <<"tests4\n";
+      
+      //clean up
       delete [] Draw;
     }
 
@@ -221,47 +209,26 @@ void obj::fill(void (*MakePix)(int, int), bool BAmode){
     for(list<line*>::iterator it = lLine.begin(); it != lLine.end(); it++){
       delete *it;
     }
-        //cout<<"testb4\n";
+    
   }
-  //draw line object
+  //if object was a line draw line object
   else if(getNumPoints() == 2){
     line* l = new line(getPoints()[0], getPoints()[1], BAmode);
     for(int i = 0; i < l->getNumPoints(); i++){
       MakePix(l->getPoint(i).x, l->getPoint(i).y);
     }
-    //drawLine(*l);
     delete l;
   }
-      //draw pixel object
+  //draw object if it is a pixel object
   else if(getNumPoints() == 1){
     MakePix(getPoints()[0].x, getPoints()[0].y);
   }
 
-      //cout<<"testb8 "<<obj::getNumClippedObjects()<<endl;
-
-    
-    //cout << "test third\n";
-
 }
 
 /*
-obj::obj(const obj& orig){
-  nPoints = orig.nPoints;
-  pointList = new pnt[nPoints];//(pnt*)malloc(nPoints * sizeof(pnt));
-  memcpy(pointList, orig.pointList, nPoints);
-}
-*/
-/*
-obj::obj& operator= (const obj& other){
-  if(this != &other){
-    nPoints = other.nPoints;
-    pointList = new pnt[nPoints];
-    memcpy(pointList, other.pointList, nPoints);
-  }
-
-  return *this;
-}
-*/
+ * clip all objects currently stored and put them into their own storage
+ */
 void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
   clippedObjects = new obj[nObjects];
   nClippedObjects = 0;
@@ -269,10 +236,7 @@ void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
   for(int i = 0; i < nObjects; i++){
     obj o = objectList[i].clip(xmin, xmax, ymin, ymax);
     if(o.getNumPoints()) clippedObjects[nClippedObjects++] = o;
-    //cout << "testc " << o.getNumPoints() << endl;
   }
-  
-  //cout<<"testcn "<<clippedObjects[0].getNumPoints()<<endl;
 }
 
 void obj::freeAll(){
@@ -288,6 +252,9 @@ obj::obj(unsigned int numPoints, pnt* points){
   pointList = points;
 }
 
+/*
+ * load object file
+ */
 void obj::load(char* filename){
   storedFileName = filename;
   
@@ -353,7 +320,7 @@ void obj::load(char* filename){
       /*
        * Iterate through the number of points
        */
-      pnt* points = new pnt[num];//(pnt*)malloc(sizeof(pnt) * num);
+      pnt* points = new pnt[num];
       for (int j = 0; j < num; j++){
         if(getline(file, line)){
           int del = line.find_first_of(' ');
@@ -388,30 +355,9 @@ void obj::load(char* filename){
   return;
 }
 
-string obj::getString(){
-  string str = "NumPoints: ";
-  //char* temp;
-  //itoa(nPoints, temp, 10);
-  //str.append(temp);
-  str.append("\n");
-  
-  return str;
-};
-
-string obj::getTotalString(){
-  string str = "Number of Objects: ";
-  //char* temp;
-  //itoa(nObjects, temp, 10);
-  //str.append(temp);
-  str.append("\n");
-  
-  return str;
-}
-
-obj::~obj(){
-  //free(pointList);
-}
-
+/*
+ * save objects to file
+ */
 void obj::save(char* filename){
   ofstream file(filename);
   if (file.is_open()){
@@ -426,6 +372,10 @@ void obj::save(char* filename){
     file.close();
   }
   else cout << "failed to open save file";
+}
+
+obj::~obj(){
+  //free(pointList);
 }
 
 /*
@@ -493,11 +443,26 @@ void obj::rotation(float alpha){
   }
 }
 
+/*
+ * Clipping Section
+ *    A combination of Cohen-Sutherland and Sutherland-Hodgman
+ * 
+ * The Plan:
+ * For each line that crosses an edge add the point along the edge that is on
+ * that line. Then remove all the points outside of viewport
+ */
+
+//A type for clipped points with Above, Below, Right, Left stored
 typedef struct clippedPoint{
   obj::pnt p;
   int ABRL;
 } cpnt;
+//enum for the ABRL edge being worked
+enum workingEdge{YMIN=0b0100, XMIN=0b0001, YMAX=0b1000, XMAX=0b0010};
+//Iterator shortener
+typedef list<cpnt>::iterator ITR;
 
+//Set the ABRL of point give values
 int setABRL(cpnt* p, int xmin, int xmax, int ymin, int ymax){
        if (p->p.x < xmin) p->ABRL = 0b0001;
   else if (p->p.x > xmax) p->ABRL = 0b0010;
@@ -509,155 +474,9 @@ int setABRL(cpnt* p, int xmin, int xmax, int ymin, int ymax){
   return p->ABRL;
 }
 
-cpnt getEdgePoint(const cpnt in, const cpnt out, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
-  cpnt p;
-  p.ABRL = 0;
-  
-  int dx, dy = out.p.y - in.p.y;
-  
-  //if horizontal
-  if(!dy){
-    p.p.y = in.p.y;
-    if(out.ABRL & 0b0010) p.p.x = xmax;
-    else p.p.x = xmin;
-  }
-  //if vertical
-  else if (!(dx = out.p.x - in.p.x)){
-    p.p.x = in.p.x;
-    if(out.ABRL & 0b1000) p.p.y = ymax;
-    else p.p.y = ymin;
-  }
-  //if m=1
-  else if (dy == dx){
-    if(out.ABRL & 0b1000){
-      p.p.y = ymax;
-      dy = ymax - in.p.y;
-    }
-    else if (out.ABRL & 0b0100){
-      p.p.y = ymin;
-      dy = ymin - in.p.y;
-    }
-    
-    if(out.ABRL & 0b0010){
-      p.p.x = xmax;
-      dx = xmax - in.p.x;
-    }
-    else if(out.ABRL & 0b0001){
-      p.p.x = xmin;
-      dx = xmin - in.p.x;
-    }
-    
-    if (abs(dx) > abs(dy)) p.p.x = in.p.x + dy;
-    else p.p.y = in.p.y + dx;
-  }
-  //if m=-1
-  else if (dy == -dx){
-    if(out.ABRL & 0b1000){
-      p.p.y = ymax;
-      dy = ymax - in.p.y;
-    }
-    else if (out.ABRL & 0b0100){
-      p.p.y = ymin;
-      dy = ymin - in.p.y;
-    }
-    
-    if(out.ABRL & 0b0010){
-      p.p.x = xmax;
-      dx = xmax - in.p.x;
-    }
-    else if(out.ABRL & 0b0001){
-      p.p.x = xmin;
-      dx = xmin - in.p.x;
-    }
-    
-    if (abs(dx) > abs(dy)) p.p.x = in.p.x - dy;
-    else p.p.y = in.p.y - dx;
-  }
-  else{
-    if(BAmode){
-
-    }
-    else{
-      double m = ((double)dy)/dx;
-      
-      //if point is above
-      if(out.ABRL & 0b1000){
-        p.p.y = ymax;
-        p.p.x = (ymax - in.p.y) / m + in.p.x;
-        if (!setABRL(&p, xmin, xmax, ymin, ymax)) return p;
-      }
-      //if point is below
-      //mutually exclusive from above
-      else if(out.ABRL & 0b0100){
-        p.p.y = ymin;
-        p.p.x = (ymin - in.p.y) / m + in.p.x;
-        if (!setABRL(&p, xmin, xmax, ymin, ymax)) return p;
-      }
-
-      //if the new point is still off to a side
-      
-      //if point is right
-      if(p.ABRL & 0b0010){
-        p.p.x = xmax;
-        p.p.y = (xmax - in.p.x) / m + in.p.y;
-      }
-      //if point is left
-      //mutually exclusive from right
-      else if (p.ABRL & 0b0001){
-        p.p.x = xmin;
-        p.p.y = (xmin - in.p.x) / m + in.p.y;
-      }
-    }
-  }
-  
-  return p;
-}
-
-typedef struct insideLine{
-  bool isInside;
-  cpnt p1, p2;
-} iline;
-
-inline bool isIn(obj::pnt p, const int xmin, const int xmax, const int ymin, const int ymax){
-  return p.x >= xmin && p.x <= xmax && p.y >= ymin && p.y <= ymax;
-}
-
-iline getInsidePoints(const cpnt a, const cpnt b, const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
-  line l = line(a.p, b.p, BAmode);
-  iline output;
-  output.isInside = false;
-  
-  for (int i = 0; i < l.getNumPoints(); i++){
-    obj::pnt p = l.getPoint(i);
-    if(isIn(p, xmin, xmax, ymin, ymax)){
-      if(!output.isInside){
-        output.isInside = true;
-        cpnt cp;
-        cp.p = p;
-        cp.ABRL = 0;
-        output.p1 = cp;
-      }
-    }
-    else{
-      if(output.isInside){
-        cpnt cp;
-        cp.p = l.getPoint(i-1);
-        cp.ABRL = 0;
-        output.p2 = cp;
-        return output;
-      }
-    }
-  }
-  
-  return output;
-}
-
-typedef list<cpnt>::iterator ITR;
-
-enum workingEdge{YMIN=0b0100, XMIN=0b0001, YMAX=0b1000, XMAX=0b0010};
-
 //When crossing the clipping edge get the point along the edge
-cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, bool BAmode,
+//TODO: BA algorithm
+cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, const bool BAmode,
         const int xmin, const int xmax, const int ymin, const int ymax){
   int dx = b.p.x - a.p.x;
   int dy = b.p.y - a.p.y;
@@ -696,76 +515,74 @@ cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, bool BAmode,
   return p;
 }
 
-void eliminateExtraPoints(list<cpnt>* lPnt, workingEdge we){
-  //cout<<"test l1\n";
+/*
+ * Remove points outside of the edge from the list
+ */
+void eliminateExtraPoints(list<cpnt>* lPnt, const workingEdge we){
   for(ITR it = lPnt->begin(); it != lPnt->end(); ){
-    //cout<<"test l2\n";
-    if((*it).ABRL & we){/*cout<<"del "<<(*it).ABRL<<endl;*/it=lPnt->erase(it); }
-    else{it++;/*cout<<"dont\n";*/}
-    //cout<<"test l3\n";
+    if((*it).ABRL & we) it=lPnt->erase(it); 
+    else it++;
   }
-  //cout<<"test l4\n";
 }
 
-void clipAlongEdge(list<cpnt>* lPnt, int location, workingEdge we, 
-        const int xmin, const int xmax, const int ymin, const int ymax, bool BAmode){
-  //cout<<"teste "<<location<<"\n";
+/*
+ * Clip 
+ */
+void clipAlongEdge(list<cpnt>* lPnt, const int location, const workingEdge we, 
+        const int xmin, const int xmax, const int ymin, const int ymax, const bool BAmode){
+  
+  //if object is partially or completely out of the working edge
   if(location & we){
-    //cout<<"needs clipping in "<<we<<endl;
+    
     ITR it = lPnt->begin();
     cpnt b = *it;
     cpnt a;
     
-    //cout<<"b"<<b.p.x<<' '<<b.p.y<<' '<<b.ABRL<<endl;
     //check between first and last points for edge cross
     //Only if object is not a line or point
     if(lPnt->size() > 2){
       a = lPnt->back();
 
-      //cout<<a.ABRL<<' '<<b.ABRL<<' '<<we<<endl;
+      //if it crosses the edge
       if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
-        //cout<<"fclip\n";      
+        //find the point between the two, on the edge
         cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
         setABRL(&cp,xmin,xmax,ymin,ymax);
+        //add it to the list
         lPnt->insert(it, cp);
-        //cout<<"clip!\n";
       }
     }
     
     it++;
     
+    //for each pair of points
     for(; it != lPnt->end(); it++){
       a = b;
       b = *it;
 
-
-      //cout<<a.ABRL<<' '<<b.ABRL<<' '<<we<<endl;
-      //if we are crossing out of the 
+      //if the line is crossing the edge
       if(we & ((a.ABRL & ~b.ABRL) | (~a.ABRL & b.ABRL))){
-        //cout<<"nclip\n";      
+        //find the point between the two, on the edge
         cpnt cp = getEdgePoint(a, b, we, BAmode, xmin,xmax,ymin,ymax);
         setABRL(&cp,xmin,xmax,ymin,ymax);
+        //add it to the list
         lPnt->insert(it, cp);
-        //cout<<"clip!\n";
       }
     }
     
-    //cout<<"test elim "<<lPnt->size()<<endl;
+    //remove points outside of the edge
     eliminateExtraPoints(lPnt, we);
-    //cout<<"test elim2 "<<lPnt->size()<<endl;
   }
   
 }
 
 /*
- * Clip object around rectangular bounds
+ * Clip this object around rectangular bounds
  */
 obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
-  //cpnt* cp = new cpnt[nPoints];
   int location = 0;
   list<cpnt> lPnt;
 
-  //cout << "testc1\n";
   //load points into list
   for(int i = 0; i < nPoints; i++){
     cpnt cp;
@@ -774,35 +591,25 @@ obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
     lPnt.push_back(cp);
   }
   
-  
   //actually do the clipping
   
-  //cout << "testc2\n";
   //cut off @ ymin
   clipAlongEdge(&lPnt, location, YMIN, xmin, xmax, ymin, ymax, false);
-  //cout << "testc3\n";
   //cut off @ ymax
   clipAlongEdge(&lPnt, location, YMAX, xmin, xmax, ymin, ymax, false);
-  //cout << "testc4\n";
   //cut off @ xmin
   clipAlongEdge(&lPnt, location, XMIN, xmin, xmax, ymin, ymax, false);
-  //cout << "testc5\n";
   //cut off @ xmax
   clipAlongEdge(&lPnt, location, XMAX, xmin, xmax, ymin, ymax, false);
-  
-  //cout << "testc6\n";
-  
 
   //object out of Viewport!
   if(lPnt.empty()) return obj(0,0);
 
   //convert list into a new object and return it
-  //cout << "testc2 "<<lPnt.size()<<endl;
   ITR it = lPnt.begin();
   pnt* arr = new pnt[lPnt.size()];
   for(int i = 0 ; i < lPnt.size(); i++){
     arr[i] = (*it).p;
-    //cout <<"testc3 "<<arr[i].x<<endl;
     it++;
   }
 
