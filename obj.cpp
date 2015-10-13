@@ -247,7 +247,6 @@ void obj::findInList(list<line*> &l, int x, int y, bool* out){
   list<line*>::iterator it = l.begin();
   list<line*> passedList;
   
-  
   for(; it != l.end();){
     //if the line being check is horizontal.
     //A simple check can be performed to see it the point is inside
@@ -269,12 +268,10 @@ void obj::findInList(list<line*> &l, int x, int y, bool* out){
     while((*it)->getPoint(i).y != y || 
             //continue searching if the line travels in x and we are currently drawing
             ((*it)->getXtravel() && drawing && 
-            //and its the last point
-            (i == (*it)->getNumPoints()-1 || 
             //or its the last point on this scan line
-            (i < (*it)->getNumPoints()-1 && (*it)->getPoint(i+1).x != x))))
+            (i < ((*it)->getNumPoints()-1)) && ((*it)->getPoint(i+1).y == y)))
       i++;
-    
+
     //check if line effectively crosses
     if((*it)->getPoint(i).x == x){
       //add line to list of lines passed at this point

@@ -14,10 +14,12 @@ int OpenGLhandler::xMin;
 int OpenGLhandler::yMin;
 int OpenGLhandler::xMax;
 int OpenGLhandler::yMax;
+unsigned int OpenGLhandler::width;
+unsigned int OpenGLhandler::height;
 
 void OpenGLhandler::init(int* argc, char** argv)
 {
-  if (argc == 3){
+  if (*argc == 3){
     int val1 = atoi(argv[1]);
     int val2 = atoi(argv[2]);
     if(val1 > 0 && val2 > 0){
@@ -33,6 +35,7 @@ void OpenGLhandler::init(int* argc, char** argv)
     width = 200;
     height = 200;
   }
+
   
   PixelBuffer = new float[width * height * 3];
 
@@ -112,6 +115,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
   obj::clipObjects(xMin, xMax, yMin, yMax);
 
+
   //Draw object vertexes
   if (m == points){
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
@@ -157,9 +161,9 @@ void OpenGLhandler::bufferObjects(drawMode m){
 }
 
 void OpenGLhandler::drawLine(line* l){
-  const int dist = l.getNumPoints();
+  const int dist = l->getNumPoints();
   for(int i = 0; i <= dist; i++){
-    pnt p = l.getPoint(i);
+    pnt p = l->getPoint(i);
     MakePix(p.x, p.y);
   }
   

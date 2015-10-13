@@ -2,7 +2,6 @@
 #ifndef LINE_H
 #define LINE_H
 
-#include "obj.h"
 #include "types.h"
 
 class line{
