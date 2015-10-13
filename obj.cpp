@@ -18,6 +18,175 @@ obj* obj::objectList;
 char* obj::storedFileName;
 unsigned int obj::nClippedObjects;
 obj* obj::clippedObjects;
+
+/*
+ * Does a complex check
+ */
+bool AllCheck(line* l, int i, int x, int y, bool drawing){
+  //if we found a match and we are not drawing or looking at a line that travels vertically
+  if((!drawing || !l->getXtravel()) && l->getPoint(i).x == x) return true;
+  //however if the line travels in x direction and we are currently drawing
+  //we want to find the LAST point
+  return (drawing && l->getXtravel() && i < l->getNumPoints()-1 && l->getPoint(i).x == x && l->getPoint(i+1).x != x);
+}
+
+/*
+ * find if a line is at x location
+ */
+void findInList(list<line*> &l, int x, int y, bool* out){
+  bool output1 = false;
+  bool output2 = false;
+  list<line*>::iterator it = l.begin();
+  
+  //cout<<"testf1\n";
+  for(; it != l.end();){
+    //cout<<"testf2\n";
+    int i = 0;
+    //find point on scan line
+    while((*it)->getPoint(i).y != y) i++;
+    //cout<<"testf3\n";
+    
+    if(AllCheck((*it), i, x, y, out[0])){
+      //cout<<"before\n";
+      //printList(l);
+      output1 = !output1;//?false:true;
+      it = l.erase(it);
+      output2 = true;
+      //cout<<"after\n";
+      //printList(l);
+      //cout<<"testf4\n";
+    }
+    else it++;
+
+    //cout<<"testf5\n";    
+  }
+  //if(output1) cout<<"testf5\n";
+  //if(output2) cout<<"testf6\n";
+  
+  out[0] = output1;
+  out[1] = output2;
+}
+
+void shortenList(list<line*> &l, int y){
+  list<line*>::iterator it = l.begin();
+  
+    //printList(l);
+
+  while(it != l.end()){
+    int y1 = (*it)->getP1().y;
+    int y2 = (*it)->getP2().y;
+    
+    if(y1 > y2){
+      int temp = y2;
+      y2 = y1;
+      y1 = temp;
+    }
+    //cout<<"yo ho "<< y << ' '<<y1<<' '<<y2<<endl;
+
+    if(y > y2 || y < y1){it = l.erase(it); /*cout<<"teste\n";*/}
+    else it++;
+  }
+  //cout<<"testf\n";
+}
+
+void obj::fill(void (*MakePix)(int, int), bool BAmode){
+
+
+      //cout<<"testb1\n";
+      //for all polygons get the non-horizontal lines
+  if(getNumPoints() > 2){
+    yMin = yMax = getPoints()[0].y;
+    xMin = xMax = getPoints()[0].x;
+
+    list<line*> lLine;
+
+        //cout<<"testb2\n";
+    //get line from first and last point
+    {
+      if (getPoints()[0].y - getPoints()[getNumPoints()-1].y)
+        lLine.push_front(new line(getPoints()[0], getPoints()[getNumPoints()-1], BAmode));
+    }
+
+    //cout<<"testb5 " <<o.getNumPoints()<<"\n";
+    //get lines from polygon
+    for(int j = 1; j < getNumPoints(); j++){
+      //cout<<"testb6\n";
+          
+          //if not horizontal add line to list
+      if (getPoints()[j].y - getPoints()[j-1].y){
+        lLine.push_front(new line(getPoints()[j], getPoints()[j-1], BAmode));
+             if(getPoints()[j].y > yMax) yMax = getPoints()[j].y;
+        else if(getPoints()[j].y < yMin) yMin = getPoints()[j].y;
+
+             if(getPoints()[j].x > xMax) xMax = getPoints()[j].x;
+        else if(getPoints()[j].x < xMin) xMin = getPoints()[j].x;
+            //printList(lLine);
+      }
+         // cout<<"testb7\n";
+    }
+      //scan through horizontal lines
+    for (int i = yMin; i <= yMax; i++){
+      list<line*> temp(lLine);
+      //cout<<"test "<<i<<endl;
+      bool draw = false;
+      
+      //printList(temp);
+
+      //shorten the list to lines that are in this horizontal scan
+      shortenList(temp, i);
+      //printList(temp);
+      
+      //cout<<"tests "<<temp.size()<<endl;
+      //scan each pixel for a line
+      bool *Draw = new bool[2];
+
+      for(int j = xMin; j <= xMax; j++){
+        //cout<<"tests1 "<< j << ' '<< i<<endl;
+        findInList(temp, j, i, Draw);
+        //cout<<"tests2\n";
+        
+        //if found odd number of lines flip the parity
+        if(Draw[0]){
+          //cout<<"-----------------test "<<j<<' '<<i<<endl;
+          draw = !draw;//?false:true;
+        }
+        
+        //if found a line or are on draw parity make a pixel
+        if(draw || Draw[1]) MakePix(j, i);
+        //cout<<"tests3\n";
+        Draw[0] = draw;
+      }
+      //cout <<"tests4\n";
+      delete [] Draw;
+    }
+
+    //free line space created
+    for(list<line*>::iterator it = lLine.begin(); it != lLine.end(); it++){
+      delete *it;
+    }
+        //cout<<"testb4\n";
+  }
+  //draw line object
+  else if(getNumPoints() == 2){
+    line* l = new line(getPoints()[0], getPoints()[1], BAmode);
+    for(int i = 0; i < l->getNumPoints(); i++){
+      MakePix(l->getPoint(i).x, l->getPoint(i).y);
+    }
+    //drawLine(*l);
+    delete l;
+  }
+      //draw pixel object
+  else if(getNumPoints() == 1){
+    MakePix(getPoints()[0].x, getPoints()[0].y);
+  }
+
+      //cout<<"testb8 "<<obj::getNumClippedObjects()<<endl;
+
+    
+    //cout << "test third\n";
+
+}
+
 /*
 obj::obj(const obj& orig){
   nPoints = orig.nPoints;

@@ -43,6 +43,8 @@ public:
   static void clipObjects(int xmin, int xmax, int ymin, int ymax);
   obj clip(int xmin, int xmax, int ymin, int ymax);
 
+  void fill(void (*MakePix)(int, int), bool BAmode);
+
   /*
    * getters
    */
@@ -82,6 +84,8 @@ private:
     
   pnt* pointList;
   unsigned int nPoints; 
+  
+  int xMin, xMax, yMin, yMax;
 };
 
 #endif

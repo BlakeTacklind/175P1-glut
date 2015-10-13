@@ -78,7 +78,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   //glutCloseFunc(onClose);
   //cout<<"test4\n";
 
- // userInterface::init();
+  userInterface::init();
   //cout<<"test5\n";
 
   glutMainLoop();
@@ -105,7 +105,7 @@ void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
     onClose();
     glutDestroyWindow(MainWindow);
   }
-  //else userInterface::keypressed(key);
+  else userInterface::keypressed(key);
 
   //cout << key << endl;
   //cout << x << ' ' << y << endl;
@@ -211,13 +211,14 @@ void OpenGLhandler::bufferObjects(drawMode m){
   else if (m == fill){
     //cout<<"test first\n";
 
-    list<line*> lLine;
 
     //cout<<"test 2 "<<obj::getNumClippedObjects()<<endl;
     //iterate through all objects (after clipping)
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj o = obj::getClippedObject(i);
-      
+      obj::getClippedObject(i).fill(MakePix,  aMode==BA);
+    }
+/*      
+    list<line*> lLine;
       //cout<<"testb1\n";
       //for all polygons get the non-horizontal lines
       if(o.getNumPoints() > 2){
@@ -302,19 +303,26 @@ void OpenGLhandler::bufferObjects(drawMode m){
     for(list<line*>::iterator it = lLine.begin(); it != lLine.end(); it++){
       delete *it;
     }
+*/
   }
 
   //cout << "testx\n";
 }
 
+/*
+ * Does a complex check
+ *//*
 bool AllCheck(line* l, int i, int x, int y, bool drawing){
+  //if we found a match and we are not drawing or looking at a line that travels vertically
   if((!drawing || !l->getXtravel()) && l->getPoint(i).x == x) return true;
-  
+  //however if the line travels in x direction and we are currently drawing
+  //we want to find the LAST point
+  return (drawing && l->getXtravel() && i < l->getNumPoints()-1 && l->getPoint(i).x == x && l->getPoint(i+1).x != x);
 }
-
+*/
 /*
  * find if a line is at x location
- */
+ *//*
 void OpenGLhandler::findInList(list<line*> &l, int x, int y, bool* out){
   bool output1 = false;
   bool output2 = false;
@@ -328,9 +336,7 @@ void OpenGLhandler::findInList(list<line*> &l, int x, int y, bool* out){
     while((*it)->getPoint(i).y != y) i++;
     //cout<<"testf3\n";
     
-    //however if the line travels in x direction and we are currently drawing
-    //we want to find the LAST point
-    if((*it)->getPoint(i).x == x){
+    if(AllCheck((*it), i, x, y, out[0])){
       //cout<<"before\n";
       //printList(l);
       output1 = !output1;//?false:true;
@@ -350,7 +356,7 @@ void OpenGLhandler::findInList(list<line*> &l, int x, int y, bool* out){
   out[0] = output1;
   out[1] = output2;
 }
-
+*/
 void OpenGLhandler::shortenList(list<line*> &l, int y){
   list<line*>::iterator it = l.begin();
   
