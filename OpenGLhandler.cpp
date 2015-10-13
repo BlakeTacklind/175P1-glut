@@ -242,7 +242,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
         MakePix(o.getPoints()[0].x, o.getPoints()[0].y);
       }
 
-      cout<<"testb8 "<<obj::getNumClippedObjects()<<endl;
+      cout<<"testb8 ";//<<obj::getNumClippedObjects()<<endl;
     }
     
     cout << "test third\n";

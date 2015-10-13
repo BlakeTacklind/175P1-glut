@@ -3,6 +3,8 @@
 #define	OBJ_H
 
 #include <string>
+//#include <cstring>
+
 using namespace std;
 
 class obj{
@@ -35,7 +37,7 @@ public:
   obj(unsigned int numPoints, pnt *points);
   virtual ~obj();
   //obj(const obj& orig);
-  
+  //inline obj& operator= (const obj& other);  
 
   //Get Clipped object
   static void clipObjects(int xmin, int xmax, int ymin, int ymax);
@@ -65,36 +67,7 @@ public:
   void translation(int x, int y);
   void rotation(float alpha);
   void scale(float x, float y);
- /* 
-  class line{
-    
-  public:
-    line(pnt a, pnt b, bool BAmode);
-    virtual ~line();
-    line(const line &orig);
-    //line& operator= (const line& other);
-
-    inline unsigned int getNumPoints(){return xTravel?dx:dy;};
-    inline pnt getPoint(unsigned int i){return fill[i];};
-    inline bool isHorizontal(){return !dy;};
-    
-    inline pnt getP1(){return p1;};
-    inline pnt getP2(){return p2;};
-    
-  private:
-    void Fill(bool BAmode);
-    
-    pnt p1;
-    pnt p2;
-    
-    int dx;
-    int dy;
-    
-    bool xTravel;
-    
-    pnt* fill;
-  };
-  */
+ 
 private:
   //Gets the centroid point of an object
   pnt getCentroid();
