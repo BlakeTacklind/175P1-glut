@@ -18,13 +18,13 @@ obj* obj::objectList;
 char* obj::storedFileName;
 unsigned int obj::nClippedObjects;
 obj* obj::clippedObjects;
-
+/*
 obj::obj(const obj& orig){
   nPoints = orig.nPoints;
   pointList = (pnt*)malloc(nPoints * sizeof(pnt));
   memcpy(pointList, orig.pointList, nPoints);
 }
-
+*/
 /*
 line::line(const line& orig){
   p1 = orig.p1;
@@ -337,7 +337,7 @@ string obj::getTotalString(){
 }
 
 obj::~obj(){
-  free(pointList);
+  //free(pointList);
 }
 
 void obj::save(char* filename){

@@ -9,7 +9,7 @@ class line{
 public:
   line(obj::pnt a, obj::pnt b, bool BAmode);
   virtual ~line();
-  line(const line &orig);
+  //line(const line &orig);
   //line& operator= (const line& other);
 
   inline unsigned int getNumPoints(){return xTravel?dx:dy;};

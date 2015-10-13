@@ -3,7 +3,7 @@
 #include <math.h>
 #include <cstdlib>
 #include <cstring>
-
+/*
 line::line(const line& orig){
   p1 = orig.p1;
   p2 = orig.p2;
@@ -16,7 +16,7 @@ line::line(const line& orig){
 
   memcpy(fill, orig.fill, getNumPoints());
 }
-
+*/
 line::line(obj::pnt a, obj::pnt b, bool BAmode){
   int Dx = b.x - a.x, Dy = b.y - a.y;
   

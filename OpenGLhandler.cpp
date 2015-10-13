@@ -47,7 +47,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   PixelBuffer = new float[200 * 200 * 3];
 
   aMode = DDA;
-  dMode = points;
+  dMode = fill;
   xMin = 5;
   yMin = 12;
   xMax = 150;
@@ -64,8 +64,8 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutInitWindowSize(200, 200);
 
-  cout<<"width: "<< glutGet(GLUT_WINDOW_WIDTH) << "\n";      
-  cout<<"height: "<< glutGet(GLUT_WINDOW_HEIGHT) << "\n";      
+  //cout<<"width: "<< glutGet(GLUT_WINDOW_WIDTH) << "\n";      
+  //cout<<"height: "<< glutGet(GLUT_WINDOW_HEIGHT) << "\n";      
 
   glutInitWindowPosition(100, 100);
 
@@ -78,7 +78,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   //glutCloseFunc(onClose);
   //cout<<"test4\n";
 
-  userInterface::init();
+ // userInterface::init();
   //cout<<"test5\n";
 
   glutMainLoop();
@@ -105,7 +105,7 @@ void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
     onClose();
     glutDestroyWindow(MainWindow);
   }
-  else userInterface::keypressed(key);
+  //else userInterface::keypressed(key);
 
   //cout << key << endl;
   //cout << x << ' ' << y << endl;
@@ -157,18 +157,27 @@ void printList(list<line>* l){
  */
 void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
+
+  cout<<"testc1\n";
   obj::clipObjects(xMin, xMax, yMin, yMax);
+  cout<<"testc2\n";
 
   //Draw object vertexes
   if (m == points){
+    cout<<"testc3\n";
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
+      cout<<"testp1\n";
       obj o = obj::getClippedObject(i);
       
+      cout<<"testp2\n";
       for(int j = 0; j < o.getNumPoints(); j++){
         obj::pnt p = o.getPoints()[j];
         MakePix(p.x, p.y);
       }
+      cout<<"testp3\n";
     }
+    
+    cout<<"testc done\n";
   }
   //Draw object with wireframe
   else if (m == lines){

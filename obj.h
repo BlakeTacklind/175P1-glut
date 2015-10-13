@@ -34,7 +34,7 @@ public:
   inline obj(){nPoints = 0;};
   obj(unsigned int numPoints, pnt *points);
   virtual ~obj();
-  obj(const obj& orig);
+  //obj(const obj& orig);
   
 
   //Get Clipped object
