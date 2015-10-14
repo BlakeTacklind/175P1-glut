@@ -9,6 +9,8 @@ class OpenGLhandler{
 public:
   enum drawMode {points, lines, fill};
   enum algMode {DDA, BA};
+
+  static void initValues(int argc, char** agrv);
   static void init(int* argc, char** argv);
   static void reDraw();
 
@@ -40,8 +42,10 @@ private:
   static void MakePix(int x, int y);
   //line drawing
   static void drawLine(line* l);
+
   //Free space
   static void onClose(void);
+
   //Add objects to buffer
   static void bufferObjects(drawMode m);
 

@@ -14,10 +14,10 @@ public:
   /*
    * Load and save from file
    */
-  inline static void load(){load(storedFileName);};
-  inline static void save(){save(storedFileName);};
-  static void load(char* filename);
-  static void save(char* filename);
+  inline static bool load(){return load(storedFileName);};
+  inline static bool save(){return save(storedFileName);};
+  static bool load(char* filename);
+  static bool save(char* filename);
 
   /*
    * Free memory
@@ -42,7 +42,7 @@ public:
    * Getters
    */
   inline static unsigned int getNumClippedObjects(){return nClippedObjects;};
-  inline static obj getClippedObject(int i){return clippedObjects[i];};
+  inline static obj* getClippedObject(int i){return &(clippedObjects[i]);};
   inline static obj getObject(int i){return objectList[i];};
   inline unsigned int getNumPoints(){return nPoints;};  
   inline pnt* getPoints(){return pointList;};

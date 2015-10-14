@@ -7,6 +7,7 @@
 #include <list>
 #include <cstring>
 #include "line.h"
+#include "userInterface.h"
 
 #define PI 3.14159265
 
@@ -26,6 +27,8 @@ obj::obj(unsigned int numPoints, pnt* points){
   pointList = points;
 }
 
+//Currently causes seg fault if deletion happens
+//probably due to object loading
 obj::~obj(){
   //delete [] pointList;
 }
@@ -33,7 +36,7 @@ obj::~obj(){
 /*
  * load object file
  */
-void obj::load(char* filename){
+bool obj::load(char* filename){
   storedFileName = filename;
   
   ifstream file(filename, ios::in);
@@ -50,23 +53,23 @@ void obj::load(char* filename){
       int num = atoi(line.c_str());
       
       if (num < 0){
-        cout << "negative objects?!?!\n";
+        userInterface::printError("negative objects?!?!");
         file.close();
-        return;
+        return false;
       }
       else if (num == 0){
-        cout << "bad input or zero objects\n";  
+        userInterface::printError("bad input or zero objects");  
         file.close();
-        return;
+        return false;
       }
       
       nObjects = num;
       objectList = new obj[nObjects];
     }
     else{
-      cout << "Empty file!\n";
+      userInterface::printError("Empty file!");
       file.close();
-      return;
+      return false;
     }
     
     /*
@@ -79,20 +82,20 @@ void obj::load(char* filename){
         num = atoi(line.c_str());
 
         if (num < 0){
-          cout << "negative points?!?!\n";
+          userInterface::printError("negative points?!?!");
           file.close();
-          return;
+          return false;
         }
         else if (num == 0){
-          cout << "bad input or zero points\n";  
+          userInterface::printError("bad input or zero points");  
           file.close();
-          return;
+          return false;
         }
       }
       else{
-        cout << "Missing Object definition\n";
+        userInterface::printError("Missing Object definition");
         file.close();
-        return;
+        return false;
       }
       
       /*
@@ -103,9 +106,9 @@ void obj::load(char* filename){
         if(getline(file, line)){
           int del = line.find_first_of(' ');
           if (del < 1){
-            cout << "Bad point delimiter\n";
+            userInterface::printError("Bad point delimiter");
             file.close();
-            return;
+            return false;
           }
           
           int x = atoi(line.substr(0, del).c_str());
@@ -116,9 +119,9 @@ void obj::load(char* filename){
           
         }
         else{
-          cout << "Missing Point definition\n";
+          userInterface::printError("Missing Point definition");
           file.close();
-          return;
+          return false;
         }
       }
       
@@ -127,16 +130,17 @@ void obj::load(char* filename){
     }
     
     file.close();
+    return true;
   }
-  else cout << "Unable to open file\n";
+  userInterface::printError("Unable to open file");
   
-  return;
+  return false;
 }
 
 /*
  * save objects to file
  */
-void obj::save(char* filename){
+bool obj::save(char* filename){
   ofstream file(filename);
   if (file.is_open()){
     file << nObjects;
@@ -148,8 +152,10 @@ void obj::save(char* filename){
     }
     
     file.close();
+    return true;
   }
-  else cout << "failed to open save file";
+  userInterface::printError("failed to open save file");
+  return false;
 }
 
 /*
@@ -253,8 +259,12 @@ void obj::findInList(list<line*> &l, int x, int y, bool* out){
     //This assumes the list has been shortened
     if((*it)->isHorizontal() && x >= (*it)->getP1().x && x <= (*it)->getP2().x){
       //set to draw on and mark to draw at least this point
-      out[0] = !out[0];
       out[1] = true;
+
+      //if this is not the last point
+      //set to draw in draw parity
+      if(x != (*it)->getP2().x)
+        out[0] = !out[0];
       
       //TODO: move element to front of list for faster drawing later
       //TODO: remove from list if scan has moved beyond line
@@ -312,10 +322,11 @@ void obj::findInList(list<line*> &l, int x, int y, bool* out){
    */
   if(passedList.size() > 1){
     int above = 0;
-    for(it = passedList.begin(); it != passedList.end(); it++)
-      if((*it)->getP1().y > y || (*it)->getP2().y > y) above++;    
+    for(it = passedList.begin(); it != passedList.end(); it++){
+      if((*it)->getP1().y > y || (*it)->getP2().y > y) above++;
+    }    
     
-    output1 = above % 2;
+    output1 = above & 1;
   } 
 
   out[0] = output1;
@@ -489,7 +500,7 @@ cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, const bool B
     //BA
     else if(BAmode);
     //DDA
-    else p.p.x = a.p.x + (int)((edgeVal - a.p.y) / (((double)dy)/dx) + .5);
+    else p.p.x = a.p.x + (int)((edgeVal - a.p.y) / (((double)dy)/dx) + (abs(dx)>abs(dy)?.5:-.5));
   }
   else{
     int edgeVal = (we==XMIN?xmin:xmax);
@@ -503,7 +514,7 @@ cpnt getEdgePoint(const cpnt a, const cpnt b, const workingEdge we, const bool B
     //BA
     else if(BAmode);
     //DDA
-    else p.p.y = a.p.y + (int)((edgeVal - a.p.x) / (((double)dx)/dy) + .5);
+    else p.p.y = a.p.y + (int)((edgeVal - a.p.x) / (((double)dx)/dy) + (abs(dx)>abs(dy)?.5:-.5));
   }
   
   return p;

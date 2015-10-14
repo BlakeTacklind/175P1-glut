@@ -18,12 +18,17 @@ public:
   static void keypressed(unsigned char key);  
 
   static void printError(char* s);
-  
+
+  inline static bool isWindowFocus(){return onWindow;};
+
 private:
   static char* action;
   
   static void drawUI();
   static int objSelected;
+
+  //focus on main Window?
+  static bool onWindow;
 };
 
 #endif	/* USERINTERFACE_H */

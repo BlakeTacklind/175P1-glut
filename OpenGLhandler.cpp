@@ -17,9 +17,8 @@ int OpenGLhandler::yMax;
 unsigned int OpenGLhandler::width;
 unsigned int OpenGLhandler::height;
 
-void OpenGLhandler::init(int* argc, char** argv)
-{
-  if (*argc == 3){
+void OpenGLhandler::initValues(int argc, char** argv){
+  if (argc == 3){
     int val1 = atoi(argv[1]);
     int val2 = atoi(argv[2]);
     if(val1 > 0 && val2 > 0){
@@ -38,18 +37,19 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   
   PixelBuffer = new float[width * height * 3];
+  clearBuffer();
 
   aMode = DDA;
-  dMode = fill;
+  dMode = lines;
   xMin = 0;
   yMin = 0;
-  xMax = width;
-  yMax = height;
+  xMax = width-1;
+  yMax = height-1;
 
-  //Draw shapes
-  bufferObjects();
+}
 
-
+void OpenGLhandler::init(int* argc, char** argv)
+{
   glutInit(argc, argv);
   glutInitDisplayMode(GLUT_SINGLE);
 
@@ -77,7 +77,7 @@ void OpenGLhandler::onClose(void){
 }
 
 void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
-  if(key == 27){
+  if(userInterface::isWindowFocus() && key == 27){
     onClose();
     glutDestroyWindow(MainWindow);
   }
@@ -114,37 +114,37 @@ void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
   obj::clipObjects(xMin, xMax, yMin, yMax);
 
-
   //Draw object vertexes
   if (m == points){
+    
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj o = obj::getClippedObject(i);
-      
-      for(int j = 0; j < o.getNumPoints(); j++){
-        pnt p = o.getPoints()[j];
-        MakePix(p.x, p.y);
+      obj* o = obj::getClippedObject(i);
+    
+      for(int j = 0; j < o->getNumPoints(); j++){
+        pnt* p = &(o->getPoints()[j]);
+        MakePix(p->x, p->y);
       }
     }
   }
   //Draw object with wireframe
   else if (m == lines){
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj o = obj::getClippedObject(i);
+      obj* o = obj::getClippedObject(i);
       pnt p1;
-      pnt p2 = o.getPoints()[0];
+      pnt p2 = o->getPoints()[0];
       
-      for(int j = 1; j < o.getNumPoints(); j++){
+      for(int j = 1; j < o->getNumPoints(); j++){
         p1 = p2;
-        p2 = o.getPoints()[j];
+        p2 = o->getPoints()[j];
         drawLine(new line(p1,p2,aMode==BA));
       }
      
       //close shape (only if more then a line)
-      if(o.getNumPoints() > 2){
-        drawLine(new line(o.getPoints()[0], p2,aMode==BA));
+      if(o->getNumPoints() > 2){
+        drawLine(new line(o->getPoints()[0], p2,aMode==BA));
       }
       //draw object if its a line
-      else if (o.getNumPoints() == 1)
+      else if (o->getNumPoints() == 1)
         MakePix(p2.x, p2.y);
     }
   }
@@ -152,7 +152,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
   else if (m == fill){
     //iterate through all objects (after clipping)
     for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj::getClippedObject(i).fill(MakePix,  aMode==BA);
+      obj::getClippedObject(i)->fill(MakePix,  aMode==BA);
     }
   }
   
@@ -161,7 +161,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
 
 void OpenGLhandler::drawLine(line* l){
   const int dist = l->getNumPoints();
-  for(int i = 0; i <= dist; i++){
+  for(int i = 0; i < dist; i++){
     pnt p = l->getPoint(i);
     MakePix(p.x, p.y);
   }

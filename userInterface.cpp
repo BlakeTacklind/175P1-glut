@@ -11,18 +11,21 @@
 #include <curses.h>
 int userInterface::objSelected;
 char* userInterface::action;
+bool userInterface::onWindow;
 
 void userInterface::init(){
   initscr();
   action = "";
   //(void)echo();
   objSelected = -1;
+  onWindow = true;
   drawUI();
 }
 
 void userInterface::drawUI(){
   clear();
-  printw("USE [ESC] TO END PROGRAM, press [h] for help\n");
+  printw("USE [ESC] TO END PROGRAM, press [h] for help");
+  printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   printw("\nDraw Mode: %s", OpenGLhandler::getDrawMode());
   printw("\nAlgorithm Mode: %s", OpenGLhandler::getAlgMode());
   printw("\nCurrent Object Selected: ");
@@ -61,8 +64,10 @@ void userInterface::keypressed(unsigned char key){
       printError("Error: No object selected");
       return;
     }
+
+    onWindow = false;
     
-    action = "Current Action: Enter translation values, x first";
+    action = "Current Action: Enter translation values, x first\n";
     drawUI();
     
     char str[80];
@@ -71,6 +76,7 @@ void userInterface::keypressed(unsigned char key){
     
     getstr(str);
     
+    onWindow = true;
     action = "";
     drawUI();
     
@@ -84,13 +90,15 @@ void userInterface::keypressed(unsigned char key){
       printError("Error: No object selected");
       return;
     }
+    onWindow = false;
     
-    action = "Current Action: Enter rotation angle, in degrees";
+    action = "Current Action: Enter rotation angle, in degrees\n";
     drawUI();
     
     char str[80];
     getstr(str);
     
+    onWindow = true;
     action = "";
     drawUI();
     
@@ -104,8 +112,9 @@ void userInterface::keypressed(unsigned char key){
       printError("Error: No object selected");
       return;
     }
+    onWindow = false;
     
-    action = "Current Action: Enter scaling value, x first";
+    action = "Current Action: Enter scaling value, x first\n";
     drawUI();
     
     char str[80];
@@ -114,6 +123,7 @@ void userInterface::keypressed(unsigned char key){
 
     getstr(str);
     
+    onWindow = true;
     action = "";
     drawUI();
     
@@ -123,13 +133,15 @@ void userInterface::keypressed(unsigned char key){
     OpenGLhandler::reDraw();
   }
   else if(key == 'c'){
-    action = "Current Action: Enter id of object to be selected";
+    action = "Current Action: Enter id of object to be selected\n";
+    onWindow = false;
     drawUI();
     
     char str[80];
     getstr(str);
     
     action = "";
+    onWindow = true;
     
     int val = atoi(str);
     
@@ -147,24 +159,26 @@ void userInterface::keypressed(unsigned char key){
             "use arrows keys to determine which side";
     drawUI();
     
+    onWindow = false;
     char k = getch();
    if (k == '\033'){
    getch();
    k = getch();
     if(k == 'A'){
-      action = "Current Action: enter value for Ymax";
+      action = "Current Action: enter value for Ymax\n";
       drawUI();
       
       char str[80];
       getstr(str);
       
       int val = atoi(str);
+      onWindow = true;
       
       if(val < OpenGLhandler::getYmin()){
         printError("Ymax can't be less then Ymin");
         return;
       }
-      if(val > OpenGLhandler::getScreenHeight()){
+      if(val >= OpenGLhandler::getScreenHeight()){
         printError("Ymax can't be bigger then screen");
         return;
       }
@@ -172,13 +186,14 @@ void userInterface::keypressed(unsigned char key){
       OpenGLhandler::setYmax(val);
     }
     else if(k == 'B'){
-      action = "Current Action: enter value for Ymin";
+      action = "Current Action: enter value for Ymin\n";
       drawUI();
       
       char str[80];
       getstr(str);
       
       int val = atoi(str);
+      onWindow = true;
       
       if(val > OpenGLhandler::getYmax()){
         printError("Ymin can't be greater then Ymax");
@@ -192,13 +207,14 @@ void userInterface::keypressed(unsigned char key){
       OpenGLhandler::setYmin(val);
     }
     else if(k == 'D'){
-      action = "Current Action: enter value for Xmin";
+      action = "Current Action: enter value for Xmin\n";
       drawUI();
       
       char str[80];
       getstr(str);
       
       int val = atoi(str);
+      onWindow = true;
       
       if(val > OpenGLhandler::getXmax()){
         printError("Xmin can't be greater then Xmax");
@@ -212,7 +228,7 @@ void userInterface::keypressed(unsigned char key){
       OpenGLhandler::setXmin(val);
     }
     else if(k == 'C'){
-      action = "Current Action: enter value for Xmax";
+      action = "Current Action: enter value for Xmax\n";
       drawUI();
       
       char str[80];
@@ -220,11 +236,12 @@ void userInterface::keypressed(unsigned char key){
       
       int val = atoi(str);
       
+      onWindow = true;
       if(val < OpenGLhandler::getXmin()){
         printError("Xmax can't be less then Xmin");
         return;
       }
-      if(val > OpenGLhandler::getScreenWidth()){
+      if(val >= OpenGLhandler::getScreenWidth()){
         printError("Xmax can't be bigger then screen");
         return;
       }
@@ -239,8 +256,9 @@ void userInterface::keypressed(unsigned char key){
   }
   else if(key == 'h'){
     clear();
-    printw("USE [ESC] TO END PROGRAM, press [h] for help\n");
-    printw("bracketed letter indicates which to press");
+    printw("USE [ESC] TO END PROGRAM, press [h] for help");
+    printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+    printw("\nbracketed letter indicates which to press\n");
     printw("sele[c]t object mode\n");
     printw("toggle [a]lgorithm switch\n");
     printw("toggle [d]raw mode\n");
@@ -248,36 +266,45 @@ void userInterface::keypressed(unsigned char key){
     printw("[r]otate selected object\n");
     printw("scal[e] selected object\n");
     printw("resize [v]iewport\n");
-    printw("[s]ave to file");
+    printw("[s]ave to file\n");
     printw("[l]oad from file");
 
     refresh();
   }
   else if(key == 's'){
-    action = "Current Action: save objects to file, leave blank for last file used";
+    action = "Current Action: save objects to file, leave blank for last file used\n";
+    onWindow = false;
     drawUI();
     
     char str[80];
     getstr(str);
+
+    if(str[0] == 0){if(obj::save()) action = "File saved";}
+    else if(obj::save(str)) action = "File saved";
     
-    if(str == "") obj::save();
-    else obj::save(str);
-    
-    action = "";
+    onWindow = true;
     drawUI();
   }
   else if(key == 'l'){
-    action = "Current Action: load objects from file, leave blank for last file used";
+    action = "Current Action: load objects from file, leave blank for last file used\n";
+    onWindow = false;
     drawUI();
     
     char str[80];
     getstr(str);
     
-    if(str == "") obj::load();
-    else obj::load(str);
+    if(str[0] == 0){if(obj::load()) action = "File Loaded";}
+    else if(obj::load(str)) action = "File Loaded";
     
-    action = "";
+    onWindow = true;
     drawUI();
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
+  }
+  else if(key == ' '){
+    if( OpenGLhandler::getXmax() == 200)
+      OpenGLhandler::setXmax(110);
+    else OpenGLhandler::setXmax(200); 
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
   }
