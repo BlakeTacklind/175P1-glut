@@ -117,42 +117,39 @@ void OpenGLhandler::bufferObjects(drawMode m){
   //Draw object vertexes
   if (m == points){
     
-    for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj* o = obj::getClippedObject(i);
-    
-      for(int j = 0; j < o->getNumPoints(); j++){
-        pnt* p = &(o->getPoints()[j]);
+    for(list<obj*>::iterator itr = obj::getClippedList().begin(); itr != obj::getClippedList().end(); itr++){
+      for(int j = 0; j < (*itr)->getNumPoints(); j++){
+        pnt* p = &((*itr)->getPoints()[j]);
         MakePix(p->x, p->y);
       }
     }
   }
   //Draw object with wireframe
   else if (m == lines){
-    for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj* o = obj::getClippedObject(i);
+    for(list<obj*>::iterator itr = obj::getClippedList().begin(); itr != obj::getClippedList().end(); itr++){
       pnt p1;
-      pnt p2 = o->getPoints()[0];
+      pnt p2 = (*itr)->getPoints()[0];
       
-      for(int j = 1; j < o->getNumPoints(); j++){
+      for(int j = 1; j < (*itr)->getNumPoints(); j++){
         p1 = p2;
-        p2 = o->getPoints()[j];
+        p2 = (*itr)->getPoints()[j];
         drawLine(new line(p1,p2,aMode==BA));
       }
      
       //close shape (only if more then a line)
-      if(o->getNumPoints() > 2){
-        drawLine(new line(o->getPoints()[0], p2,aMode==BA));
+      if((*itr)->getNumPoints() > 2){
+        drawLine(new line((*itr)->getPoints()[0], p2,aMode==BA));
       }
       //draw object if its a line
-      else if (o->getNumPoints() == 1)
+      else if ((*itr)->getNumPoints() == 1)
         MakePix(p2.x, p2.y);
     }
   }
   //Rasterize objects
   else if (m == fill){
     //iterate through all objects (after clipping)
-    for(int i = 0; i < obj::getNumClippedObjects(); i++){
-      obj::getClippedObject(i)->fill(MakePix,  aMode==BA);
+    for(list<obj*>::iterator itr = obj::getClippedList().begin(); itr != obj::getClippedList().end(); itr++){
+      (*itr)->fill(MakePix,  aMode==BA);
     }
   }
   

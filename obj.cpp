@@ -16,8 +16,7 @@ using namespace std;
 unsigned int obj::nObjects;
 obj* obj::objectList;
 char* obj::storedFileName;
-unsigned int obj::nClippedObjects;
-obj* obj::clippedObjects;
+list<obj*> obj::clippedObjects;
 
 /*
  * Default constructor
@@ -33,6 +32,17 @@ obj::~obj(){
   //delete [] pointList;
 }
 
+template <E>
+E* getArrFromList(list<E> l){
+  E* arr = new E[l.size()];
+  
+  list<E>::iterator itr = l.begin();
+  for(int i = 0; itr != l.end(); itr++, i++)
+    arr[i] = *itr;
+  
+  return arr;
+}
+
 /*
  * load object file
  */
@@ -42,7 +52,9 @@ bool obj::load(char* filename){
   ifstream file(filename, ios::in);
   
   if(file.is_open()){
+    list<obj*> tempList;
     string line;
+    nObjects = 0;
     
     /*
      * Get the first line of the file
@@ -64,11 +76,13 @@ bool obj::load(char* filename){
       }
       
       nObjects = num;
-      objectList = new obj[nObjects];
+      //objectList = new obj[nObjects];
     }
     else{
       userInterface::printError("Empty file!");
       file.close();
+      objectList = getArrFromList(tempList);
+      nObjects = tempList.size();
       return false;
     }
     
@@ -84,17 +98,23 @@ bool obj::load(char* filename){
         if (num < 0){
           userInterface::printError("negative points?!?!");
           file.close();
+          objectList = getArrFromList(tempList);
+          nObjects = tempList.size();
           return false;
         }
         else if (num == 0){
           userInterface::printError("bad input or zero points");  
           file.close();
+          objectList = getArrFromList(tempList);
+          nObjects = tempList.size();
           return false;
         }
       }
       else{
         userInterface::printError("Missing Object definition");
         file.close();
+        objectList = getArrFromList(tempList);
+        nObjects = tempList.size();
         return false;
       }
       
@@ -108,6 +128,8 @@ bool obj::load(char* filename){
           if (del < 1){
             userInterface::printError("Bad point delimiter");
             file.close();
+            objectList = getArrFromList(tempList);
+            nObjects = tempList.size();
             return false;
           }
           
@@ -121,13 +143,18 @@ bool obj::load(char* filename){
         else{
           userInterface::printError("Missing Point definition");
           file.close();
+          objectList = getArrFromList(tempList);
+          nObjects = tempList.size();
           return false;
         }
       }
       
       //Build Object
-      objectList[i] = obj(num, points);
+      tempList.push_front(new obj(num, points));
     }
+    
+    objectList = getArrFromList(tempList);
+    nObjects = tempList.size();
     
     file.close();
     return true;
@@ -361,12 +388,12 @@ void obj::shortenList(list<line*> &l, int y){
  * clip all objects currently stored and put them into their own storage
  */
 void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
-  clippedObjects = new obj[nObjects];
-  nClippedObjects = 0;
+  clippedObjects.clear();
 
   for(int i = 0; i < nObjects; i++){
-    obj o = objectList[i].clip(xmin, xmax, ymin, ymax);
-    if(o.getNumPoints()) clippedObjects[nClippedObjects++] = o;
+    obj* o = objectList[i].clip(xmin, xmax, ymin, ymax);
+    if(o.getNumPoints()) clippedObjects.push_front(o);
+    else delete o;
   }
 }
 

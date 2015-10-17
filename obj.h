@@ -33,7 +33,7 @@ public:
 
   //Clipping object functions
   static void clipObjects(int xmin, int xmax, int ymin, int ymax);
-  inline static void cleanClippedObects(){delete [] clippedObjects;};
+  inline static void cleanClippedObects(){clippedObjects.clear();};
 
   //Fill the points of the objects
   void fill(void (*MakePix)(int, int), bool BAmode);
@@ -41,9 +41,11 @@ public:
   /*
    * Getters
    */
-  inline static unsigned int getNumClippedObjects(){return nClippedObjects;};
-  inline static obj* getClippedObject(int i){return &(clippedObjects[i]);};
-  inline static obj getObject(int i){return objectList[i];};
+  typedef list<obj*>::iterator oITR;
+  inline static unsigned int getNumClippedObjects(){return clippedObjects.size();};
+  //inline static obj* getClippedObject(int i){return &(clippedObjects[i]);};
+  inline static list<obj*>& getClippedList(){return clippedObjects;};
+  inline static obj* getObject(int i){return objectList[i];};
   inline unsigned int getNumPoints(){return nPoints;};  
   inline pnt* getPoints(){return pointList;};
   inline static unsigned int getNumObjects(){return nObjects;};
@@ -67,11 +69,10 @@ private:
    * variables
    */
   
-  static unsigned int nClippedObjects;
-  static obj* clippedObjects;
+  static list<obj*> clippedObjects;
 
   static unsigned int nObjects;
-  static obj* objectList;
+  static obj** objectList;
 
   static char* storedFileName;
     

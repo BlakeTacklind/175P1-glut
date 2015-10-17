@@ -7,8 +7,8 @@
 
 #include "userInterface.h"
 #include "OpenGLhandler.h"
-
 #include <curses.h>
+
 int userInterface::objSelected;
 char* userInterface::action;
 bool userInterface::onWindow;
@@ -39,6 +39,12 @@ void userInterface::drawUI(){
 void userInterface::printError(char* mes){
   action = mes;
   drawUI();
+}
+
+void userInterface::holdUntilUsage(){
+  printw("Press any key to continue...");
+  getch();
+  refresh();
 }
 
 void userInterface::endUI(){

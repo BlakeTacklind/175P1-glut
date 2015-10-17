@@ -18,6 +18,7 @@ public:
   static void keypressed(unsigned char key);  
 
   static void printError(char* s);
+  static void holdUntilUsage();
 
   inline static bool isWindowFocus(){return onWindow;};
 
