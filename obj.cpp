@@ -14,9 +14,9 @@
 using namespace std;
 
 unsigned int obj::nObjects;
-obj* obj::objectList;
+obj::obj* obj::objectList;
 char* obj::storedFileName;
-list<obj*> obj::clippedObjects;
+list<obj::obj*> obj::clippedObjects;
 
 /*
  * Default constructor
@@ -32,7 +32,7 @@ obj::~obj(){
   //delete [] pointList;
 }
 
-template <E>
+template <class E>
 E* getArrFromList(list<E> l){
   E* arr = new E[l.size()];
   
@@ -172,9 +172,9 @@ bool obj::save(char* filename){
   if (file.is_open()){
     file << nObjects;
     for (int i = 0; i < nObjects; i++){
-      file << "\n" << objectList[i].nPoints;
-      for (int j = 0 ; j < objectList[i].nPoints; j++){
-        file << "\n" << objectList[i].pointList[j].x << " " << objectList[i].pointList[j].y;
+      file << "\n" << objectList[i]->nPoints;
+      for (int j = 0 ; j < objectList[i]->nPoints; j++){
+        file << "\n" << objectList[i]->pointList[j].x << " " << objectList[i]->pointList[j].y;
       }
     }
     

@@ -86,7 +86,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    obj::getObject(objSelected).translation(val, atoi(str));
+    obj::getObject(objSelected)->translation(val, atoi(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -108,7 +108,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    obj::getObject(objSelected).rotation(atof(str));
+    obj::getObject(objSelected)->rotation(atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -133,7 +133,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    obj::getObject(objSelected).scale(val, atof(str));
+    obj::getObject(objSelected)->scale(val, atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
