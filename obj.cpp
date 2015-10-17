@@ -14,9 +14,9 @@
 using namespace std;
 
 unsigned int obj::nObjects;
-obj::obj* obj::objectList;
+obj** obj::objectList;
 char* obj::storedFileName;
-list<obj::obj*> obj::clippedObjects;
+list<obj*> obj::clippedObjects;
 
 /*
  * Default constructor
@@ -36,7 +36,7 @@ template <class E>
 E* getArrFromList(list<E> l){
   E* arr = new E[l.size()];
   
-  list<E>::iterator itr = l.begin();
+  typename list<E>::iterator itr = l.begin();
   for(int i = 0; itr != l.end(); itr++, i++)
     arr[i] = *itr;
   
@@ -391,15 +391,15 @@ void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
   clippedObjects.clear();
 
   for(int i = 0; i < nObjects; i++){
-    obj* o = objectList[i].clip(xmin, xmax, ymin, ymax);
-    if(o.getNumPoints()) clippedObjects.push_front(o);
+    obj* o = objectList[i]->clip(xmin, xmax, ymin, ymax);
+    if(o->getNumPoints()) clippedObjects.push_front(o);
     else delete o;
   }
 }
 
 void obj::freeAll(){
   for(int i=0; i < obj::nObjects; i++){
-    delete [] obj::getObject(i).getPoints();
+    delete [] obj::getObject(i)->getPoints();
   }
 
   delete [] obj::objectList;
@@ -611,7 +611,7 @@ void clipAlongEdge(list<cpnt>* lPnt, const int location, const workingEdge we,
 /*
  * Clip this object around rectangular bounds
  */
-obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
+obj* obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
   int location = 0;
   list<cpnt> lPnt;
 
@@ -635,7 +635,7 @@ obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
   clipAlongEdge(&lPnt, location, XMAX, xmin, xmax, ymin, ymax, false);
 
   //object out of Viewport!
-  if(lPnt.empty()) return obj(0,0);
+  if(lPnt.empty()) return new obj();
 
   //convert list into a new object and return it
   ITR it = lPnt.begin();
@@ -645,6 +645,6 @@ obj obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
     it++;
   }
 
-  return obj(lPnt.size(), arr);
+  return new obj(lPnt.size(), arr);
 }
 
