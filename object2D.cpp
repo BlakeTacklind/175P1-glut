@@ -1,4 +1,4 @@
-#include "obj.h"
+#include "object2D.h"
 #include <fstream>
 #include <iostream>
 #include <string>
