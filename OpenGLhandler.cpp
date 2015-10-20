@@ -1,6 +1,7 @@
 #include <GL/glut.h>
 #include "OpenGLhandler.h"
 #include "userInterface.h"
+#include "screen.h"
 
 #include <iostream>
 #include <list>
@@ -26,26 +27,30 @@ void OpenGLhandler::initValues(int argc, char** argv){
       height = val2;
     }
     else{
-      width = 200;
-      height = 200;
+      width = 400;
+      height = 400;
     }
   }
   else{
-    width = 200;
-    height = 200;
+    width = 400;
+    height = 400;
   }
-
   
   PixelBuffer = new float[width * height * 3];
-  clearBuffer();
+  //clearBuffer();
+  
+  screen(width/2, height/2, unitX, getOffsetMakePixFunction(0      , 0       ));
+  screen(width/2, height/2, unitY, getOffsetMakePixFunction(width/2, height/2));
+  screen(width/2, height/2, unitZ, getOffsetMakePixFunction(0      , height/2));
 
+  /* not needed for project 2
   aMode = DDA;
   dMode = lines;
   xMin = 0;
   yMin = 0;
   xMax = width-1;
   yMax = height-1;
-
+  */
 }
 
 OpenGLhandler::fptr OpenGLhandler::getOffsetMakePixFunction(int x, int y){

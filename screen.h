@@ -10,6 +10,7 @@
 
 #include "types.h"
 #include "line.h"
+#include <list>
 
 class screen {
 public:
@@ -18,7 +19,7 @@ public:
   screen(const screen& orig);
   virtual ~screen();
   
-  void bufferObjects();
+  static void bufferAllScreens();
   
   inline int getYmin(){return yMin;};
   inline int getYmax(){return yMax;};
@@ -34,6 +35,9 @@ public:
   inline int getScreenHeight(){return height;};
   
 private:
+  void bufferObjects();
+  static list<screen*> screenList;
+  
   pntf* convert3dPoint(pnt3* p);
   
   void drawLine(line* l);

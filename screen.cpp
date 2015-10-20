@@ -7,18 +7,30 @@
 
 #include "screen.h"
 #include "object3D.h"
+#include <list>
+
+list<screen*> screen::screenList;
 
 screen::screen(int x, int y, pnt3 vec, void (*mkPix)(int, int)) {
   width = x;
   height = y;
   vector = vec;
   MakePix = mkPix;
+  
+  screenList.push_back(this);
 }
 
 screen::screen(const screen& orig) {
 }
 
 screen::~screen() {
+  screenList.remove(this);
+}
+
+void screen::bufferAllScreens() {
+  for(list<screen*>::iterator it = screenList.begin(); it != screenList.end(); it++){
+    (*it)->bufferObjects();
+  }
 }
 
 void screen::bufferObjects() {
