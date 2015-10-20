@@ -168,6 +168,8 @@ bool object2D::load(char* filename){
  * save objects to file
  */
 bool object2D::save(char* filename){
+  storedFileName = filename;
+  
   ofstream file(filename);
   if (file.is_open()){
     file << nObjects;

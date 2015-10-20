@@ -16,9 +16,10 @@ class object3D {
 public:
   static bool load(const char* filename);
   static bool save(const char* filename);
-  inline static bool load(){load(lastFileUsed);};
-  inline static bool save(){save(lastFileUsed);};
+  inline static bool load(){load(storedFileName);};
+  inline static bool save(){save(storedFileName);};
   
+  object3D(int npnt, pnt3* Points, int nedge, edge* Edges);
   object3D();
   object3D(const object3D& orig);
   virtual ~object3D();
@@ -31,16 +32,17 @@ public:
   void scale(float x, float y, float z);
   
 private:
-  static char* lastFileUsed;
+  static char* storedFileName;
   
   pnt3 getCentroid();
   
-  static list<object3D*> objectList;
+  static unsigned int nObjects;
+  static object3D** objectList;
   
   unsigned int nPoints;
   pnt3* points;
   unsigned int nEdge;
-  edge* edge;
+  edge* edges;
 };
 
 #endif	/* OBJECT3D_H */
