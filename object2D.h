@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class obj{
+class object2D{
 public:
   /*
    * Load and save from file
@@ -27,9 +27,9 @@ public:
   /*
    * Default class definitions
    */
-  inline obj(){nPoints = 0;};
-  obj(unsigned int numPoints, pnt *points);
-  virtual ~obj();
+  inline object2D(){nPoints = 0;};
+  object2D(unsigned int numPoints, pnt *points);
+  virtual ~object2D();
 
   //Clipping object functions
   static void clipObjects(int xmin, int xmax, int ymin, int ymax);
@@ -41,11 +41,11 @@ public:
   /*
    * Getters
    */
-  typedef list<obj*>::iterator oITR;
+  typedef list<object2D*>::iterator oITR;
   inline static unsigned int getNumClippedObjects(){return clippedObjects.size();};
   //inline static obj* getClippedObject(int i){return &(clippedObjects[i]);};
-  inline static list<obj*>& getClippedList(){return clippedObjects;};
-  inline static obj* getObject(int i){return objectList[i];};
+  inline static list<object2D*>& getClippedList(){return clippedObjects;};
+  inline static object2D* getObject(int i){return objectList[i];};
   inline unsigned int getNumPoints(){return nPoints;};  
   inline pnt* getPoints(){return pointList;};
   inline static unsigned int getNumObjects(){return nObjects;};
@@ -59,7 +59,7 @@ public:
  
 private:
   //clip this object
-  obj* clip(int xmin, int xmax, int ymin, int ymax);
+  object2D* clip(int xmin, int xmax, int ymin, int ymax);
   //Gets the centroid point of an object
   pnt getCentroid();
   void findInList(list<line*> &l, int x, int y, bool* out);
@@ -69,10 +69,10 @@ private:
    * variables
    */
   
-  static list<obj*> clippedObjects;
+  static list<object2D*> clippedObjects;
 
   static unsigned int nObjects;
-  static obj** objectList;
+  static object2D** objectList;
 
   static char* storedFileName;
     

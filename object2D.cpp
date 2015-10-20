@@ -13,22 +13,22 @@
 
 using namespace std;
 
-unsigned int obj::nObjects;
-obj** obj::objectList;
-char* obj::storedFileName;
-list<obj*> obj::clippedObjects;
+unsigned int object2D::nObjects;
+object2D** object2D::objectList;
+char* object2D::storedFileName;
+list<object2D*> object2D::clippedObjects;
 
 /*
  * Default constructor
  */
-obj::obj(unsigned int numPoints, pnt* points){
+object2D::object2D(unsigned int numPoints, pnt* points){
   nPoints = numPoints;
   pointList = points;
 }
 
 //Currently causes seg fault if deletion happens
 //probably due to object loading
-obj::~obj(){
+object2D::~object2D(){
   //delete [] pointList;
 }
 
@@ -46,13 +46,13 @@ E* getArrFromList(list<E> l){
 /*
  * load object file
  */
-bool obj::load(char* filename){
+bool object2D::load(char* filename){
   storedFileName = filename;
   
   ifstream file(filename, ios::in);
   
   if(file.is_open()){
-    list<obj*> tempList;
+    list<object2D*> tempList;
     string line;
     nObjects = 0;
     
@@ -150,7 +150,7 @@ bool obj::load(char* filename){
       }
       
       //Build Object
-      tempList.push_front(new obj(num, points));
+      tempList.push_front(new object2D(num, points));
     }
     
     objectList = getArrFromList(tempList);
@@ -167,7 +167,7 @@ bool obj::load(char* filename){
 /*
  * save objects to file
  */
-bool obj::save(char* filename){
+bool object2D::save(char* filename){
   ofstream file(filename);
   if (file.is_open()){
     file << nObjects;
@@ -189,7 +189,7 @@ bool obj::save(char* filename){
  * fills in pixels of object using the passed function and appropriate 
  * algorithm mode
  */
-void obj::fill(void (*MakePix)(int, int), bool BAmode){
+void object2D::fill(void (*MakePix)(int, int), bool BAmode){
   
   //if object is a polygon get the list of lines
   if(getNumPoints() > 2){
@@ -273,7 +273,7 @@ void obj::fill(void (*MakePix)(int, int), bool BAmode){
  * find if a lines at (x, y) and indicate if we should switch parity
  * on input out[0] is if algorithm is currently drawing
  */
-void obj::findInList(list<line*> &l, int x, int y, bool* out){
+void object2D::findInList(list<line*> &l, int x, int y, bool* out){
   const bool drawing = out[0];
   bool output1 = false;
   bool output2 = false;
@@ -364,7 +364,7 @@ void obj::findInList(list<line*> &l, int x, int y, bool* out){
  * Shortens the list of lines to be scanned across by checking their heights
  * vs the current scan line
  */
-void obj::shortenList(list<line*> &l, int y){
+void object2D::shortenList(list<line*> &l, int y){
   list<line*>::iterator it = l.begin();
   
   while(it != l.end()){
@@ -387,22 +387,22 @@ void obj::shortenList(list<line*> &l, int y){
 /*
  * clip all objects currently stored and put them into their own storage
  */
-void obj::clipObjects(int xmin, int xmax, int ymin, int ymax){
+void object2D::clipObjects(int xmin, int xmax, int ymin, int ymax){
   clippedObjects.clear();
 
   for(int i = 0; i < nObjects; i++){
-    obj* o = objectList[i]->clip(xmin, xmax, ymin, ymax);
+    object2D* o = objectList[i]->clip(xmin, xmax, ymin, ymax);
     if(o->getNumPoints()) clippedObjects.push_front(o);
     else delete o;
   }
 }
 
-void obj::freeAll(){
-  for(int i=0; i < obj::nObjects; i++){
-    delete [] obj::getObject(i)->getPoints();
+void object2D::freeAll(){
+  for(int i=0; i < object2D::nObjects; i++){
+    delete [] object2D::getObject(i)->getPoints();
   }
 
-  delete [] obj::objectList;
+  delete [] object2D::objectList;
 }
 
 /* 
@@ -413,7 +413,7 @@ void obj::freeAll(){
 /*
  * gets the calculated centroid. average of all points
  */
-pnt obj::getCentroid(){
+pnt object2D::getCentroid(){
   float x = 0;
   float y = 0;
   for (int i = 0; i < nPoints; i++){
@@ -433,7 +433,7 @@ pnt obj::getCentroid(){
 /*
  * move the object by x and y
  */
-void obj::translation(int x, int y){
+void object2D::translation(int x, int y){
   for (int i = 0; i < nPoints; i++){
     pointList[i].x += x;
     pointList[i].y += y;
@@ -443,7 +443,7 @@ void obj::translation(int x, int y){
 /*
  * scales object from the centroid
  */
-void obj::scale(float a, float b){
+void object2D::scale(float a, float b){
   pnt c = getCentroid();
   
   //const for centroid scaling. also +.5 for rounding
@@ -459,7 +459,7 @@ void obj::scale(float a, float b){
 /*
  * rotates object around the centroid
  */
-void obj::rotation(float alpha){
+void object2D::rotation(float alpha){
   pnt c = getCentroid();
   
   //const for sin and cosin calculations
@@ -611,7 +611,7 @@ void clipAlongEdge(list<cpnt>* lPnt, const int location, const workingEdge we,
 /*
  * Clip this object around rectangular bounds
  */
-obj* obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
+object2D* object2D::clip(const int xmin, const int xmax, const int ymin, const int ymax){
   int location = 0;
   list<cpnt> lPnt;
 
@@ -635,7 +635,7 @@ obj* obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
   clipAlongEdge(&lPnt, location, XMAX, xmin, xmax, ymin, ymax, false);
 
   //object out of Viewport!
-  if(lPnt.empty()) return new obj();
+  if(lPnt.empty()) return new object2D();
 
   //convert list into a new object and return it
   ITR it = lPnt.begin();
@@ -645,6 +645,6 @@ obj* obj::clip(const int xmin, const int xmax, const int ymin, const int ymax){
     it++;
   }
 
-  return new obj(lPnt.size(), arr);
+  return new object2D(lPnt.size(), arr);
 }
 

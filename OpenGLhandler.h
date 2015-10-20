@@ -1,5 +1,5 @@
 #include <GL/glut.h>
-#include "obj.h"
+#include "object2D.h"
 #include <list>
 #include "line.h"
 

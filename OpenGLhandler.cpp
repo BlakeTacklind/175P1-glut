@@ -72,7 +72,7 @@ void OpenGLhandler::init(int* argc, char** argv)
  */
 void OpenGLhandler::onClose(void){
   delete [] PixelBuffer;
-  obj::freeAll();
+  object2D::freeAll();
   userInterface::endUI();
 }
 
@@ -112,12 +112,12 @@ void OpenGLhandler::clearBuffer(){
  */
 void OpenGLhandler::bufferObjects(drawMode m){
   clearBuffer();
-  obj::clipObjects(xMin, xMax, yMin, yMax);
+  object2D::clipObjects(xMin, xMax, yMin, yMax);
 
   //Draw object vertexes
   if (m == points){
     
-    for(list<obj*>::iterator itr = obj::getClippedList().begin(); itr != obj::getClippedList().end(); itr++){
+    for(list<object2D*>::iterator itr = object2D::getClippedList().begin(); itr != object2D::getClippedList().end(); itr++){
       for(int j = 0; j < (*itr)->getNumPoints(); j++){
         pnt* p = &((*itr)->getPoints()[j]);
         MakePix(p->x, p->y);
@@ -126,7 +126,7 @@ void OpenGLhandler::bufferObjects(drawMode m){
   }
   //Draw object with wireframe
   else if (m == lines){
-    for(list<obj*>::iterator itr = obj::getClippedList().begin(); itr != obj::getClippedList().end(); itr++){
+    for(list<object2D*>::iterator itr = object2D::getClippedList().begin(); itr != object2D::getClippedList().end(); itr++){
       pnt p1;
       pnt p2 = (*itr)->getPoints()[0];
       
@@ -148,12 +148,12 @@ void OpenGLhandler::bufferObjects(drawMode m){
   //Rasterize objects
   else if (m == fill){
     //iterate through all objects (after clipping)
-    for(list<obj*>::iterator itr = obj::getClippedList().begin(); itr != obj::getClippedList().end(); itr++){
+    for(list<object2D*>::iterator itr = object2D::getClippedList().begin(); itr != object2D::getClippedList().end(); itr++){
       (*itr)->fill(MakePix,  aMode==BA);
     }
   }
   
-  obj::cleanClippedObects();
+  object2D::cleanClippedObects();
 }
 
 void OpenGLhandler::drawLine(line* l){

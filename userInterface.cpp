@@ -86,7 +86,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    obj::getObject(objSelected)->translation(val, atoi(str));
+    object2D::getObject(objSelected)->translation(val, atoi(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -108,7 +108,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    obj::getObject(objSelected)->rotation(atof(str));
+    object2D::getObject(objSelected)->rotation(atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -133,7 +133,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    obj::getObject(objSelected)->scale(val, atof(str));
+    object2D::getObject(objSelected)->scale(val, atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -151,7 +151,7 @@ void userInterface::keypressed(unsigned char key){
     
     int val = atoi(str);
     
-    if(val >= obj::getNumObjects()){
+    if(val >= object2D::getNumObjects()){
       printError("Not an object id!");
       return;
     }
@@ -285,8 +285,8 @@ void userInterface::keypressed(unsigned char key){
     char str[80];
     getstr(str);
 
-    if(str[0] == 0){if(obj::save()) action = "File saved";}
-    else if(obj::save(str)) action = "File saved";
+    if(str[0] == 0){if(object2D::save()) action = "File saved";}
+    else if(object2D::save(str)) action = "File saved";
     
     onWindow = true;
     drawUI();
@@ -299,8 +299,8 @@ void userInterface::keypressed(unsigned char key){
     char str[80];
     getstr(str);
     
-    if(str[0] == 0){if(obj::load()) action = "File Loaded";}
-    else if(obj::load(str)) action = "File Loaded";
+    if(str[0] == 0){if(object2D::load()) action = "File Loaded";}
+    else if(object2D::load(str)) action = "File Loaded";
     
     onWindow = true;
     drawUI();
