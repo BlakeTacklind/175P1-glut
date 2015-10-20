@@ -2,6 +2,7 @@
 
 #include "OpenGLhandler.h"
 #include "object2D.h"
+#include "object3D.h"
 #include "userInterface.h"
 #include "screen.h"
 #include <iostream>

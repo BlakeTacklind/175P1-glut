@@ -9,13 +9,16 @@
 #include "object3D.h"
 #include <list>
 
+using namespace std;
+
 list<screen*> screen::screenList;
 
-screen::screen(int x, int y, pnt3 vec, void (*mkPix)(int, int)) {
+screen::screen(int x, int y, int ofX, int ofY, pnt3 vec, void (*mkPix)(int, int))
+:vector(vec), offsetX(ofX), offsetY(ofY){
   width = x;
   height = y;
-  vector = vec;
-  MakePix = mkPix;
+  //vector = vec;
+  kPix = mkPix;
   
   screenList.push_back(this);
 }
@@ -49,7 +52,7 @@ void screen::bufferObjects() {
   //convert to 2d lines float lines
   list<pntf**> edge2d;
   for (list<pnt3**>::iterator it = edge3d.begin(); it != edge3d.end(); it++){
-    pntf** p = new (pntf*)[2];
+    pntf** p = new pntf*[2];
     
     p[0] = convert3dPoint((*it)[0]);
     p[1] = convert3dPoint((*it)[1]);
@@ -90,7 +93,7 @@ void screen::bufferObjects() {
     scale = scaleX>scaleY?scaleY:scaleX;
   }
   
-  list<pntf**>::iterator it = edge2d.begin();
+  it = edge2d.begin();
   while(it != edge2d.end()){
     pnt a;
     pnt b;
@@ -113,6 +116,10 @@ void screen::bufferObjects() {
   }
 }
 
+bool operator==(const pnt3& a, const pnt3& b){
+  return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
 /*
  * convert 3d point into a 2d coordinate system
  * using parallel projection
@@ -120,16 +127,16 @@ void screen::bufferObjects() {
 pntf* screen::convert3dPoint(pnt3* p){
   pntf* r = new pntf;
   if(vector == unitX){
-    r.x = p->y;
-    r.y = p->z;
+    r->x = p->y;
+    r->y = p->z;
   }
   else if(vector == unitY){
-    r.x = -p->x;
-    r.y =  p->z;
+    r->x = -p->x;
+    r->y =  p->z;
   }
   else if(vector == unitZ){
-    r.x = p->x;
-    r.y = p->y;
+    r->x = p->x;
+    r->y = p->y;
   }
   else{
     

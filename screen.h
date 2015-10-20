@@ -12,9 +12,11 @@
 #include "line.h"
 #include <list>
 
+using namespace std;
+
 class screen {
 public:
-  screen(int x, int y, pnt3 vec, void (*mkPix)(int, int));
+  screen(int x, int y, int ofX, int ofY, pnt3 vec, void (*mkPix)(int, int));
   inline screen(){};
   screen(const screen& orig);
   virtual ~screen();
@@ -42,14 +44,16 @@ private:
   
   void drawLine(line* l);
   
-  int width;
-  int height;
-  pnt3 vector;
+  unsigned int width;
+  unsigned int height;
+  const pnt3 vector = unitX;
+  const int offsetX = 0, offsetY = 0;
   
   //viewport values
   int xMin, yMin, xMax, yMax;
-  
-  void (*MakePix)(int, int);
+ 
+  inline void MakePix(int x, int y){kPix(x+offsetX, y+offsetY);}; 
+  void (*kPix)(int, int);
 };
 
 #endif	/* SCREEN_H */

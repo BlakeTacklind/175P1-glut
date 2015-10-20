@@ -13,6 +13,7 @@
 
 char* object3D::storedFileName;
 unsigned int object3D::nObjects;
+object3D** object3D::objectList;
 
 object3D::object3D(int npnt, pnt3* Points, int nedge, edge* Edges){
   nPoints = npnt;
@@ -37,10 +38,10 @@ object3D::~object3D() {
 pnt3** object3D::getEdge(unsigned int i){
   if(i >= nEdges){
     userInterface::printError("Not an edge in object");
-    return void;
+    return nullptr;
   }
   
-  pnt3** p = new (pnt3*)[2];
+  pnt3** p = new pnt3*[2];
   
   p[0] = &(points[edges[i].p1]);
   p[1] = &(points[edges[i].p2]);
@@ -59,8 +60,8 @@ E* getArrFromList(list<E> l){
   return arr;
 }
 
-bool object3D::load(char* filename){
-  storedFileName = filename;
+bool object3D::load(const char* filename){
+  storedFileName = const_cast<char*>(filename);
   
   ifstream file(filename, ios::in);
   
@@ -261,8 +262,8 @@ bool object3D::load(char* filename){
 /*
  * save objects to file
  */
-bool object3D::save(char* filename){
-  storedFileName = filename;
+bool object3D::save(const char* filename){
+  storedFileName = const_cast<char*>(filename);
   
   ofstream file(filename);
   if (file.is_open()){

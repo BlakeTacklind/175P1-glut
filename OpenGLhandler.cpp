@@ -39,9 +39,9 @@ void OpenGLhandler::initValues(int argc, char** argv){
   PixelBuffer = new float[width * height * 3];
   //clearBuffer();
   
-  screen(width/2, height/2, unitX, getOffsetMakePixFunction(0      , 0       ));
-  screen(width/2, height/2, unitY, getOffsetMakePixFunction(width/2, height/2));
-  screen(width/2, height/2, unitZ, getOffsetMakePixFunction(0      , height/2));
+  screen(width/2, height/2, 0      , 0       , unitX, MakePix);
+  screen(width/2, height/2, width/2, height/2, unitY, MakePix);
+  screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
 
   /* not needed for project 2
   aMode = DDA;
@@ -53,10 +53,11 @@ void OpenGLhandler::initValues(int argc, char** argv){
   */
 }
 
+/*
 OpenGLhandler::fptr OpenGLhandler::getOffsetMakePixFunction(int x, int y){
-  return [](int i, int j){MakePix(i+x, j+y);};
+  return [x,y](int i, int j){MakePix(i+x, j+y);};
 }
-
+*/
 void OpenGLhandler::init(int* argc, char** argv)
 {
   glutInit(argc, argv);

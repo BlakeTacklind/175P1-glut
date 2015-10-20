@@ -36,9 +36,9 @@ public:
   inline static int getScreenHeight(){return height;};
 
 private:
-  typedef void (*fptr)(int,int);
+  //typedef void (*fptr)(int,int);
   
-  static fptr getOffsetMakePixFunction(int x, int y);
+  //static fptr getOffsetMakePixFunction(int x, int y);
   
   //clear Pixel Buffer
   static void clearBuffer();
