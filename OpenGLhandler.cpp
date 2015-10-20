@@ -48,6 +48,10 @@ void OpenGLhandler::initValues(int argc, char** argv){
 
 }
 
+OpenGLhandler::fptr OpenGLhandler::getOffsetMakePixFunction(int x, int y){
+  return [](int i, int j){MakePix(i+x, j+y);};
+}
+
 void OpenGLhandler::init(int* argc, char** argv)
 {
   glutInit(argc, argv);
@@ -57,7 +61,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutInitWindowPosition(100, 100);
 
-  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 1");
+  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 2");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
 
