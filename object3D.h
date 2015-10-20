@@ -24,8 +24,11 @@ public:
   object3D(const object3D& orig);
   virtual ~object3D();
   
-  //unsure return and handed types
-  void convertTo2D(pnt3 vector);
+  inline static unsigned int getNumObjects(){return nObjects;};
+  inline static object3D* getObject(unsigned int i){return objectList[i];};
+  inline unsigned int getNumPoints(){return nPoints;};
+  inline unsigned int getNumEdges(){return nEdges;};
+  pnt3** getEdge(unsigned int i);
   
   void translate(float x, float y, float z);
   void rotate(float x, float y, float z);
@@ -41,7 +44,7 @@ private:
   
   unsigned int nPoints;
   pnt3* points;
-  unsigned int nEdge;
+  unsigned int nEdges;
   edge* edges;
 };
 

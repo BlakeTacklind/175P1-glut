@@ -17,13 +17,13 @@ unsigned int object3D::nObjects;
 object3D::object3D(int npnt, pnt3* Points, int nedge, edge* Edges){
   nPoints = npnt;
   points = Points;
-  nEdge = nedge;
+  nEdges = nedge;
   edges = Edges;
 }
 
 object3D::object3D() {
   nPoints = 0;
-  nEdge = 0;
+  nEdges = 0;
 }
 
 object3D::object3D(const object3D& orig) {
@@ -32,6 +32,20 @@ object3D::object3D(const object3D& orig) {
 object3D::~object3D() {
   delete [] points;
   delete [] edges;
+}
+
+pnt3** object3D::getEdge(unsigned int i){
+  if(i >= nEdges){
+    userInterface::printError("Not an edge in object");
+    return void;
+  }
+  
+  pnt3** p = new (pnt3*)[2];
+  
+  p[0] = &(points[edges[i].p1]);
+  p[1] = &(points[edges[i].p2]);
+  
+  return p;
 }
 
 template <class E>
@@ -201,6 +215,22 @@ bool object3D::load(char* filename){
           
           int x = atoi(line.substr(0, del).c_str());
           int y = atoi(line.substr(del+1).c_str());
+          
+          if(x >= num || y >= num){
+            userInterface::printError("Point in edge definition does not exist");
+            file.close();
+            objectList = getArrFromList(tempList);
+            nObjects = tempList.size();
+            return false;
+          }
+          if (x == y){
+            userInterface::printError("Edge can't connect to itself");
+            file.close();
+            objectList = getArrFromList(tempList);
+            nObjects = tempList.size();
+            return false;
+          }
+          
           e[j].p1 = x;
           e[j].p2 = y;
         }
@@ -242,7 +272,7 @@ bool object3D::save(char* filename){
       for (int j = 0 ; j < objectList[i]->nPoints; j++)
         file << "\n" << objectList[i]->points[j].x << " " << objectList[i]->points[j].y << " " << objectList[i]->points[j].z;
       
-      for (int j = 0 ; j < objectList[i]->nEdge; j++)
+      for (int j = 0 ; j < objectList[i]->nEdges; j++)
         file << "\n" << objectList[i]->edges[j].p1 << " " << objectList[i]->edges[j].p2;
     }
     
