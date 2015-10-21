@@ -47,7 +47,7 @@ void OpenGLhandler::initValues(int argc, char** argv){
   new screen(width/2, height/2, 0      , 0       , unitX, MakePix);
   new screen(width/2, height/2, width/2, height/2, unitY, MakePix);
   new screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
-  // new screen(width/2, height/2, width/2, 0       , angl1, angl2, MakePix);
+  new screen(width/2, height/2, width/2, 0       , angl2, MakePix);
 
   /* not needed for project 2
   aMode = DDA;

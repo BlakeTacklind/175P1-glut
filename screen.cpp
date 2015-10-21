@@ -22,10 +22,25 @@ screen::screen(int x, int y, int ofX, int ofY, pnt3 vec, void (*mkPix)(int, int)
   width = x;
   height = y;
   mp = mkPix;
-  normal = ~vec;
-
+  setNormal(vec);
 
   screenList.push_back(this);
+}
+
+void screen::setNormal(const pnt3& vec){
+  if (vec == zeroVector){
+    userInterface::printError("can't use zero vector as normal vector");
+    return;
+  }
+
+  normal = ~vec;
+  if(normal == unitX || normal == unitY || normal == unitZ) return;
+
+  float nx2 = pow(normal.x,2);
+  float ny2 = pow(normal.y,2);
+
+  outx = {sqrt(1-(nx2/(nx2 + ny2))), normal.x/sqrt(nx2+ny2), 0};
+  outy = normal%outx;
 }
 
 screen::screen(const screen& orig) {}
@@ -144,11 +159,12 @@ pntf* screen::convert3dPoint(pnt3* p){
     r->y = p->y;
   }
   else{
-    float t = -(normal.x * p->x + normal.y * p->y + normal.z * p->z);
-    
+    r->x=outx*(*p);
+    r->y=outy*(*p);
+
+    cout<<"test "<<r->x<<" "<<r->y<<endl;
   }
 
-  
   return r;
 }
 

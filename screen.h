@@ -37,6 +37,8 @@ public:
   */
   inline int getScreenWidth (){return width; };
   inline int getScreenHeight(){return height;};
+
+  void setNormal(const pnt3& p);
   
 private:
   void bufferObjects();
@@ -48,7 +50,7 @@ private:
   
   unsigned int width;
   unsigned int height;
-  pnt3 normal;
+  pnt3 normal, outy, outx;
   const int offsetX=0, offsetY=0;
   
   //viewport values
