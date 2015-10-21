@@ -24,6 +24,8 @@ public:
   object3D(const object3D& orig);
   virtual ~object3D();
   
+  static void freeAll();
+  
   inline static unsigned int getNumObjects(){return nObjects;};
   inline static object3D* getObject(unsigned int i){return objectList[i];};
   inline unsigned int getNumPoints(){return nPoints;};

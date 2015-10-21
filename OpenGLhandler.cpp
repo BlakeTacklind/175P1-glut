@@ -2,6 +2,7 @@
 #include "OpenGLhandler.h"
 #include "userInterface.h"
 #include "screen.h"
+#include "object3D.h"
 
 #include <iostream>
 #include <list>
@@ -19,6 +20,7 @@ unsigned int OpenGLhandler::width;
 unsigned int OpenGLhandler::height;
 
 void OpenGLhandler::initValues(int argc, char** argv){
+  /*
   if (argc == 3){
     int val1 = atoi(argv[1]);
     int val2 = atoi(argv[2]);
@@ -31,17 +33,21 @@ void OpenGLhandler::initValues(int argc, char** argv){
       height = 400;
     }
   }
-  else{
+  else{*/
     width = 400;
     height = 400;
-  }
+  //}
   
   PixelBuffer = new float[width * height * 3];
   //clearBuffer();
+
+  pnt3 angl1 = {1,1,1};
+  pnt3 angl2 = {1,-1,0};
   
-  screen(width/2, height/2, 0      , 0       , unitX, MakePix);
-  screen(width/2, height/2, width/2, height/2, unitY, MakePix);
-  screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
+  new screen(width/2, height/2, 0      , 0       , unitX, MakePix);
+  new screen(width/2, height/2, width/2, height/2, unitY, MakePix);
+  new screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
+  // new screen(width/2, height/2, width/2, 0       , angl1, angl2, MakePix);
 
   /* not needed for project 2
   aMode = DDA;
@@ -82,12 +88,14 @@ void OpenGLhandler::init(int* argc, char** argv)
  */
 void OpenGLhandler::onClose(void){
   delete [] PixelBuffer;
-  object2D::freeAll();
-  userInterface::endUI();
+  //object2D::freeAll();
+  object3D::freeAll();
+  screen::freeAll();
+  //userInterface::endUI();
 }
 
 void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
-  if(userInterface::isWindowFocus() && key == 27){
+  if(key == 27){
     onClose();
     glutDestroyWindow(MainWindow);
   }

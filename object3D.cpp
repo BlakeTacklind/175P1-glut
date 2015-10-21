@@ -10,6 +10,7 @@
 #include <fstream>
 #include "userInterface.h"
 #include <list>
+#include <iostream>
 
 char* object3D::storedFileName;
 unsigned int object3D::nObjects;
@@ -33,6 +34,14 @@ object3D::object3D(const object3D& orig) {
 object3D::~object3D() {
   delete [] points;
   delete [] edges;
+}
+
+void object3D::freeAll(){
+  for (int i = 0; i < nObjects; ++i){
+    delete objectList[i];
+  }
+
+  delete objectList;
 }
 
 pnt3** object3D::getEdge(unsigned int i){
@@ -154,7 +163,7 @@ bool object3D::load(const char* filename){
           
           float x = atof(line.substr(0, del).c_str());
           float y = atof(line.substr(del+1, del2).c_str());
-          float z = atof(line.substr(del2+1).c_str());
+          float z = atof(line.substr(del+1+del2+1).c_str());
           
           points[j].x = x;
           points[j].y = y;
@@ -250,7 +259,7 @@ bool object3D::load(const char* filename){
     
     objectList = getArrFromList(tempList);
     nObjects = tempList.size();
-    
+
     file.close();
     return true;
   }
@@ -283,5 +292,3 @@ bool object3D::save(const char* filename){
   userInterface::printError("failed to open save file");
   return false;
 }
-
-

@@ -2,6 +2,7 @@
 #ifndef TYPES_H
 #define	TYPES_H
 
+
 /*
  * Struct for 2D points (integer)
  */
@@ -30,9 +31,20 @@ typedef struct e{
   int p1, p2;
 } edge;
 
+const pnt3 zeroVector = {0, 0, 0};
+
 const pnt3 unitX = {1, 0, 0};
 const pnt3 unitY = {0, 1, 0};
 const pnt3 unitZ = {0, 0, 1};
+
+bool operator==(const pnt3& a, const pnt3& b);
+float operator*(const pnt3& a, const pnt3& b);
+pnt3 operator*(const pnt3& p, const float i);
+pnt3 operator/(const pnt3& p, const float i);
+pnt3 operator~(const pnt3& p);
+pnt3 operator-(const pnt3& a);
+pnt3 operator-(const pnt3& a, const pnt3& b);
+pnt3 operator<<(const pnt3& a, const pnt3& b);
 
 #endif	/* TYPES_H */
 

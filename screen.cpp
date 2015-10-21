@@ -8,26 +8,35 @@
 #include "screen.h"
 #include "object3D.h"
 #include <list>
+#include <iostream>
+#include <math.h>
+#include "userInterface.h"
+#include "types.h"
 
 using namespace std;
 
 list<screen*> screen::screenList;
 
 screen::screen(int x, int y, int ofX, int ofY, pnt3 vec, void (*mkPix)(int, int))
-:vector(vec), offsetX(ofX), offsetY(ofY){
+:offsetX(ofX), offsetY(ofY){
   width = x;
   height = y;
-  //vector = vec;
-  kPix = mkPix;
-  
+  mp = mkPix;
+  normal = ~vec;
+
+
   screenList.push_back(this);
 }
 
-screen::screen(const screen& orig) {
-}
+screen::screen(const screen& orig) {}
 
-screen::~screen() {
-  screenList.remove(this);
+screen::~screen() {}
+
+void screen::freeAll(){
+  for(list<screen*>::iterator it = screenList.end(); it != screenList.begin(); it--)
+    delete *it;
+  
+  screenList.clear();
 }
 
 void screen::bufferAllScreens() {
@@ -88,8 +97,8 @@ void screen::bufferObjects() {
   //find scale value
   float scale;
   {
-    float scaleX = width  / (xmax - xmin);
-    float scaleY = height / (ymax - ymin);
+    float scaleX = (width  - 1) / (xmax - xmin);
+    float scaleY = (height - 1) / (ymax - ymin);
     scale = scaleX>scaleY?scaleY:scaleX;
   }
   
@@ -116,31 +125,29 @@ void screen::bufferObjects() {
   }
 }
 
-bool operator==(const pnt3& a, const pnt3& b){
-  return a.x == b.x && a.y == b.y && a.z == b.z;
-}
-
 /*
  * convert 3d point into a 2d coordinate system
  * using parallel projection
  */
 pntf* screen::convert3dPoint(pnt3* p){
   pntf* r = new pntf;
-  if(vector == unitX){
+  if(normal == unitX){
     r->x = p->y;
     r->y = p->z;
   }
-  else if(vector == unitY){
+  else if(normal == unitY){
     r->x = -p->x;
-    r->y =  p->z;
+    r->y = p->z;
   }
-  else if(vector == unitZ){
+  else if(normal == unitZ){
     r->x = p->x;
     r->y = p->y;
   }
   else{
+    float t = -(normal.x * p->x + normal.y * p->y + normal.z * p->z);
     
   }
+
   
   return r;
 }
@@ -151,8 +158,7 @@ void screen::drawLine(line* l){
     pnt p = l->getPoint(i);
     MakePix(p.x, p.y);
   }
-  
+
   //clean up line after usage
   delete l;
 }
-

@@ -20,9 +20,11 @@ public:
   inline screen(){};
   screen(const screen& orig);
   virtual ~screen();
+
+  static void freeAll();
   
   static void bufferAllScreens();
-  
+  /*
   inline int getYmin(){return yMin;};
   inline int getYmax(){return yMax;};
   inline int getXmin(){return xMin;};
@@ -32,7 +34,7 @@ public:
   inline int setYmax(int i){yMax = i;};
   inline int setXmin(int i){xMin = i;};
   inline int setXmax(int i){xMax = i;};
-  
+  */
   inline int getScreenWidth (){return width; };
   inline int getScreenHeight(){return height;};
   
@@ -46,14 +48,14 @@ private:
   
   unsigned int width;
   unsigned int height;
-  const pnt3 vector = unitX;
-  const int offsetX = 0, offsetY = 0;
+  pnt3 normal;
+  const int offsetX=0, offsetY=0;
   
   //viewport values
-  int xMin, yMin, xMax, yMax;
+  //int xMin, yMin, xMax, yMax;
  
-  inline void MakePix(int x, int y){kPix(x+offsetX, y+offsetY);}; 
-  void (*kPix)(int, int);
+  inline void MakePix(int x, int y){mp(x+offsetX, y+offsetY);}; 
+  void (*mp)(int, int);
 };
 
 #endif	/* SCREEN_H */
