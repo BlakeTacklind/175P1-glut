@@ -20,28 +20,12 @@ unsigned int OpenGLhandler::width;
 unsigned int OpenGLhandler::height;
 
 void OpenGLhandler::initValues(int argc, char** argv){
-  /*
-  if (argc == 3){
-    int val1 = atoi(argv[1]);
-    int val2 = atoi(argv[2]);
-    if(val1 > 0 && val2 > 0){
-      width = val1;
-      height = val2;
-    }
-    else{
-      width = 400;
-      height = 400;
-    }
-  }
-  else{*/
-    width = 400;
-    height = 400;
-  //}
+  
+  width = 400;
+  height = 400;
   
   PixelBuffer = new float[width * height * 3];
-  //clearBuffer();
 
-  pnt3 angl1 = {1,1,1};
   pnt3 angl2 = {1,-1,0};
   
   new screen(width/2, height/2, 0      , 0       , unitX, MakePix);
@@ -49,21 +33,8 @@ void OpenGLhandler::initValues(int argc, char** argv){
   new screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
   new screen(width/2, height/2, width/2, 0       , angl2, MakePix);
 
-  /* not needed for project 2
-  aMode = DDA;
-  dMode = lines;
-  xMin = 0;
-  yMin = 0;
-  xMax = width-1;
-  yMax = height-1;
-  */
 }
 
-/*
-OpenGLhandler::fptr OpenGLhandler::getOffsetMakePixFunction(int x, int y){
-  return [x,y](int i, int j){MakePix(i+x, j+y);};
-}
-*/
 void OpenGLhandler::init(int* argc, char** argv)
 {
   glutInit(argc, argv);
@@ -88,10 +59,9 @@ void OpenGLhandler::init(int* argc, char** argv)
  */
 void OpenGLhandler::onClose(void){
   delete [] PixelBuffer;
-  //object2D::freeAll();
   object3D::freeAll();
   screen::freeAll();
-  //userInterface::endUI();
+  userInterface::endUI();
 }
 
 void OpenGLhandler::Keystroke(unsigned char key, int x, int y){

@@ -9,11 +9,11 @@
 
 int main(int argc, char *argv[])
 {
-  //initilize Values
+  //initialize Values
   OpenGLhandler::initValues(argc, argv);
  
   //start UI
-  //userInterface::init();
+  userInterface::init();
   
   //load objects from default file
   object3D::load("objects3d");
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
   //draw objects
   screen::bufferAllScreens();
   
-  //initilize glut!
+  //initialize glut!
   OpenGLhandler::init(&argc, argv);
   return 0;
 }

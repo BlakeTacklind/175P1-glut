@@ -24,17 +24,7 @@ public:
   static void freeAll();
   
   static void bufferAllScreens();
-  /*
-  inline int getYmin(){return yMin;};
-  inline int getYmax(){return yMax;};
-  inline int getXmin(){return xMin;};
-  inline int getXmax(){return xMax;};
   
-  inline int setYmin(int i){yMin = i;};
-  inline int setYmax(int i){yMax = i;};
-  inline int setXmin(int i){xMin = i;};
-  inline int setXmax(int i){xMax = i;};
-  */
   inline int getScreenWidth (){return width; };
   inline int getScreenHeight(){return height;};
 
@@ -53,9 +43,6 @@ private:
   pnt3 normal, outy, outx;
   const int offsetX=0, offsetY=0;
   
-  //viewport values
-  //int xMin, yMin, xMax, yMax;
- 
   inline void MakePix(int x, int y){mp(x+offsetX, y+offsetY);}; 
   void (*mp)(int, int);
 };
