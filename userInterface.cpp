@@ -17,8 +17,11 @@ bool userInterface::onWindow;
 
 void userInterface::init(){
   initscr();
+  start_color();
+  init_pair(1, COLOR_RED, COLOR_BLACK);
   action = "";
-  //(void)echo();
+  if(!has_colors()) action = "Does not support color!";
+  else if(!can_change_color()) action = "Can't change color";
   objSelected = -1;
   onWindow = true;
   drawUI();
@@ -26,7 +29,9 @@ void userInterface::init(){
 
 void userInterface::drawUI(){
   clear();
+  attron(COLOR_PAIR(1));
   printw("USE [ESC] TO END PROGRAM, press [h] for help");
+  attroff(COLOR_PAIR(1));
   printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   printw("\nCurrent Object Selected: ");
   if (objSelected == -1) printw("None");
