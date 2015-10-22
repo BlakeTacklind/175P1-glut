@@ -11,6 +11,7 @@
 #include "userInterface.h"
 #include <list>
 #include <iostream>
+#include <math.h>
 
 char* object3D::storedFileName;
 unsigned int object3D::nObjects;
@@ -304,16 +305,36 @@ void object3D::translate(float x, float y, float z){
 }
 
 void object3D::scale(float a, float b, float c){
-  pnt3 C = getCentroid();
+  const pnt3 C = getCentroid();
 
   for(int i = 0; i < nPoints; i++){
-    pnt3 p = {a*(points[i].x - C.x) + C.x, b*(points[i].y - C.y) + C.y, c*(points[i].z - C.z) + C.z};    
-    points[i] = p;
+    pnt3* p = &(points[i]);
+    pnt3 P = {
+      a*(p->x - C.x) + C.x, 
+      b*(p->y - C.y) + C.y, 
+      c*(p->z - C.z) + C.z
+    };    
+    *p = P;
   }
 }
 
 void object3D::rotate(pnt3 a, pnt3 b, float r){
+  //get a normalized vector
+  pnt3 v = ~(b-a);
+  const float rad = r*deg2rad;
+  const float cr = cos(rad);
+  const float sr = sin(rad);
 
+  for(int i = 0; i < nPoints; i++){
+    pnt3* p = &(points[i]);
+    float t = -v.x*p->x-v.y*p->y-v.z*p->z;
+    pnt3 P = {
+      (a.x*(v.y*v.y+v.z*v.z) - v.x*(a.y*v.y+a.z*v.z+t))*(1-cr) + p->x*cr + (-a.z*v.y+a.y*v.z-v.z*p->y+v.y*p->z)*sr,
+      (a.y*(v.x*v.x+v.z*v.z) - v.y*(a.x*v.x+a.z*v.z+t))*(1-cr) + p->y*cr + ( a.z*v.x-a.x*v.z+v.z*p->x-v.x*p->z)*sr,
+      (a.z*(v.x*v.x+v.y*v.y) - v.z*(a.x*v.x+a.y*v.y+t))*(1-cr) + p->z*cr + (-a.y*v.x+a.x*v.y-v.y*p->x+v.x*p->y)*sr
+    };
+    *p = P;
+  }
 }
 
 pnt3 object3D::getCentroid(){

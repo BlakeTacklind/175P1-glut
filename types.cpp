@@ -1,7 +1,6 @@
 #include "types.h"
 #include <math.h>
 
-const float deg2rad = 3.14159265/180;
 
 /* check for vector equality */
 bool operator==(const pnt3& a, const pnt3& b){

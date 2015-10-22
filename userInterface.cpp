@@ -94,14 +94,46 @@ void userInterface::keypressed(unsigned char key){
     action = "Current Action: Enter rotation angle, in degrees\n";
     drawUI();
     
+    pnt3 p1;
+    pnt3 p2;
+
     char str[80];
     getstr(str);
-    
+
+    p1.x = atof(str);
+
+    getstr(str);
+
+    p1.y = atof(str);
+
+    getstr(str);
+
+    p1.z = atof(str);
+
+    getstr(str);
+
+    p2.x = atof(str);
+
+    getstr(str);
+
+    p2.y = atof(str);
+
+    getstr(str);
+
+    p2.z = atof(str);
+
+    getstr(str);
+
     onWindow = true;
     action = "";
-    drawUI();
     
-    //object3D::getObject(objSelected)->rotation(atof(str));
+    if(p1 == p2){
+      printError("Line is not defined! (points are the same)");
+      return;
+    }
+
+    drawUI();
+    object3D::getObject(objSelected)->rotate(p1, p2, atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
