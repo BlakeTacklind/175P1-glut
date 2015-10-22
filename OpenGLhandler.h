@@ -2,6 +2,7 @@
 #include "object2D.h"
 #include <list>
 #include "line.h"
+#include "screen.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ public:
   static void init(int* argc, char** argv);
   static void reDraw();
 
-  inline static void bufferObjects(){bufferObjects(dMode);};
+  inline static void bufferObjects(){clearBuffer(); screen::bufferAllScreens();};
 
   static const char* getDrawMode();
   static const char* getAlgMode();
@@ -35,6 +36,9 @@ public:
   inline static int getScreenWidth (){return width; };
   inline static int getScreenHeight(){return height;};
 
+  //Free space
+  static void onClose(void);
+
 private:
   //clear Pixel Buffer
   static void clearBuffer();
@@ -42,9 +46,6 @@ private:
   static void MakePix(int x, int y);
   //line drawing
   static void drawLine(line* l);
-
-  //Free space
-  static void onClose(void);
 
   //Add objects to buffer
   static void bufferObjects(drawMode m);

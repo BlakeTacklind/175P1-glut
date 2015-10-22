@@ -254,7 +254,7 @@ bool object3D::load(const char* filename){
       }
       
       //Build Object
-      tempList.push_front(new object3D(num, points, num2, e));
+      tempList.push_back(new object3D(num, points, num2, e));
     }
     
     objectList = getArrFromList(tempList);
@@ -282,6 +282,7 @@ bool object3D::save(const char* filename){
       for (int j = 0 ; j < objectList[i]->nPoints; j++)
         file << "\n" << objectList[i]->points[j].x << " " << objectList[i]->points[j].y << " " << objectList[i]->points[j].z;
       
+      file << "\n" << objectList[i]->nEdges;
       for (int j = 0 ; j < objectList[i]->nEdges; j++)
         file << "\n" << objectList[i]->edges[j].p1 << " " << objectList[i]->edges[j].p2;
     }
@@ -291,4 +292,38 @@ bool object3D::save(const char* filename){
   }
   userInterface::printError("failed to open save file");
   return false;
+}
+
+
+void object3D::translate(float x, float y, float z){
+  for(int i = 0; i < nPoints; i++){
+    points[i].x += x;
+    points[i].y += y;
+    points[i].z += z;
+  }
+}
+
+void object3D::scale(float a, float b, float c){
+  pnt3 C = getCentroid();
+
+  for(int i = 0; i < nPoints; i++){
+    pnt3 p = {a*(points[i].x - C.x) + C.x, b*(points[i].y - C.y) + C.y, c*(points[i].z - C.z) + C.z};    
+    points[i] = p;
+  }
+}
+
+void object3D::rotate(pnt3 a, pnt3 b, float r){
+
+}
+
+pnt3 object3D::getCentroid(){
+  pnt3 p = {0,0,0};
+
+  if (!nPoints) return p;
+
+  for(int i = 0; i < nPoints; i++){
+    p = p + points[i];
+  }
+
+  return p/nPoints;
 }

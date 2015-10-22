@@ -24,14 +24,16 @@ public:
   static void freeAll();
   
   static void bufferAllScreens();
+  void bufferObjects();
   
+  inline static screen* getLastScreen(){return screenList.back();};
   inline int getScreenWidth (){return width; };
   inline int getScreenHeight(){return height;};
 
+  inline pnt3 getNormal(){return normal;};
   void setNormal(const pnt3& p);
   
 private:
-  void bufferObjects();
   static list<screen*> screenList;
   
   pntf* convert3dPoint(pnt3* p);

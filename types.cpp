@@ -1,6 +1,8 @@
 #include "types.h"
 #include <math.h>
 
+const float deg2rad = 3.14159265/180;
+
 /* check for vector equality */
 bool operator==(const pnt3& a, const pnt3& b){
   return a.x == b.x && a.y == b.y && a.z == b.z;
@@ -58,6 +60,14 @@ pnt3 operator-(const pnt3& a, const pnt3& b){
   return p;
 }
 
+/* subtracting vectors */
+pnt3 operator+(const pnt3& a, const pnt3& b){
+  if(b==zeroVector) return a;
+  if(a==zeroVector) return b;
+  pnt3 p = {a.x+b.x, a.y+b.y, a.z+b.z};
+  return p;
+}
+
 /* Find projection of vector b onto a normal vector a */
 pnt3 operator<<(const pnt3& a, const pnt3& b){
   float dot = a*b;
@@ -75,4 +85,13 @@ pnt3 operator%(const pnt3& a, const pnt3& b){
 
 	pnt3 p = {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};
 	return p;
+}
+
+pnt3 rotateAboutZ(const pnt3& p, const float a){
+  float rad=a*deg2rad;
+  float ca = cos(rad);
+  float sa = sin(rad);
+
+  pnt3 o = {p.x*ca - p.y*sa, p.x*sa + p.y*ca, p.z};
+  return o;
 }

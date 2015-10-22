@@ -33,8 +33,8 @@ public:
   pnt3** getEdge(unsigned int i);
   
   void translate(float x, float y, float z);
-  void rotate(float x, float y, float z);
   void scale(float x, float y, float z);
+  void rotate(pnt3 a, pnt3 b, float r);
   
 private:
   static char* storedFileName;

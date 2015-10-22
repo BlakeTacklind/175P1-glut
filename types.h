@@ -46,7 +46,9 @@ pnt3 operator/(const pnt3& p, const float i);
 pnt3 operator~(const pnt3& p);
 pnt3 operator-(const pnt3& a);
 pnt3 operator-(const pnt3& a, const pnt3& b);
+pnt3 operator+(const pnt3& a, const pnt3& b);
 pnt3 operator<<(const pnt3& a, const pnt3& b);
+pnt3 rotateAboutZ(const pnt3& p, const float a);
 
 #endif	/* TYPES_H */
 

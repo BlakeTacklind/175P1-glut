@@ -36,11 +36,13 @@ void screen::setNormal(const pnt3& vec){
   normal = ~vec;
   if(normal == unitX || normal == unitY || normal == unitZ) return;
 
-  float nx2 = pow(normal.x,2);
-  float ny2 = pow(normal.y,2);
-
-  outx = {sqrt(1-(nx2/(nx2 + ny2))), normal.x/sqrt(nx2+ny2), 0};
+  outx = ~(normal%unitZ);
   outy = normal%outx;
+
+  if(outy.z < 0){
+    outx = -outx;
+    outy = -outy;
+  }
 }
 
 screen::screen(const screen& orig) {}
@@ -162,7 +164,7 @@ pntf* screen::convert3dPoint(pnt3* p){
     r->x=outx*(*p);
     r->y=outy*(*p);
 
-    cout<<"test "<<r->x<<" "<<r->y<<endl;
+    //cout<<"test "<<r->x<<" "<<r->y<<endl;
   }
 
   return r;

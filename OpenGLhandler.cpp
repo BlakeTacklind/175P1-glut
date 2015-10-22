@@ -26,12 +26,12 @@ void OpenGLhandler::initValues(int argc, char** argv){
   
   PixelBuffer = new float[width * height * 3];
 
-  pnt3 angl2 = {1,-1,0};
+  pnt3 iso = {0.612375, 0.612375, -0.50000};
   
   new screen(width/2, height/2, 0      , 0       , unitX, MakePix);
   new screen(width/2, height/2, width/2, height/2, unitY, MakePix);
   new screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
-  new screen(width/2, height/2, width/2, 0       , angl2, MakePix);
+  new screen(width/2, height/2, width/2, 0       , iso  , MakePix);
 
 }
 
