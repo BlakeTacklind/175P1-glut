@@ -48,49 +48,49 @@ bool valueHolder::removeChar(){
 }
 
 threeFloats::threeFloats(valTypes tp):valueHolder(tp, numVal){
-  vals    = new float*[numVal];
-  strvals = new char[maxCharLength+1][numVal];
+  vals    = (void**)new float*[numVal];
+  strvals = new char*[numVal];
 }
 
 bool threeFloats::nextVal(){
   onChar = 0; 
   vals[onVal] = new float;
-  *(vals[onVal]) = atof(strvals[onVal]);
+  *((float*)vals[onVal]) = atof(strvals[onVal]);
   return nVal < ++onVal;
 }
 
 rotation::rotation():valueHolder(Rotation, numVal){
-  vals    = new float*[numVal];
-  strvals = new char[maxCharLength+1][numVal];
+  vals    = (void**)new float*[numVal];
+  strvals = new char*[numVal];
 }
 
-bool threeFloats::nextVal(){
+bool rotation::nextVal(){
   onChar = 0; 
   vals[onVal] = new float;
-  *(vals[onVal]) = atof(strvals[onVal]);
+  *((float*)vals[onVal]) = atof(strvals[onVal]);
   return nVal < ++onVal;
 }
 
 selection::selection():valueHolder(Selection, numVal){
-  vals    = new float*[numVal];
-  strvals = new char[maxCharLength+1][numVal];
+  vals    = (void**)new float*[numVal];
+  strvals = new char*[numVal];
 }
 
 bool selection::nextVal(){
   onChar = 0; 
   vals[onVal] = new int;
-  *(vals[onVal]) = atoi(strvals[onVal]);
+  *((int*)vals[onVal]) = atoi(strvals[onVal]);
   return nVal < ++onVal;
 }
 
 singleString::singleString(valTypes tp):valueHolder(tp, numVal){
-  vals    = new float*[numVal];
-  strvals = new char[maxCharLength+1][numVal];
+  vals    = (void**)new float*[numVal];
+  strvals = new char*[numVal];
 }
 
 bool singleString::nextVal(){
   onChar = 0; 
   vals[onVal] = new char[maxCharLength+1];
-  strcpy(vals[onVal], strvals[onVal]);
+  strcpy((char*)vals[onVal], strvals[onVal]);
   return nVal < ++onVal;
 }
