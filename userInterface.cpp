@@ -9,6 +9,7 @@
 #include "OpenGLhandler.h"
 #include "object3D.h"
 #include "screen.h"
+#include "valueHolder.h"
 #include <curses.h>
 
 int userInterface::objSelected;
@@ -57,7 +58,7 @@ void userInterface::endUI(){
 }
 
 
-void userInterface::keypressed(unsigned char key){
+void userInterface::keypressed(unsigned char& key){
   if (key == 't'){
     if(objSelected == -1){
       printError("Error: No object selected");
