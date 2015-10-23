@@ -18,7 +18,7 @@ public:
     None, Translation, Scale, Rotation, Selection, Save, Load
   };
   
-  valueHolder()=0;
+  valueHolder();
   valueHolder(valTypes tp, unsigned int i);
   valueHolder(const valueHolder& orig);
   virtual ~valueHolder();
@@ -47,7 +47,7 @@ class threeFloats: public valueHolder{
 protected:
   const unsigned int numVal = 3;
 public:
-  threeFloats(valTypes tp) = 0;
+  threeFloats(valTypes tp);
   bool nextVal();
 };
 
@@ -81,7 +81,7 @@ class singleString: public valueHolder{
 protected:
   const unsigned int numVal = 1;
 public:
-  singleString(valTypes tp) = 0;
+  singleString(valTypes tp);
   bool nextVal();
 };
 

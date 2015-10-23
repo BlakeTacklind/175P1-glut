@@ -13,6 +13,8 @@
 
 int userInterface::objSelected;
 char* userInterface::action;
+bool userInterface::valueMode;
+valueHolder* userInterface::vals;
 
 void userInterface::init(){
   initscr();
@@ -31,7 +33,7 @@ void userInterface::drawUI(){
   attron(COLOR_PAIR(1));
   printw("USE [ESC] TO END PROGRAM, press [h] for help");
   attroff(COLOR_PAIR(1));
-  printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+  //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   printw("\nCurrent Object Selected: ");
   if (objSelected == -1) printw("None");
   else printw("%i", objSelected);
@@ -56,34 +58,37 @@ void userInterface::endUI(){
 }
 
 void userInterface::doAction(){
-  switch (vals->getType()){
-    case valueHolder::Translation:
+  if(vals->getType() == valueHolder::Translation){
       object3D::getObject(objSelected)->translate(*((float*)vals->getVal(0)), 
-              *((float)vals->getVal(1)), *((float)vals->getVal(2)));
+              *((float*)vals->getVal(1)), *((float*)vals->getVal(2)));
       return;
-    case valueHolder::Scale: 
+  }
+  if(vals->getType() == valueHolder::Scale){ 
       object3D::getObject(objSelected)->scale(*((float*)vals->getVal(0)), 
-              *((float)vals->getVal(1)), *((float)vals->getVal(2)));
+              *((float*)vals->getVal(1)), *((float*)vals->getVal(2)));
       return;
-    case valueHolder::Rotation: 
-      object3D::getObject(objSelected)->scale(*((float*)vals->getVal(0)), 
-              *((float)vals->getVal(1)), *((float)vals->getVal(2)), 
-              *((float)vals->getVal(3)), *((float)vals->getVal(4)), 
-              *((float)vals->getVal(5)), *((float)vals->getVal(6)));
+  }
+  if(vals->getType() == valueHolder::Rotation){
+      pnt3 p1 = {*((float*)vals->getVal(0)), *((float*)vals->getVal(1)), *((float*)vals->getVal(2))};
+      pnt3 p2 = {*((float*)vals->getVal(3)), *((float*)vals->getVal(4)), *((float*)vals->getVal(5))};
+      object3D::getObject(objSelected)->rotate(p1, p2, *((float*)vals->getVal(6)));
       return;
-    case valueHolder::Selection:
+  }
+  if(vals->getType() ==  valueHolder::Selection){
       objSelected = *((int*)vals->getVal(0));
       return;
-    case valueHolder::Save:
+  }
+  if(vals->getType() == valueHolder::Save){
       object3D::save((char*)vals->getVal(0));
       return;
-    case valueHolder::Load:
+  }
+  if(vals->getType() == valueHolder::Load){
       object3D::load((char*)vals->getVal(0));
       return;
   }
 }
 
-void userInterface::keypressed(unsigned char& key){
+void userInterface::keypressed(unsigned char key){
   if (valueMode){
     if(key == 9 || key == ' ' || key == 13){
       if(vals->nextVal()){
@@ -256,7 +261,7 @@ void userInterface::keypressed(unsigned char& key){
   else if(key == 'h'){
     clear();
     printw("USE [ESC] TO END PROGRAM, press [h] for help");
-    printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+    //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
     printw("\nbracketed letter indicates which to press\n");
     printw("sele[c]t object mode\n");
     printw("[t]ranslate selected object\n");

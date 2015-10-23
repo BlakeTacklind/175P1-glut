@@ -16,7 +16,7 @@ class userInterface {
 public:
   static void init();
   static void endUI();
-  static void keypressed(unsigned char& key);  
+  static void keypressed(unsigned char key);  
 
   static void printError(char* s);
   static void holdUntilUsage();
