@@ -21,7 +21,7 @@ public:
   valueHolder();
   valueHolder(valTypes tp, unsigned int i);
   valueHolder(const valueHolder& orig);
-  virtual ~valueHolder() = 0;
+  virtual ~valueHolder();
   
   void addChar(unsigned char c);
   bool removeChar();

@@ -33,7 +33,7 @@ void userInterface::drawUI(){
   attron(COLOR_PAIR(1));
   printw("USE [ESC] TO END PROGRAM, press [h] for help");
   attroff(COLOR_PAIR(1));
-  //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+  printw("\nHAVE FOCUS ON: %s\n", valueMode?"GLUT screen":"Terminal");
   printw("\nCurrent Object Selected: ");
   if (objSelected == -1) printw("None");
   else printw("%i", objSelected);
@@ -91,19 +91,26 @@ void userInterface::doAction(){
 void userInterface::keypressed(unsigned char key){
   if (valueMode){
     if(key == 9 || key == ' ' || key == 13){
-      if(vals->nextVal()){
+      if(!vals->nextVal()){
         valueMode = false;
+   
+        doAction();
+
+        action = "Value Entered!";
+        drawUI();
+        
         delete vals;
         
-        doAction();
-        
         OpenGLhandler::bufferObjects();
-        OpenGLhandler::reDraw();
-        
-        action = "";
-        drawUI();
+        //OpenGLhandler::reDraw();
         return;
       }
+
+      action = "Finished Value!";
+      drawUI();
+   
+      
+      return;
     }
     if(key == 27){
       valueMode = false;

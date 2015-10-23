@@ -15,6 +15,9 @@ valueHolder::valueHolder(valTypes tp, unsigned int i):t(tp), nVal(i){
   message = "Entering a value\n";
 }
 
+valueHolder::~valueHolder() {
+}
+
 valueHolder::valueHolder(const valueHolder& orig) {
 }
 
@@ -43,7 +46,7 @@ bool valueHolder::removeChar(){
 threeFloats::threeFloats(valTypes tp):valueHolder(tp, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
-  strvals[0] = new char*;
+  strvals[0] = new char[maxCharLength+1];
 }
 
 threeFloats::~threeFloats() {
@@ -67,7 +70,7 @@ bool threeFloats::nextVal(){
 rotation::rotation():valueHolder(Rotation, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
-  strvals[0] = new char*;
+  strvals[0] = new char[maxCharLength+1];
 }
 
 rotation::~rotation() {
@@ -91,7 +94,7 @@ bool rotation::nextVal(){
 selection::selection():valueHolder(Selection, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
-  strvals[0] = new char*;
+  strvals[0] = new char[maxCharLength+1];
 }
 
 selection::~selection() {
@@ -115,10 +118,10 @@ bool selection::nextVal(){
 singleString::singleString(valTypes tp):valueHolder(tp, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
-  strvals[0] = new char*;
+  strvals[0] = new char[maxCharLength+1];
 }
 
-selection::~selection() {
+singleString::~singleString() {
   while(!onVal){
     delete (char*)strvals[onVal];
     delete (char*) vals[--onVal];
@@ -130,7 +133,7 @@ selection::~selection() {
 }
 
 bool singleString::nextVal(){
-  onChar = 0; 
+  onChar = 0;
   vals[onVal] = new char[maxCharLength+1];
   strcpy((char*)vals[onVal], strvals[onVal]);
   return nVal < ++onVal;
