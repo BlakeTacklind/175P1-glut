@@ -99,16 +99,25 @@ void userInterface::keypressed(unsigned char key){
         
         OpenGLhandler::bufferObjects();
         OpenGLhandler::reDraw();
+        
+        action = "";
+        drawUI();
         return;
       }
     }
     if(key == 27){
       valueMode = false;
       delete vals;
+      
+      action = "";
+      drawUI();
       return;
     }
     
     vals->addChar(key);
+    
+    action = vals->getMessage();
+    drawUI();
   }
   else if (key == 't'){
     if(objSelected == -1){

@@ -21,7 +21,7 @@ public:
   valueHolder();
   valueHolder(valTypes tp, unsigned int i);
   valueHolder(const valueHolder& orig);
-  virtual ~valueHolder();
+  virtual ~valueHolder() = 0;
   
   void addChar(unsigned char c);
   bool removeChar();
@@ -32,6 +32,8 @@ public:
   
   inline valTypes getType(){return t;};
   
+  inline char* getMessage(){return message;};
+  
 protected:
   const valTypes t = None;
   void** vals;
@@ -40,6 +42,7 @@ protected:
   const unsigned int maxCharLength = 20;
   unsigned int onVal;
   unsigned int onChar;
+  char* message;
 private:
 };
 
@@ -48,6 +51,7 @@ protected:
   const unsigned int numVal = 3;
 public:
   threeFloats(valTypes tp);
+  virtual ~threeFloats();
   bool nextVal();
 };
 
@@ -66,6 +70,7 @@ protected:
   const unsigned int numVal = 7;
 public:
   rotation();
+  virtual ~rotation();
   bool nextVal();
 };
 
@@ -74,6 +79,7 @@ protected:
   const unsigned int numVal = 1;
 public:
   selection();
+  virtual ~selection();
   bool nextVal();
 };
 
@@ -82,6 +88,7 @@ protected:
   const unsigned int numVal = 1;
 public:
   singleString(valTypes tp);
+  virtual ~singleString();
   bool nextVal();
 };
 

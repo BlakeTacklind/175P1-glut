@@ -12,17 +12,10 @@
 valueHolder::valueHolder(valTypes tp, unsigned int i):t(tp), nVal(i){
   onVal = 0;
   onChar = 0;
+  message = "Entering a value\n";
 }
 
 valueHolder::valueHolder(const valueHolder& orig) {
-}
-
-valueHolder::~valueHolder() {
-  while(!onVal)
-    delete vals[--onVal];
-  
-  delete vals;
-  delete strvals;
 }
 
 void valueHolder::addChar(unsigned char c){
@@ -50,6 +43,18 @@ bool valueHolder::removeChar(){
 threeFloats::threeFloats(valTypes tp):valueHolder(tp, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
+  strvals[0] = new char*;
+}
+
+threeFloats::~threeFloats() {
+  while(!onVal){
+    delete (char*)strvals[onVal];
+    delete (float*)vals[--onVal];
+  }
+  delete (char*) strvals[0];
+  
+  delete [] vals;
+  delete [] strvals;
 }
 
 bool threeFloats::nextVal(){
@@ -62,6 +67,18 @@ bool threeFloats::nextVal(){
 rotation::rotation():valueHolder(Rotation, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
+  strvals[0] = new char*;
+}
+
+rotation::~rotation() {
+  while(!onVal){
+    delete (char*)strvals[onVal];
+    delete (float*)vals[--onVal];
+  }
+  delete (char*) strvals[0];
+  
+  delete [] vals;
+  delete [] strvals;
 }
 
 bool rotation::nextVal(){
@@ -74,6 +91,18 @@ bool rotation::nextVal(){
 selection::selection():valueHolder(Selection, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
+  strvals[0] = new char*;
+}
+
+selection::~selection() {
+  while(!onVal){
+    delete (char*)strvals[onVal];
+    delete (int*)  vals[--onVal];
+  }
+  delete (char*) strvals[0];
+  
+  delete [] vals;
+  delete [] strvals;
 }
 
 bool selection::nextVal(){
@@ -86,6 +115,18 @@ bool selection::nextVal(){
 singleString::singleString(valTypes tp):valueHolder(tp, numVal){
   vals    = (void**)new float*[numVal];
   strvals = new char*[numVal];
+  strvals[0] = new char*;
+}
+
+selection::~selection() {
+  while(!onVal){
+    delete (char*)strvals[onVal];
+    delete (char*) vals[--onVal];
+  }
+  delete (char*) strvals[0];
+  
+  delete [] vals;
+  delete [] strvals;
 }
 
 bool singleString::nextVal(){
