@@ -47,7 +47,7 @@ bool valueHolder::removeChar(){
   return true;
 }
 
-threeFloats::threeFloats():valueHolder(ThreeFloats, numVal){
+threeFloats::threeFloats(valTypes tp):valueHolder(tp, numVal){
   vals    = new float*[numVal];
   strvals = new char[maxCharLength+1][numVal];
 }
@@ -59,7 +59,7 @@ bool threeFloats::nextVal(){
   return nVal < ++onVal;
 }
 
-sevenFloats::sevenFloats():valueHolder(SevenFloats, numVal){
+rotation::rotation():valueHolder(Rotation, numVal){
   vals    = new float*[numVal];
   strvals = new char[maxCharLength+1][numVal];
 }
@@ -71,19 +71,19 @@ bool threeFloats::nextVal(){
   return nVal < ++onVal;
 }
 
-singleInt::singleInt():valueHolder(SingleInt, numVal){
+selection::selection():valueHolder(Selection, numVal){
   vals    = new float*[numVal];
   strvals = new char[maxCharLength+1][numVal];
 }
 
-bool singleInt::nextVal(){
+bool selection::nextVal(){
   onChar = 0; 
   vals[onVal] = new int;
   *(vals[onVal]) = atoi(strvals[onVal]);
   return nVal < ++onVal;
 }
 
-singleString::singleString():valueHolder(SingleString, numVal){
+singleString::singleString(valTypes tp):valueHolder(tp, numVal){
   vals    = new float*[numVal];
   strvals = new char[maxCharLength+1][numVal];
 }

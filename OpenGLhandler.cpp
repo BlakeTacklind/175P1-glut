@@ -65,7 +65,7 @@ void OpenGLhandler::onClose(void){
 }
 
 void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
-  if(key == 27){
+  if(!userInterface::isValueMode() && key == 27){
     onClose();
     glutDestroyWindow(MainWindow);
   }

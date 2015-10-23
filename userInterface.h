@@ -9,6 +9,7 @@
 #define	USERINTERFACE_H
 
 #include <string>
+#include "valueHolder.h"
 using namespace std;
 
 class userInterface {
@@ -20,16 +21,17 @@ public:
   static void printError(char* s);
   static void holdUntilUsage();
 
-  inline static bool isWindowFocus(){return onWindow;};
-
+  inline static bool isValueMode(){return valueMode;};
 private:
   static char* action;
   
+  static void doAction();
+  
   static void drawUI();
   static int objSelected;
-
-  //focus on main Window?
-  static bool onWindow;
+  
+  static bool valueMode;
+  static valueHolder* vals;
 };
 
 #endif	/* USERINTERFACE_H */

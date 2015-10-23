@@ -9,12 +9,10 @@
 #include "OpenGLhandler.h"
 #include "object3D.h"
 #include "screen.h"
-#include "valueHolder.h"
 #include <curses.h>
 
 int userInterface::objSelected;
 char* userInterface::action;
-bool userInterface::onWindow;
 
 void userInterface::init(){
   initscr();
@@ -24,7 +22,7 @@ void userInterface::init(){
   if(!has_colors()) action = "Does not support color!";
   else if(!can_change_color()) action = "Can't change color";
   objSelected = -1;
-  onWindow = true;
+  valueMode = false;
   drawUI();
 }
 
@@ -57,20 +55,71 @@ void userInterface::endUI(){
   endwin();
 }
 
+void userInterface::doAction(){
+  switch (vals->getType()){
+    case valueHolder::Translation:
+      object3D::getObject(objSelected)->translate(*((float*)vals->getVal(0)), 
+              *((float)vals->getVal(1)), *((float)vals->getVal(2)));
+      return;
+    case valueHolder::Scale: 
+      object3D::getObject(objSelected)->scale(*((float*)vals->getVal(0)), 
+              *((float)vals->getVal(1)), *((float)vals->getVal(2)));
+      return;
+    case valueHolder::Rotation: 
+      object3D::getObject(objSelected)->scale(*((float*)vals->getVal(0)), 
+              *((float)vals->getVal(1)), *((float)vals->getVal(2)), 
+              *((float)vals->getVal(3)), *((float)vals->getVal(4)), 
+              *((float)vals->getVal(5)), *((float)vals->getVal(6)));
+      return;
+    case valueHolder::Selection:
+      objSelected = *((int*)vals->getVal(0));
+      return;
+    case valueHolder::Save:
+      object3D::save((char*)vals->getVal(0));
+      return;
+    case valueHolder::Load:
+      object3D::load((char*)vals->getVal(0));
+      return;
+  }
+}
 
 void userInterface::keypressed(unsigned char& key){
-  if (key == 't'){
+  if (valueMode){
+    if(key == 9 || key == ' ' || key == 13){
+      if(vals->nextVal()){
+        valueMode = false;
+        delete vals;
+        
+        doAction();
+        
+        OpenGLhandler::bufferObjects();
+        OpenGLhandler::reDraw();
+        return;
+      }
+    }
+    if(key == 27){
+      valueMode = false;
+      delete vals;
+      return;
+    }
+    
+    vals->addChar(key);
+  }
+  else if (key == 't'){
     if(objSelected == -1){
       printError("Error: No object selected");
       return;
     }
 
-    onWindow = false;
+    valueMode = true;
     
     action = "Current Action: Enter translation values, x first\n";
     drawUI();
     printw("Translate %i (0  , 0  , 0  )", objSelected);
     move(5, 13);
+    
+    vals = new translation();
+    return;
     
     char str[80];
     getstr(str);
@@ -81,7 +130,6 @@ void userInterface::keypressed(unsigned char& key){
 
     getstr(str);
     
-    onWindow = true;
     action = "";
     drawUI();
     
@@ -95,10 +143,13 @@ void userInterface::keypressed(unsigned char& key){
       printError("Error: No object selected");
       return;
     }
-    onWindow = false;
+    valueMode = true;
     
     action = "Current Action: Enter rotation angle, in degrees\n";
     drawUI();
+    
+    vals = new rotation();
+    return;
     
     pnt3 p1;
     pnt3 p2;
@@ -130,7 +181,6 @@ void userInterface::keypressed(unsigned char& key){
 
     getstr(str);
 
-    onWindow = true;
     action = "";
     
     if(p1 == p2){
@@ -149,10 +199,14 @@ void userInterface::keypressed(unsigned char& key){
       printError("Error: No object selected");
       return;
     }
-    onWindow = false;
+
+    valueMode = true;
     
     action = "Current Action: Enter scaling value, x first\n";
     drawUI();
+    
+    vals = new scale();
+    return;
     
     char str[80];
     getstr(str);
@@ -163,7 +217,6 @@ void userInterface::keypressed(unsigned char& key){
 
     getstr(str);
     
-    onWindow = true;
     action = "";
     drawUI();
     
@@ -174,17 +227,20 @@ void userInterface::keypressed(unsigned char& key){
   }
   else if(key == 'c'){
     action = "Current Action: Enter id of object to be selected\n";
-    onWindow = false;
+
+    valueMode = true;
+    
     drawUI();
     printw("Select object: 0");
     move(5, 15);
 
-
+    vals = new selection();
+    return;
+    
     char str[80];
     getstr(str);
     
     action = "";
-    onWindow = true;
     
     int val = atoi(str);
     
@@ -213,8 +269,13 @@ void userInterface::keypressed(unsigned char& key){
   }
   else if(key == 's'){
     action = "Current Action: save objects to file, leave blank for last file used\n";
-    onWindow = false;
     drawUI();
+
+    valueMode = true;
+    
+    
+    vals = new saveFile();
+    return;
     
     char str[80];
     getstr(str);
@@ -222,13 +283,17 @@ void userInterface::keypressed(unsigned char& key){
     if(str[0] == 0){if(object3D::save()) action = "File saved";}
     else if(object3D::save(str)) action = "File saved";
     
-    onWindow = true;
     drawUI();
   }
   else if(key == 'l'){
     action = "Current Action: load objects from file, leave blank for last file used\n";
-    onWindow = false;
     drawUI();
+
+    valueMode = true;
+    
+    
+    vals = new loadFile();
+    return;
     
     char str[80];
     getstr(str);
@@ -236,7 +301,6 @@ void userInterface::keypressed(unsigned char& key){
     if(str[0] == 0){if(object3D::load()) action = "File Loaded";}
     else if(object3D::load(str)) action = "File Loaded";
     
-    onWindow = true;
     drawUI();
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
