@@ -18,6 +18,8 @@ public:
   static bool save(const char* filename);
   inline static bool load(){load(storedFileName);};
   inline static bool save(){save(storedFileName);};
+
+  inline static char* getStoredFile(){return storedFileName;};
   
   object3D(int npnt, pnt3* Points, int nedge, edge* Edges);
   object3D();

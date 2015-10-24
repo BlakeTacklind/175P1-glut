@@ -24,7 +24,7 @@ public:
   virtual ~valueHolder();
   
   void addChar(unsigned char c);
-  bool removeChar();
+  //bool removeChar();
   inline bool isNext(){return nVal-1 > onVal;};
   virtual bool nextVal() = 0;
   inline void* getVal(unsigned int i){return i<nVal?vals[i]:nullptr;};
@@ -38,7 +38,8 @@ protected:
   const valTypes t = None;
   void** vals;
   char** strvals;
-  const unsigned int nVal = 0;
+  unsigned int nVal;
+  const unsigned int maxNumVal = 10;
   const unsigned int maxCharLength = 20;
   unsigned int onVal;
   unsigned int onChar;
@@ -47,11 +48,11 @@ private:
 };
 
 class threeFloats: public valueHolder{
-protected:
+private:
   const unsigned int numVal = 3;
 public:
   threeFloats(valTypes tp);
-  virtual ~threeFloats();
+  //virtual ~threeFloats();
   bool nextVal();
 };
 
@@ -66,29 +67,29 @@ public:
 };
 
 class rotation: public valueHolder{
-protected:
+private:
   const unsigned int numVal = 7;
 public:
   rotation();
-  virtual ~rotation();
+  //virtual ~rotation();
   bool nextVal();
 };
 
 class selection: public valueHolder{
-protected:
+private:
   const unsigned int numVal = 1;
 public:
   selection();
-  virtual ~selection();
+  //virtual ~selection();
   bool nextVal();
 };
 
 class singleString: public valueHolder{
-protected:
+private:
   const unsigned int numVal = 1;
 public:
   singleString(valTypes tp);
-  virtual ~singleString();
+  //virtual ~singleString();
   bool nextVal();
 };
 

@@ -39,10 +39,10 @@ public:
   //Free space
   static void onClose(void);
 
-private:
   //clear Pixel Buffer
   static void clearBuffer();
 
+private:
   static void MakePix(int x, int y);
   //line drawing
   static void drawLine(line* l);

@@ -30,6 +30,8 @@ private:
   static void drawUI();
   static int objSelected;
   
+  static bool onWindow;
+
   static bool valueMode;
   static valueHolder* vals;
 };

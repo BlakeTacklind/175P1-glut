@@ -8,14 +8,18 @@
 #include "valueHolder.h"
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
-valueHolder::valueHolder(valTypes tp, unsigned int i):t(tp), nVal(i){
+using namespace std;
+
+valueHolder::valueHolder(valTypes tp, unsigned int in):t(tp){
   onVal = 0;
   onChar = 0;
-  message = "Entering a value\n";
+  nVal = in;
+  message = (char*)((string)("Entering a value ")).append(to_string(in)).append("\n").c_str();
 }
 
-valueHolder::~valueHolder() {
+valueHolder::~valueHolder(){
 }
 
 valueHolder::valueHolder(const valueHolder& orig) {
@@ -26,7 +30,7 @@ void valueHolder::addChar(unsigned char c){
   strvals[onVal][onChar  ] = 0;
   if(maxCharLength<onChar) nextVal();
 }
-
+/*
 bool valueHolder::removeChar(){
   if(!onChar){
     if(onVal){
@@ -42,13 +46,13 @@ bool valueHolder::removeChar(){
   
   return true;
 }
-
-threeFloats::threeFloats(valTypes tp):valueHolder(tp, numVal){
-  vals    = (void**)new float*[numVal];
-  strvals = new char*[numVal];
+*/
+threeFloats::threeFloats(valTypes tp):valueHolder(tp, 3){
+  vals    = (void**)new float*[maxNumVal];
+  strvals = new char*[maxNumVal];
   strvals[0] = new char[maxCharLength+1];
 }
-
+/*
 threeFloats::~threeFloats() {
   while(!onVal){
     delete (char*)strvals[onVal];
@@ -59,20 +63,23 @@ threeFloats::~threeFloats() {
   delete [] vals;
   delete [] strvals;
 }
-
+*/
 bool threeFloats::nextVal(){
   onChar = 0; 
-  vals[onVal] = new float;
   *((float*)vals[onVal]) = atof(strvals[onVal]);
-  return nVal < ++onVal;
+  
+  if (nVal < ++onVal) return true;
+
+  vals[onVal] = (void*)new float;
+  return false;
 }
 
-rotation::rotation():valueHolder(Rotation, numVal){
-  vals    = (void**)new float*[numVal];
-  strvals = new char*[numVal];
+rotation::rotation():valueHolder(Rotation, 7){
+  vals    = (void**)new float*[maxNumVal];
+  strvals = new char*[maxNumVal];
   strvals[0] = new char[maxCharLength+1];
 }
-
+/*
 rotation::~rotation() {
   while(!onVal){
     delete (char*)strvals[onVal];
@@ -83,20 +90,22 @@ rotation::~rotation() {
   delete [] vals;
   delete [] strvals;
 }
-
+*/
 bool rotation::nextVal(){
-  onChar = 0; 
-  vals[onVal] = new float;
+  onChar = 0;
   *((float*)vals[onVal]) = atof(strvals[onVal]);
-  return nVal < ++onVal;
+  if (nVal < ++onVal) return true;
+  
+  vals[onVal] = (void*)new float;
+  return false;
 }
 
-selection::selection():valueHolder(Selection, numVal){
-  vals    = (void**)new float*[numVal];
-  strvals = new char*[numVal];
+selection::selection():valueHolder(Selection, 1){
+  vals    = (void**)new int*[maxNumVal];
+  strvals = new char*[maxNumVal];
   strvals[0] = new char[maxCharLength+1];
 }
-
+/*
 selection::~selection() {
   while(!onVal){
     delete (char*)strvals[onVal];
@@ -107,20 +116,23 @@ selection::~selection() {
   delete [] vals;
   delete [] strvals;
 }
-
+*/
 bool selection::nextVal(){
-  onChar = 0; 
-  vals[onVal] = new int;
+  onChar = 0;
   *((int*)vals[onVal]) = atoi(strvals[onVal]);
-  return nVal < ++onVal;
+
+  if (nVal < ++onVal) return true;
+  
+  vals[onVal] = (void*)new int;
+  return false;
 }
 
-singleString::singleString(valTypes tp):valueHolder(tp, numVal){
-  vals    = (void**)new float*[numVal];
-  strvals = new char*[numVal];
+singleString::singleString(valTypes tp):valueHolder(tp, 1){
+  vals    = (void**)new char*[maxNumVal];
+  strvals = new char*[maxNumVal];
   strvals[0] = new char[maxCharLength+1];
 }
-
+/*
 singleString::~singleString() {
   while(!onVal){
     delete (char*)strvals[onVal];
@@ -131,10 +143,10 @@ singleString::~singleString() {
   delete [] vals;
   delete [] strvals;
 }
-
+*/
 bool singleString::nextVal(){
   onChar = 0;
-  vals[onVal] = new char[maxCharLength+1];
   strcpy((char*)vals[onVal], strvals[onVal]);
-  return nVal < ++onVal;
+  vals[++onVal] = (void*)new char[maxCharLength+1];
+  return nVal < onVal;
 }
