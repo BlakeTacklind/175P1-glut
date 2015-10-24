@@ -336,7 +336,7 @@ void userInterface::keypressed(unsigned char key){
     refresh();
   }
   else if(key == 's'){
-    action = (char*)((string)("Save objects to file, hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();
+    action = (char*)((string)("Enter name and hit return to save objects to file, hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();
     drawUI();
 
     onWindow = false;
@@ -357,7 +357,7 @@ void userInterface::keypressed(unsigned char key){
     drawUI();
   }
   else if(key == 'l'){
-    action = (char*)((string)("Load objects from file, hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();
+    action = (char*)((string)("Enter name and hit return to load objects from file, or hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();
     drawUI();
 
     onWindow = false;

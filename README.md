@@ -35,6 +35,7 @@ Changing viewport is a little different then the other modes. Hit an arrow key t
   * Scaling relative to centroid
   * Rotation realtive to specified axis
 * Uses Bresenham's Line drawing algorithm
+* Can continuously rotate displayed image by holding Space key
 
 ### Input File
 1. First line is a single integer number for number of objects. Nothing else
@@ -51,6 +52,7 @@ Note: same as example input file but without comments
 
 ### Defaults
 * screen size: 400x400
+* quadrant 4 normal vector: oblique <0.612375, 0.612375, -0.50000>
 * load file: 'objects3d'
 
 ##### Known Issues
