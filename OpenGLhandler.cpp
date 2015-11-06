@@ -78,6 +78,12 @@ void OpenGLhandler::MakePix(int x, int y){
   PixelBuffer[(y*width + x) * 3 + 2] = 1;
 }
 
+void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
+  PixelBuffer[(y*width + x) * 3 ]    = color.x;
+  PixelBuffer[(y*width + x) * 3 + 1] = color.y;
+  PixelBuffer[(y*width + x) * 3 + 2] = color.z;
+}
+
 void OpenGLhandler::display(){
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();

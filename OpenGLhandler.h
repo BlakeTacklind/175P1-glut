@@ -15,6 +15,9 @@ public:
   static void init(int* argc, char** argv);
   static void reDraw();
 
+  //Free space
+  static void onClose(void);
+
   inline static void bufferObjects(){clearBuffer(); screen::bufferAllScreens();};
 
   static const char* getDrawMode();
@@ -36,20 +39,35 @@ public:
   inline static int getScreenWidth (){return width; };
   inline static int getScreenHeight(){return height;};
 
-  //Free space
-  static void onClose(void);
-
   //clear Pixel Buffer
   static void clearBuffer();
 
+  pnt3 getAmbiant()      {return ambiant;};
+  void setAmbiant(pnt3 p){ambiant = p;   };
+  
+  pnt3 getDiffuse()      {return diffuse;};
+  void setDiffuse(pnt3 p){diffuse = p;   };
+  
+  pnt3 getSpecular()      {return specular;};
+  void setSpecular(pnt3 p){specular = p;   };
+  
+  unsigned float getSpecular(){return averageLightDistance;};
+  void setSpecular(unsigned float p){averageLightDistance = p;};
+  
 private:
   static void MakePix(int x, int y);
+  static void MakeCPix(int x, int y, pnt3 color);
   //line drawing
   static void drawLine(line* l);
 
   //Add objects to buffer
   static void bufferObjects(drawMode m);
-
+  
+  //Lighting
+  pnt3 ambiant, diffuse, specular;
+  unsigned float averageLightDistance;
+  
+  
   //calculation and draw modes
   static algMode aMode;
   static drawMode dMode;
