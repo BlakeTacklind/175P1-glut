@@ -31,6 +31,7 @@ private:
   static int objSelected;
   
   static bool onWindow;
+  static bool isStarted;
 
   static bool valueMode;
   static valueHolder* vals;

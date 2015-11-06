@@ -11,15 +11,21 @@
 #include "screen.h"
 #include <string>
 #include <curses.h>
+#include <iostream>
+
+using namespace std;
 
 int userInterface::objSelected;
 char* userInterface::action;
 bool userInterface::valueMode;
+bool userInterface::isStarted = false;
 bool userInterface::onWindow;
 valueHolder* userInterface::vals;
 
 void userInterface::init(){
   initscr();
+  isStarted = true;
+  keypad(stdscr, TRUE);
   start_color();
   init_pair(1, COLOR_RED, COLOR_BLACK);
   action = "";
@@ -45,6 +51,10 @@ void userInterface::drawUI(){
 }
 
 void userInterface::printError(char* mes){
+  if (!isStarted){
+    cout<<mes<<endl;
+    return;
+  }
   action = mes;
   drawUI();
 }

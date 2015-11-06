@@ -13,7 +13,7 @@
 class surface {
 public:
   surface();
-  surface(unsigned int nPoints, pnt3* points, pnt3 normal);
+  surface(unsigned int nPoints, pnt3* points, int* pointNumbers, pnt3 normal);
   surface(const surface& orig);
   virtual ~surface();
   
@@ -21,11 +21,12 @@ public:
   
   void fill(void (*MakeCPix)(int, int, pnt3));
   
-  char* getPntString();
-  char* getNormalString();
+  const char* getPntString();
+  const char* getNormalString();
   
 private:
   pnt3* pnts;
+  int* pntNums;
   unsigned int nPnts;
   
   pnt3* pntNormals;

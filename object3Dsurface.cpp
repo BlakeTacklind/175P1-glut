@@ -14,10 +14,32 @@
 
 using namespace std;
 
-static char* object3Dsurface::storedFileName;
+char* object3Dsurface::storedFileName;
 
-static unsigned int object3Dsurface::nObjects;
-static object3Dsurface::object3Dsurface** object3Dsurface::objectList;
+unsigned int object3Dsurface::nObjects;
+object3Dsurface** object3Dsurface::objectList;
+
+bool checkForSame(list<int> vals){
+  for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
+    list<int>::iterator it2 = it;
+    for(++it2; it2 != vals.end(); it2++){
+      if(*it2 == *it) return true;
+    }
+  }
+  
+  return false;
+}
+
+template <class E>
+E* getArrFromList(list<E> l){
+  E* arr = new E[l.size()];
+  
+  typename list<E>::iterator itr = l.begin();
+  for(int i = 0; itr != l.end(); itr++, i++)
+    arr[i] = *itr;
+  
+  return arr;
+}
 
 
 object3Dsurface::object3Dsurface() {
@@ -33,8 +55,10 @@ object3Dsurface::~object3Dsurface() {
 bool object3Dsurface::load(const char* filename){
   storedFileName = const_cast<char*>(filename);
   
+
   ifstream file(filename, ios::in);
   
+
   if(file.is_open()){
     list<object3Dsurface*> tempList;
     string line;
@@ -198,7 +222,11 @@ bool object3Dsurface::load(const char* filename){
        * Iterate trough the number of surfaces
        */
       pnt3* pNorms = new pnt3[num2];
-      for (int j = 0; j < num2; j++) pNorms = zeroVector;
+      for (int j = 0; j < num2; j++){
+        pNorms[j].x = zeroVector.x;
+        pNorms[j].y = zeroVector.y;
+        pNorms[j].z = zeroVector.z;
+      }
       
       surface** s = new surface*[num3];
       for(int j = 0; j < num3; j++){
@@ -211,7 +239,7 @@ bool object3Dsurface::load(const char* filename){
         if(getline(file, line)){
           int del;
           while((del = line.find_first_of(' ')) > 0){
-            int pnt = atoi(line.substr(0, del));
+            int pnt = atoi(line.substr(0, del).c_str());
             
             if(pnt >= num || pnt < 0){
               userInterface::printError("Point in edge definition does not exist");
@@ -222,7 +250,7 @@ bool object3Dsurface::load(const char* filename){
             line = line.substr(del+1);
           }
          
-          int pnt = atoi(line.substr(del+1));
+          int pnt = atoi(line.substr(del+1).c_str());
           
           if(pnt >= num || pnt < 0){
             userInterface::printError("Point in edge definition does not exist");
@@ -283,8 +311,9 @@ bool object3Dsurface::load(const char* filename){
           pnts[k++] = points[*it];
         }
         
-        s[j] = new surface(num3, pnts, p);
+        s[j] = new surface(num3, pnts, getArrFromList(vals), p);
       }
+
       //Build Object
       tempList.push_back(new object3Dsurface(num, points, num2, e, num3, s));
     }
@@ -296,34 +325,12 @@ bool object3Dsurface::load(const char* filename){
   return false;
 }
 
-bool close(ifstream& f, list<object3Dsurface*>& tList, bool ret){
+bool object3Dsurface::close(ifstream& f, list<object3Dsurface*>& tList, bool ret){
   objectList = getArrFromList(tList);
   nObjects = tList.size();
   
   f.close();
   return ret;
-}
-
-template <class E>
-E* getArrFromList(list<E> l){
-  E* arr = new E[l.size()];
-  
-  typename list<E>::iterator itr = l.begin();
-  for(int i = 0; itr != l.end(); itr++, i++)
-    arr[i] = *itr;
-  
-  return arr;
-}
-
-bool checkForSame(list<int> vals){
-  for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
-    list<int>iterator it2 = it;
-    for(++it2; it2 != vals.end(); it2++){
-      if(*it2 == *it) return true;
-    }
-  }
-  
-  return false;
 }
 
 /*
@@ -346,8 +353,11 @@ bool object3Dsurface::save(const char* filename){
       
       file << "\n" << objectList[i]->nSurface;
       for (int j = 0; j < objectList[i]->nSurface; j++){
-        file <<"\n" << objectList[i]->surfaces->getPntString();
-        file << "\n" << objectList[i]->surfaces->getNormalString();
+        
+        for (int k = 0; k < objectList[i]->nSurface; k++){
+          file << "\n" << objectList[i]->surfaces[k]->getNormalString();
+          file << "\n" << objectList[i]->surfaces[k]->getPntString();
+        }
       }
       
     }

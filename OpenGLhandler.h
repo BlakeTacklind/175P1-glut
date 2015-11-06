@@ -51,8 +51,8 @@ public:
   pnt3 getSpecular()      {return specular;};
   void setSpecular(pnt3 p){specular = p;   };
   
-  unsigned float getSpecular(){return averageLightDistance;};
-  void setSpecular(unsigned float p){averageLightDistance = p;};
+  float getK(){return averageLightDistance;};
+  void  setK(float p){averageLightDistance = p;};
   
 private:
   static void MakePix(int x, int y);
@@ -65,7 +65,7 @@ private:
   
   //Lighting
   pnt3 ambiant, diffuse, specular;
-  unsigned float averageLightDistance;
+  float averageLightDistance;
   
   
   //calculation and draw modes

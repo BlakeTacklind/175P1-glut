@@ -9,6 +9,11 @@
 #define	OBJECT3DSURFACE_H
 
 #include "surface.h"
+#include <list>
+#include <fstream>
+#include <iostream>
+
+using namespace std;
 
 class object3Dsurface {
 public:
@@ -24,7 +29,8 @@ public:
   object3Dsurface(const object3Dsurface& orig);
   virtual ~object3Dsurface();
 private:
-  void findPointNormals;
+  static bool close(ifstream& f, list<object3Dsurface*>& tList, bool ret);
+
   
   static char* storedFileName;
   

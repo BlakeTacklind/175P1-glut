@@ -10,10 +10,11 @@
 
 using namespace std;
 
-surface::surface(unsigned int nPoints, pnt3* points, pnt3 normal){
+surface::surface(unsigned int nPoints, pnt3* points, int* pointNumbers, pnt3 normal){
   pnts = points;
   nPnts = nPoints;
   norm = normal;
+  pntNums = pointNumbers;
   pntNormals = nullptr;
 }
 
@@ -26,22 +27,22 @@ surface::surface(const surface& orig) {
 surface::~surface() {
 }
 
-char* surface::getPntString() {
-  string str = to_string(pnts[0]);
+const char* surface::getPntString() {
+  string str = to_string(pntNums[0]);
   
   for(int i = 1; i < nPnts; i++){
-    str.append(to_string(" "));
-    str.append(to_string(pnts[i]));
+    str.append(" ");
+    str.append(to_string(pntNums[i]));
   }
   
   return str.c_str();
 }
 
-char* surface::getNormalString(){
+const char* surface::getNormalString(){
   string str = to_string(norm.x);
-  str.append(to_string(" "));
+  str.append(" ");
   str.append(to_string(norm.y));
-  str.append(to_string(" "));
+  str.append(" ");
   str.append(to_string(norm.z));
   
   return str.c_str();
