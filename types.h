@@ -21,7 +21,18 @@ typedef struct pf2{
  * Struct for 3D points (floats)
  */
 typedef struct pf3{
-  float x, y, z;
+  union{
+    float x;
+    float r;
+  };
+  union{
+    float y;
+    float g;
+  };
+  union{
+    float z;
+    float b;
+  };
 } pnt3;
 
 /*

@@ -19,6 +19,20 @@ char* object3Dsurface::storedFileName;
 unsigned int object3Dsurface::nObjects;
 object3Dsurface** object3Dsurface::objectList;
 
+void object3Dsurface::fill(void(*makeCPix)(int, int, pnt3), pnt3 view) {
+  //compile list of all surfaces
+  
+  //remove some surfaces
+  
+  //compile list of points
+  //perform math on points
+  
+  //sort all surfaces
+  
+  
+}
+
+
 bool checkForSame(list<int> vals){
   for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
     list<int>::iterator it2 = it;
@@ -39,6 +53,20 @@ E* getArrFromList(list<E> l){
     arr[i] = *itr;
   
   return arr;
+}
+
+object3Dsurface::object3Dsurface(int npnt, pnt3* Points, pnt3* pNorm, int nedge, edge* Edges, int nsurf, surface** surfs) {
+  nPoints = npnt;
+  points = Points;
+  pntNorms = pNorm;
+  nEdges = nedge;
+  edges = Edges;
+  nSurface = nsurf;
+  surfaces = surfs;
+  
+  for(int i = 0; i < nSurface; i++)
+    surfaces[i]->setParent(this);
+  
 }
 
 
@@ -218,16 +246,23 @@ bool object3Dsurface::load(const char* filename){
         return close(file, tempList, false);
       }
       
-      /*
-       * Iterate trough the number of surfaces
-       */
-      pnt3* pNorms = new pnt3[num2];
-      for (int j = 0; j < num2; j++){
+      pnt3* pNorms = new pnt3[num];
+      for (int j = 0; j < num; j++){
         pNorms[j].x = zeroVector.x;
         pNorms[j].y = zeroVector.y;
         pNorms[j].z = zeroVector.z;
       }
       
+      pnt3* eNorms = new pnt3[num2];
+      for (int j = 0; j < num2; j++){
+        eNorms[j].x = zeroVector.x;
+        eNorms[j].y = zeroVector.y;
+        eNorms[j].z = zeroVector.z;
+      }
+      
+      /*
+       * Iterate trough the number of surfaces
+       */
       surface** s = new surface*[num3];
       for(int j = 0; j < num3; j++){
         list<int> vals;
@@ -304,18 +339,16 @@ bool object3Dsurface::load(const char* filename){
         }
         
         //convert pnt values into point locations
-        pnt3* pnts = new pnt3[vals.size()];
         int k = 0;
         for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
           pNorms[*it] = pNorms[*it] + p;
-          pnts[k++] = points[*it];
         }
         
-        s[j] = new surface(num3, pnts, getArrFromList(vals), p);
+        s[j] = new surface(num3, getArrFromList(vals), p);
       }
 
       //Build Object
-      tempList.push_back(new object3Dsurface(num, points, num2, e, num3, s));
+      tempList.push_back(new object3Dsurface(num, points, pNorms, num2, e, num3, s));
     }
     
     return close(file, tempList, true);

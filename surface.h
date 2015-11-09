@@ -9,25 +9,34 @@
 #define	SURFACE_H
 
 #include "types.h"
+#include "object3Dsurface.h"
 
 class surface {
+  friend class object3Dsurface;
 public:
   surface();
-  surface(unsigned int nPoints, pnt3* points, int* pointNumbers, pnt3 normal);
+  surface(unsigned int nPoints, int* pointNumbers, pnt3 normal);
   surface(const surface& orig);
   virtual ~surface();
   
   void updatePntNormals(pnt3* norms);
   
-  void fill(void (*MakeCPix)(int, int, pnt3));
+  void fill(void (*MakeCPix)(int, int, pnt3), pnt3 view);
   
   const char* getPntString();
   const char* getNormalString();
+  
+  inline pnt3 getNormal(){return norm;};
+  
+  static bool compare(const surface& first, const surface& second);
+  
+  inline void setParent(object3Dsurface* p){parent = p;};
   
 private:
   pnt3* pnts;
   int* pntNums;
   unsigned int nPnts;
+  object3Dsurface* parent;
   
   pnt3* pntNormals;
   

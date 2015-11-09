@@ -24,10 +24,19 @@ public:
 
   inline static char* getStoredFile(){return storedFileName;};
   
-  object3Dsurface(int npnt, pnt3* Points, int nedge, edge* Edges, int nsurf, surface** surfs);
+  object3Dsurface(int npnt, pnt3* Points, pnt3* pNormals, int nedge, edge* Edges, int nsurf, surface** surfs);
   object3Dsurface();
   object3Dsurface(const object3Dsurface& orig);
   virtual ~object3Dsurface();
+  
+  void fill(void (*makeCPix)(int,int,pnt3), pnt3 view);
+  
+  inline static unsigned int getNumObjects(){return nObjects;};
+  inline static object3Dsurface* getObject(int i){return objectList[i];};
+  
+  inline unsigned int getNumSurface(){return nSurface;};
+  inline surface* getSurface(int i){return surfaces[i];};
+  
 private:
   static bool close(ifstream& f, list<object3Dsurface*>& tList, bool ret);
 

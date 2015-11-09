@@ -10,6 +10,8 @@ class OpenGLhandler{
 public:
   enum drawMode {points, lines, fill};
   enum algMode {DDA, BA};
+  enum lightModel {Phong, Gouraud};
+  enum pixelModel {Color, Mega};
 
   static void initValues(int argc, char** agrv);
   static void init(int* argc, char** argv);
@@ -42,35 +44,54 @@ public:
   //clear Pixel Buffer
   static void clearBuffer();
 
-  pnt3 getAmbiant()      {return ambiant;};
-  void setAmbiant(pnt3 p){ambiant = p;   };
+  static pnt3 getAmbiant()      {return ambiant;};
+  static void setAmbiant(pnt3 p){ambiant = p;   };
   
-  pnt3 getDiffuse()      {return diffuse;};
-  void setDiffuse(pnt3 p){diffuse = p;   };
+  static pnt3 getDiffuse()      {return diffuse;};
+  static void setDiffuse(pnt3 p){diffuse = p;   };
   
-  pnt3 getSpecular()      {return specular;};
-  void setSpecular(pnt3 p){specular = p;   };
+  static pnt3 getSpecular()      {return specular;};
+  static void setSpecular(pnt3 p){specular = p;   };
   
-  float getK(){return averageLightDistance;};
-  void  setK(float p){averageLightDistance = p;};
+  static float getK(){return averageLightDistance;};
+  static void  setK(float p){averageLightDistance = p;};
+  
+  static float getIa(){return ambientIntensity;};
+  static float setIa(int i){ambientIntensity = i;};
+  
+  static float getIl(){return lightIntensity;};
+  static float setIl(int i){lightIntensity = i;};
+  
+  static pnt3 getLpos()      {return lightPosition;};
+  static void setLpos(pnt3 p){lightPosition = p;   };
+  
+  //static pnt3 getViewPoint(){return viewPoint;};
+  //static void setViewPoint(pnt3 i){viewPoint = i;};
   
 private:
   static void MakePix(int x, int y);
   static void MakeCPix(int x, int y, pnt3 color);
+  static void MakeMPix(int x, int y, unsigned int intensity);
   //line drawing
   static void drawLine(line* l);
 
   //Add objects to buffer
-  static void bufferObjects(drawMode m);
+  static void bufferObjects(drawMode m, pnt3 view, int x, int y);
   
   //Lighting
-  pnt3 ambiant, diffuse, specular;
-  float averageLightDistance;
-  
+  static pnt3 ambiant, diffuse, specular;
+  //approximating the “average distance” between the scene and the light source
+  static float averageLightDistance;
+  static float ambientIntensity;
+  static float lightIntensity;
+  static pnt3 lightPosition;
+  //static pnt3 viewPoint;  //in screen
   
   //calculation and draw modes
   static algMode aMode;
   static drawMode dMode;
+  static lightModel lMode;
+  static pixelModel pMode;
 
   //Main window handle
   static int MainWindow;

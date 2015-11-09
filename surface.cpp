@@ -10,12 +10,11 @@
 
 using namespace std;
 
-surface::surface(unsigned int nPoints, pnt3* points, int* pointNumbers, pnt3 normal){
-  pnts = points;
+surface::surface(unsigned int nPoints, int* pointNumbers, pnt3 normal){
   nPnts = nPoints;
   norm = normal;
   pntNums = pointNumbers;
-  pntNormals = nullptr;
+  parent = nullptr;
 }
 
 surface::surface() {
@@ -26,6 +25,11 @@ surface::surface(const surface& orig) {
 
 surface::~surface() {
 }
+
+bool surface::compare(const surface& first, const surface& second) {
+  
+}
+
 
 const char* surface::getPntString() {
   string str = to_string(pntNums[0]);
