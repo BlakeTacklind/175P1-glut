@@ -35,6 +35,12 @@ typedef struct pf3{
   };
 } pnt3;
 
+typedef struct pp{
+  pnt3 p3;
+  pntf p2;
+  pnt3 norm;
+} lightingPoint;
+
 /*
  * Struct for point edge combinations
  */
@@ -63,6 +69,7 @@ pnt3 operator-(const pnt3& a, const pnt3& b);
 pnt3 operator+(const pnt3& a, const pnt3& b);
 pnt3 operator<<(const pnt3& a, const pnt3& b);
 pnt3 rotateAboutZ(const pnt3& p, const float a);
+float length(const pnt3& a);
 
 const float deg2rad = 3.14159265/180;
 

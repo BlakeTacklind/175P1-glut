@@ -44,29 +44,30 @@ public:
   //clear Pixel Buffer
   static void clearBuffer();
 
-  static pnt3 getAmbiant()      {return ambiant;};
-  static void setAmbiant(pnt3 p){ambiant = p;   };
+  inline static pnt3 getAmbiant()      {return ambiant;};
+  inline static void setAmbiant(pnt3 p){ambiant = p;   };
   
-  static pnt3 getDiffuse()      {return diffuse;};
-  static void setDiffuse(pnt3 p){diffuse = p;   };
+  inline static pnt3 getDiffuse()      {return diffuse;};
+  inline static void setDiffuse(pnt3 p){diffuse = p;   };
   
-  static pnt3 getSpecular()      {return specular;};
-  static void setSpecular(pnt3 p){specular = p;   };
+  inline static pnt3 getSpecular()      {return specular;};
+  inline static void setSpecular(pnt3 p){specular = p;   };
   
-  static float getK(){return averageLightDistance;};
-  static void  setK(float p){averageLightDistance = p;};
+  inline static float getK(){return averageLightDistance;};
+  inline static void  setK(float p){averageLightDistance = p;};
   
-  static float getIa(){return ambientIntensity;};
-  static float setIa(int i){ambientIntensity = i;};
+  inline static float getIa(){return ambientIntensity;};
+  inline static float setIa(float i){ambientIntensity = i;};
   
-  static float getIl(){return lightIntensity;};
-  static float setIl(int i){lightIntensity = i;};
+  inline static float getIl(){return lightIntensity;};
+  inline static float setIl(float i){lightIntensity = i;};
   
-  static pnt3 getLpos()      {return lightPosition;};
-  static void setLpos(pnt3 p){lightPosition = p;   };
+  inline static pnt3 getLpos()      {return lightPosition;};
+  inline static void setLpos(pnt3 p){lightPosition = p;   };
   
-  //static pnt3 getViewPoint(){return viewPoint;};
-  //static void setViewPoint(pnt3 i){viewPoint = i;};
+  inline static unsigned int getLightSize(){return lightSize;};
+  inline static void setLightSize(unsigned int i){lightSize = i;};
+  
   
 private:
   static void MakePix(int x, int y);
@@ -85,6 +86,7 @@ private:
   static float ambientIntensity;
   static float lightIntensity;
   static pnt3 lightPosition;
+  static unsigned int lightSize;
   //static pnt3 viewPoint;  //in screen
   
   //calculation and draw modes

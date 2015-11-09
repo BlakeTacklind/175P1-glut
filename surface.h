@@ -28,13 +28,17 @@ public:
   
   inline pnt3 getNormal(){return norm;};
   
-  static bool compare(const surface& first, const surface& second);
+  pnt3 getCentroid();
   
   inline void setParent(object3Dsurface* p){parent = p;};
+  inline object3Dsurface* getParent()   {return parent;};
+  
+  inline unsigned int getNumPoints(){return nPnts;};
+  inline unsigned int getPntNum(int i){return pntNums[i];};
   
 private:
   pnt3* pnts;
-  int* pntNums;
+  unsigned int* pntNums;
   unsigned int nPnts;
   object3Dsurface* parent;
   

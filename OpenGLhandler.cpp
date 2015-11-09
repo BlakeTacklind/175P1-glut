@@ -27,6 +27,15 @@ void OpenGLhandler::initValues(int argc, char** argv){
   
   PixelBuffer = new float[width * height * 3];
 
+  setAmbiant({1, 0, 0});
+  setDiffuse({0, 1, 0});
+  setSpecular({0, 0, 1});
+  setK(10.0);
+  setIa(.5);
+  setIl(.5);
+  setLpos(10, 10, 10);
+  setLightSize(3);
+  
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   
   new screen(width/2, height/2, 0      , 0       , unitX, MakePix);

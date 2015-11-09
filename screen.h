@@ -16,7 +16,7 @@ using namespace std;
 
 class screen {
 public:
-  screen(int x, int y, int ofX, int ofY, pnt3 vec, void (*mkPix)(int, int));
+  screen(int x, int y, int ofX, int ofY, pnt3 vec, float viewDist, void (*mkPix)(int, int, pnt3));
   inline screen(){};
   screen(const screen& orig);
   virtual ~screen();
@@ -36,17 +36,23 @@ public:
 private:
   static list<screen*> screenList;
   
+  pnt3 getColor(pnt3 location, pnt3 norm);
+  
   pntf* convert3dPoint(pnt3* p);
   
+  bool compareSurfaces(const surface& first, const surface& second);
+  
   void drawLine(line* l);
+  
+  float viewDistance;
   
   unsigned int width;
   unsigned int height;
   pnt3 normal, outy, outx;
   const int offsetX=0, offsetY=0;
   
-  inline void MakePix(int x, int y){mp(x+offsetX, y+offsetY);}; 
-  void (*mp)(int, int);
+  inline void MakePix(int x, int y, pnt3 color){mp(x+offsetX, y+offsetY, color);}; 
+  void (*mp)(int, int, pnt3);
 };
 
 #endif	/* SCREEN_H */

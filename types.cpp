@@ -86,6 +86,9 @@ pnt3 operator%(const pnt3& a, const pnt3& b){
 	return p;
 }
 
+/*
+ * rotate point p about the z axis by a degrees
+ */
 pnt3 rotateAboutZ(const pnt3& p, const float a){
   float rad=a*deg2rad;
   float ca = cos(rad);
@@ -93,4 +96,11 @@ pnt3 rotateAboutZ(const pnt3& p, const float a){
 
   pnt3 o = {p.x*ca - p.y*sa, p.x*sa + p.y*ca, p.z};
   return o;
+}
+
+/*
+ * get the length of a vector
+ */
+float length(const pnt3& vec){
+  return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 }

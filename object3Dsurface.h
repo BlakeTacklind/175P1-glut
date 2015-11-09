@@ -29,13 +29,15 @@ public:
   object3Dsurface(const object3Dsurface& orig);
   virtual ~object3Dsurface();
   
-  void fill(void (*makeCPix)(int,int,pnt3), pnt3 view);
-  
   inline static unsigned int getNumObjects(){return nObjects;};
   inline static object3Dsurface* getObject(int i){return objectList[i];};
   
   inline unsigned int getNumSurface(){return nSurface;};
   inline surface* getSurface(int i){return surfaces[i];};
+  
+  inline pnt3 getPoint(int i){return points[i];};
+  
+  inline pnt3 getPointNormal(int i){return pntNorms[i];};
   
 private:
   static bool close(ifstream& f, list<object3Dsurface*>& tList, bool ret);

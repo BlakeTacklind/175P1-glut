@@ -19,20 +19,6 @@ char* object3Dsurface::storedFileName;
 unsigned int object3Dsurface::nObjects;
 object3Dsurface** object3Dsurface::objectList;
 
-void object3Dsurface::fill(void(*makeCPix)(int, int, pnt3), pnt3 view) {
-  //compile list of all surfaces
-  
-  //remove some surfaces
-  
-  //compile list of points
-  //perform math on points
-  
-  //sort all surfaces
-  
-  
-}
-
-
 bool checkForSame(list<int> vals){
   for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
     list<int>::iterator it2 = it;

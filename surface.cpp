@@ -26,11 +26,6 @@ surface::surface(const surface& orig) {
 surface::~surface() {
 }
 
-bool surface::compare(const surface& first, const surface& second) {
-  
-}
-
-
 const char* surface::getPntString() {
   string str = to_string(pntNums[0]);
   
@@ -51,3 +46,13 @@ const char* surface::getNormalString(){
   
   return str.c_str();
 }
+
+pnt3 surface::getCentroid() {
+  pnt3 c;
+  
+  for (int i = 0; i < nPnts; i++)
+    c = c + parent->getPoint(i);
+  
+  return c/nPnts;
+}
+
