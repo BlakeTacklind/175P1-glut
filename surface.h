@@ -11,11 +11,12 @@
 #include "types.h"
 #include "object3Dsurface.h"
 
+class object3Dsurface;
+
 class surface {
-  friend class object3Dsurface;
 public:
   surface();
-  surface(unsigned int nPoints, int* pointNumbers, pnt3 normal);
+  surface(unsigned int nPoints, unsigned int* pointNumbers, pnt3 normal);
   surface(const surface& orig);
   virtual ~surface();
   

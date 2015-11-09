@@ -33,15 +33,15 @@ void OpenGLhandler::initValues(int argc, char** argv){
   setK(10.0);
   setIa(.5);
   setIl(.5);
-  setLpos(10, 10, 10);
+  setLpos({10, 10, 10});
   setLightSize(3);
   
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   
-  new screen(width/2, height/2, 0      , 0       , unitX, MakePix);
-  new screen(width/2, height/2, width/2, height/2, unitY, MakePix);
-  new screen(width/2, height/2, 0      , height/2, unitZ, MakePix);
-  new screen(width/2, height/2, width/2, 0       , iso  , MakePix);
+  new screen(width/2, height/2, 0      , 0       , unitX, 10, MakeCPix);
+  new screen(width/2, height/2, width/2, height/2, unitY, 10, MakeCPix);
+  new screen(width/2, height/2, 0      , height/2, unitZ, 10, MakeCPix);
+  new screen(width/2, height/2, width/2, 0       , iso  , 10, MakeCPix);
 
 }
 
@@ -120,7 +120,7 @@ void OpenGLhandler::bufferObjects(drawMode m, pnt3 view, int x, int y){
   
   //create list of surfaces
   for (int i = 0; i < object3Dsurface::getNumObjects(); i++){
-    object3Dsurface* obj = object3Dsurface.getObject(i);
+    object3Dsurface* obj = object3Dsurface::getObject(i);
     for (int j = 0; j < obj->getNumSurface(); j++){
       surfaces.push_back(obj->getSurface(j));
     }
@@ -129,7 +129,7 @@ void OpenGLhandler::bufferObjects(drawMode m, pnt3 view, int x, int y){
   //reduce list of surfaces
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); ){
     if((*it)->getNormal() * view >= 0)
-      surfaces.remove(it);
+      surfaces.erase(it);
     else
       it++;
   }

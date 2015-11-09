@@ -15,6 +15,8 @@
 
 using namespace std;
 
+class surface;
+
 class object3Dsurface {
 public:
   static bool load(const char* filename);

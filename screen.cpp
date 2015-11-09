@@ -19,7 +19,7 @@ using namespace std;
 
 list<screen*> screen::screenList;
 
-screen::screen(int x, int y, int ofX, int ofY, pnt3 vec, float viewDist, void (*mkPix)(int, int))
+screen::screen(int x, int y, int ofX, int ofY, pnt3 vec, float viewDist, void (*mkPix)(int, int, pnt3))
 :offsetX(ofX), offsetY(ofY){
   width = x;
   height = y;
@@ -65,8 +65,8 @@ void screen::bufferAllScreens() {
   }
 }
 
-bool screen::compareSurfaces(const surface*& first, const surface*& second) {
-  return ((second->getCentroid() - first->getCentroid()) * normal) > 0;  
+bool screen::compareSurfaces(const surface& first, const surface& second) {
+  return ((second.getCentroid() - first.getCentroid()) * normal) > 0;  
 }
 
 void screen::bufferObjects() {
@@ -84,7 +84,7 @@ void screen::bufferObjects() {
     list<surface*>::iterator it = surfaces.begin();
     
     while(it != surfaces.end())
-      if((normal)*(*it)->getNormal() <= 0) surfaces.remove(it);
+      if((normal)*(*it)->getNormal() <= 0) surfaces.erase(it);
       else  it++;
   }
   
@@ -113,7 +113,7 @@ void screen::bufferObjects() {
       
       l.unique();
       
-      for(list<surface*>::iterator it = l.begin(); it != l.end(); it++){
+      for(list<unsigned int>::iterator it = l.begin(); it != l.end(); it++){
         pntf temp = convert3dPoint(o->getPoint(*it));
         
              if(temp.x > xmax) xmax = temp.x;
@@ -245,7 +245,7 @@ pnt3 screen::getColor(pnt3 location, pnt3 norm) {
  * using parallel projection
  */
 pntf screen::convert3dPoint(pnt3 p){
-  pntf* r = new pntf;
+  pntf r;
   if(normal == unitX){
     r.x = p.y;
     r.y = p.z;
@@ -259,8 +259,8 @@ pntf screen::convert3dPoint(pnt3 p){
     r.y = p.y;
   }
   else{
-    r.x=outx*(*p);
-    r.y=outy*(*p);
+    r.x=outx*p;
+    r.y=outy*p;
 
     //cout<<"test "<<r->x<<" "<<r->y<<endl;
   }
@@ -272,7 +272,7 @@ void screen::drawLine(line* l){
   const int dist = l->getNumPoints();
   for(int i = 0; i < dist; i++){
     pnt p = l->getPoint(i);
-    MakePix(p.x, p.y);
+    MakePix(p.x, p.y, {1,1,1});
   }
 
   //clean up line after usage

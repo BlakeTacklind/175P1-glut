@@ -10,6 +10,7 @@
 
 #include "types.h"
 #include "line.h"
+#include "surface.h"
 #include <list>
 
 using namespace std;
@@ -38,7 +39,7 @@ private:
   
   pnt3 getColor(pnt3 location, pnt3 norm);
   
-  pntf* convert3dPoint(pnt3* p);
+  pntf convert3dPoint(pnt3 p);
   
   bool compareSurfaces(const surface& first, const surface& second);
   

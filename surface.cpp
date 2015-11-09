@@ -10,7 +10,7 @@
 
 using namespace std;
 
-surface::surface(unsigned int nPoints, int* pointNumbers, pnt3 normal){
+surface::surface(unsigned int nPoints, unsigned int* pointNumbers, pnt3 normal){
   nPnts = nPoints;
   norm = normal;
   pntNums = pointNumbers;

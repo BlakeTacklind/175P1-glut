@@ -19,9 +19,9 @@ char* object3Dsurface::storedFileName;
 unsigned int object3Dsurface::nObjects;
 object3Dsurface** object3Dsurface::objectList;
 
-bool checkForSame(list<int> vals){
-  for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
-    list<int>::iterator it2 = it;
+bool checkForSame(list<unsigned int> vals){
+  for(list<unsigned int>::iterator it = vals.begin(); it != vals.end(); it++){
+    list<unsigned int>::iterator it2 = it;
     for(++it2; it2 != vals.end(); it2++){
       if(*it2 == *it) return true;
     }
@@ -41,10 +41,10 @@ E* getArrFromList(list<E> l){
   return arr;
 }
 
-object3Dsurface::object3Dsurface(int npnt, pnt3* Points, pnt3* pNorm, int nedge, edge* Edges, int nsurf, surface** surfs) {
+object3Dsurface::object3Dsurface(int npnt, pnt3* Points, pnt3* pNormals, int nedge, edge* Edges, int nsurf, surface** surfs) {
   nPoints = npnt;
   points = Points;
-  pntNorms = pNorm;
+  pntNorms = pNormals;
   nEdges = nedge;
   edges = Edges;
   nSurface = nsurf;
@@ -251,7 +251,7 @@ bool object3Dsurface::load(const char* filename){
        */
       surface** s = new surface*[num3];
       for(int j = 0; j < num3; j++){
-        list<int> vals;
+        list<unsigned int> vals;
         pnt3 p;
         
         /*
@@ -326,7 +326,7 @@ bool object3Dsurface::load(const char* filename){
         
         //convert pnt values into point locations
         int k = 0;
-        for(list<int>::iterator it = vals.begin(); it != vals.end(); it++){
+        for(list<unsigned int>::iterator it = vals.begin(); it != vals.end(); it++){
           pNorms[*it] = pNorms[*it] + p;
         }
         
@@ -387,7 +387,7 @@ bool object3Dsurface::save(const char* filename){
   userInterface::printError("failed to open save file");
   return false;
 }
-
+/*
 object3Dsurface::object3Dsurface(int npnt, pnt3* Points, int nedge, edge* Edges, int nsurf, surface** surfs) {
   nPoints = npnt;
   points = Points;
@@ -397,5 +397,5 @@ object3Dsurface::object3Dsurface(int npnt, pnt3* Points, int nedge, edge* Edges,
   surfaces = surfs;
   
   
-}
+}*/
 
