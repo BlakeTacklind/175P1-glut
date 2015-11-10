@@ -101,10 +101,10 @@ void screen::bufferObjects() {
   {
     list<surface*>::iterator it = surfaces.begin();
     while(it != surfaces.end()){
-      cout<<"<"<<normal.x<<", "<<normal.y<<", "<<normal.z<<"> * <"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<"> = "<< (normal * ((*it)->getNormal()))<<endl;
+      //cout<<"<"<<normal.x<<", "<<normal.y<<", "<<normal.z<<"> * <"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<"> = "<< (normal * ((*it)->getNormal()))<<endl;
       if((normal * ((*it)->getNormal())) <= 0){
         it = surfaces.erase(it);
-        cout<<"deleted"<<endl;
+        //cout<<"deleted"<<endl;
       }
       else 
         it++;
@@ -120,9 +120,9 @@ void screen::bufferObjects() {
   surfaces.sort(compareSurfaces(normal));
 
   {
-    cout<<"Normal list\n";
-    for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++)
-      cout<<"<"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<">"<<endl;
+    //cout<<"Normal list\n";
+    //for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++)
+      //cout<<"<"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<">"<<endl;
   }
   //cout<<"test 5\n";
   //scale and translate lines to fill screen
@@ -168,7 +168,7 @@ void screen::bufferObjects() {
   
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
 
-    cout<<"surface has "<<(*it)->getNumPoints()<<" points\n";
+    //cout<<"surface has "<<(*it)->getNumPoints()<<" points\n";
     cpnt* cpnts;
     if(OpenGLhandler::getDrawMode() != OpenGLhandler::points) cpnts = new cpnt[(*it)->getNumPoints()];
 
@@ -203,10 +203,10 @@ void screen::bufferObjects() {
     for(int i = 1; i < (*it)->getNumPoints(); i++)
       CLlist.push_back(new cline(cpnts[i], cpnts[i-1]));
     
-    cout<<"Printing "<<CLlist.size()<<" lines\n";
-    for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++){
-      cout<<(*it2)->getP1().x<<" "<<(*it2)->getP1().y<<" "<<(*it2)->getP2().x<<" "<<(*it2)->getP2().y<<endl;
-    }
+    //cout<<"Printing "<<CLlist.size()<<" lines\n";
+    //for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++){
+      //cout<<(*it2)->getP1().x<<" "<<(*it2)->getP1().y<<" "<<(*it2)->getP2().x<<" "<<(*it2)->getP2().y<<endl;
+    //}
 
     if(OpenGLhandler::getDrawMode() == OpenGLhandler::lines)
       for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)

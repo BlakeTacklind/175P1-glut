@@ -60,7 +60,7 @@ void cline::raster(MakePixOff mk, list<cline*>& lst){
     while(it != lst.end()){
       //remove horizontal lines
       if((*it)->l->isHorizontal()){
-        cout<<"delete hor"<<endl;
+        //cout<<"delete hor"<<endl;
         delete *it;
         it = lst.erase(it);
       }
@@ -99,7 +99,7 @@ void cline::raster(MakePixOff mk, list<cline*>& lst){
     do{
       //cout<<"Silly\n";
       I = (*it)->findFrontBackAtLine(i);
-      if(I == nullptr) cout<<"Found no item!\n";
+      //if(I == nullptr) cout<<"Found no item!\n";
     } while (I == nullptr && (++it) != lst.end());
 
     //cout<<"ness\n";
@@ -122,7 +122,12 @@ void cline::raster(MakePixOff mk, list<cline*>& lst){
     while(it != lst.end()){
 
       I = (*it)->findFrontBackAtLine(i);
-      
+      //cout<<"test e"<<endl;
+      if(I==nullptr){
+        it++;
+        continue;
+      }
+
       temp = (*it)->getPoint(I[0]);
 
       if(temp.x > max.x) max = temp;
@@ -137,9 +142,11 @@ void cline::raster(MakePixOff mk, list<cline*>& lst){
       it++;
     }
 
+    //cout<<"test l0\n";
     //create cline from inside to inside and draw it 
     cline(min, max).draw(mk);
     //cout<<"draw line "<<y<<endl;
+    //cout<<"test le\n";
   }
 
   
@@ -151,7 +158,7 @@ int* cline::findFrontBackAtLine(int y){
   if(p1.y > y && p2.y > y) return nullptr;
   if(p1.y < y && p2.y < y) return nullptr;
 
-  //cout<<"test 0"<<endl;
+ // cout<<"test 0"<<endl;
   //cout<<l->getP1().y<<" "<<l->getP2().y<<" "<<y<<" "<<numPoints<<endl;
 
   int* I = new int[2];
@@ -169,16 +176,19 @@ int* cline::findFrontBackAtLine(int y){
         }
 
       }
+      //cout<<l->getPoint(i).y<<" "<<y<<endl;
     }
     else{
       //cout<<"test 5\n";
       if(i == numPoints - 1){
         I[1] = i;
+        //cout<<"lost lin\n";
         return I;
       }
 
       if(l->getPoint(i).y != y){
         I[1] = i-1;
+       // cout<<"lost train\n";
         return I;
       }
     }
@@ -188,3 +198,4 @@ int* cline::findFrontBackAtLine(int y){
 
   return nullptr;
 }
+
