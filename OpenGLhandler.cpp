@@ -19,6 +19,16 @@ int OpenGLhandler::xMax;
 int OpenGLhandler::yMax;
 unsigned int OpenGLhandler::width;
 unsigned int OpenGLhandler::height;
+pnt3 OpenGLhandler::ambiant;
+pnt3 OpenGLhandler::diffuse;
+pnt3 OpenGLhandler::specular;
+  //approximating the “average distance” between the scene and the light source
+float OpenGLhandler::averageLightDistance;
+float OpenGLhandler::ambientIntensity;
+float OpenGLhandler::lightIntensity;
+pnt3 OpenGLhandler::lightPosition;
+unsigned int OpenGLhandler::lightSize;
+OpenGLhandler::lightModel OpenGLhandler::lMode;
 
 void OpenGLhandler::initValues(int argc, char** argv){
   
@@ -27,15 +37,24 @@ void OpenGLhandler::initValues(int argc, char** argv){
   
   PixelBuffer = new float[width * height * 3];
 
-  setAmbiant({1, 0, 0});
-  setDiffuse({0, 1, 0});
-  setSpecular({0, 0, 1});
+  const pnt3 red   = {1,0,0};
+  const pnt3 green = {0,1,0};
+  const pnt3 blue  = {0,0,1};
+
+  const pnt3 pnt10 = {10,10,10};
+
+  setAmbiant(red);
+  setDiffuse(green);
+  setSpecular(blue);
   setK(10.0);
   setIa(.5);
   setIl(.5);
-  setLpos({10, 10, 10});
+  setLpos(pnt10);
   setLightSize(3);
+  setLightModel(Gouraud);
   
+  tglDrawMode();
+
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   
   new screen(width/2, height/2, 0      , 0       , unitX, 10, MakeCPix);
@@ -89,9 +108,9 @@ void OpenGLhandler::MakePix(int x, int y){
 }
 
 void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
-  PixelBuffer[(y*width + x) * 3 ]    = color.r;
-  PixelBuffer[(y*width + x) * 3 + 1] = color.g;
-  PixelBuffer[(y*width + x) * 3 + 2] = color.b;
+  PixelBuffer[(y*width + x) * 3 ]    = color.x;
+  PixelBuffer[(y*width + x) * 3 + 1] = color.y;
+  PixelBuffer[(y*width + x) * 3 + 2] = color.z;
 }
 
 void OpenGLhandler::display(){
@@ -173,13 +192,13 @@ void OpenGLhandler::reDraw(){
   glutPostRedisplay();
 }
 
-const char* OpenGLhandler::getDrawMode(){
+const char* OpenGLhandler::getDrawModeStr(){
   if (dMode == points) return "Points";
   if (dMode == lines ) return "Lines";
   if (dMode == fill  ) return "Fill";
 }
 
-const char* OpenGLhandler::getAlgMode(){
+const char* OpenGLhandler::getAlgModeStr(){
   if (aMode == DDA) return "DDA";
   if (aMode == BA ) return "BA";
 }

@@ -33,6 +33,8 @@ public:
   
   inline void setParent(object3Dsurface* p){parent = p;};
   inline object3Dsurface* getParent()   {return parent;};
+//  inline pnt3 getPntLoc(unsigned int i){return parent->getPoint(getPntNum(i));};
+//  inline pnt3 getPntNorm(unsigned int i){return parent->getPointNormal(getPntNum(i));};
   
   inline unsigned int getNumPoints(){return nPnts;};
   inline unsigned int getPntNum(int i){return pntNums[i];};

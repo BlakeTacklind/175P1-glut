@@ -14,6 +14,7 @@
 #include "types.h"
 #include "OpenGLhandler.h"
 #include "object3Dsurface.h"
+#include "cline.h"
 
 using namespace std;
 
@@ -65,11 +66,28 @@ void screen::bufferAllScreens() {
   }
 }
 
-bool screen::compareSurfaces(const surface& first, const surface& second) {
-  return ((second.getCentroid() - first.getCentroid()) * normal) > 0;  
+bool screen::compareSurfaces::operator()(surface*& first, surface*& second) {
+  return ((second->getCentroid() - first->getCentroid()) * viewVec) > 0;  
+}
+
+
+void screen::fillLine(cpnt& a, cpnt& b){
+  line l(dg(a), dg(b), true);
+
+  pnt3 m = (b.c-a.c)/l.getNumPoints();
+
+  for(int i = 1; i < l.getNumPoints() - 1; i++){
+    pnt x = l.getPoint(i);
+    cpnt c = {x.x, x.y, a.c+(i*m)};
+
+    MakePix(x.x, x.y, c.c);
+  }
+
+
 }
 
 void screen::bufferObjects() {
+  //cout<<"test 2\n";
   //get all surfaces
   list<surface*> surfaces;
   for(int i = 0; i < object3Dsurface::getNumObjects(); i++){
@@ -78,21 +96,27 @@ void screen::bufferObjects() {
       surfaces.push_back(o->getSurface(j));
     }
   }
-  
   //surface elimination
+  
   {
     list<surface*>::iterator it = surfaces.begin();
-    
-    while(it != surfaces.end())
-      if((normal)*(*it)->getNormal() <= 0) surfaces.erase(it);
-      else  it++;
+    while(it != surfaces.end()){
+      if((normal * ((*it)->getNormal())) <= 0) 
+        it = surfaces.erase(it);
+      else 
+        it++;
+    }
   }
   
+
+  //cout<<"test 4\n";
   if(surfaces.empty()) return;
   
+  //cout<<"test 4.5\n";
   //sort surfaces for display
-  surfaces.sort(compareSurfaces);
+  surfaces.sort(compareSurfaces(normal));
   
+  //cout<<"test 5\n";
   //scale and translate lines to fill screen
   
   //get max and mins of the 2d points
@@ -124,6 +148,7 @@ void screen::bufferObjects() {
       }
     }
   }
+  //cout<<"test 6\n";
   
   //find scale value
   float scale;
@@ -134,13 +159,54 @@ void screen::bufferObjects() {
   }
   
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
+
+    cpnt* cpnts;
+    if(OpenGLhandler::getDrawMode() != OpenGLhandler::points) cpnts = new cpnt[(*it)->getNumPoints()];
+
     for(int i = 0; i < (*it)->getNumPoints(); i++){
       pnt3 p3 = (*it)->getParent()->getPoint((*it)->getPntNum(i));
       pntf fp = convert3dPoint(p3);
-      MakePix(fp.x * scale + xmin, fp.y * scale + ymin, 
-              getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
+
+      if(OpenGLhandler::getDrawMode() != OpenGLhandler::points){
+        cpnts[i].x = scale * (fp.x - xmin);
+        cpnts[i].y = scale * (fp.y - ymin);
+        cpnts[i].c = getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i)));
+
+        //MakePix(cpnts[i].x, cpnts[i].y, cpnts[i].c);
+      }
+      else{
+        MakePix(scale * (fp.x - xmin), scale * (fp.y - ymin),
+          getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
+      }
     }
+
+    if(OpenGLhandler::getDrawMode() == OpenGLhandler::points) continue;
+
+    if (OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
+      cout << "Not Implemented Phong" <<endl;
+      continue;
+    }
+
+    list<cline*> CLlist;
+
+    CLlist.push_back(new cline(cpnts[0], cpnts[(*it)->getNumPoints()-1]));
+
+    for(int i = 1; i < (*it)->getNumPoints(); i++)
+      CLlist.push_back(new cline(cpnts[i], cpnts[i-1]));
+    
+
+    if(OpenGLhandler::getDrawMode() == OpenGLhandler::lines)
+      for(list<cline*>::iterator it = CLlist.begin(); it != CLlist.end(); it++)
+        (*it)->draw(MakePixOff(offsetX, offsetY));
+    else if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
+      cline::raster(MakePixOff(offsetX, offsetY), CLlist);
+
+    for(list<cline*>::iterator it = CLlist.begin(); it != CLlist.end(); it++)
+      delete (*it);
+    
+    delete [] cpnts;
   }
+  //cout<<"test 8\n";
   
   /*
   //get 3d object edges

@@ -1,12 +1,18 @@
+
+#ifndef OPENGLHANDLER_H
+#define OPENGLHANDLER_H
+
 #include <GL/glut.h>
-#include "object2D.h"
+//#include "object2D.h"
 #include <list>
 #include "line.h"
 #include "screen.h"
+#include "types.h"
 
 using namespace std;
 
 class OpenGLhandler{
+  friend class MakePixOff;
 public:
   enum drawMode {points, lines, fill};
   enum algMode {DDA, BA};
@@ -22,8 +28,10 @@ public:
 
   inline static void bufferObjects(){clearBuffer(); screen::bufferAllScreens();};
 
-  static const char* getDrawMode();
-  static const char* getAlgMode();
+  static const char* getDrawModeStr();
+  static const char* getAlgModeStr();
+
+  inline static drawMode getDrawMode(){return dMode;};
 
   static void tglDrawMode();
   static void tglAlgMode();
@@ -41,17 +49,15 @@ public:
   inline static int getScreenWidth (){return width; };
   inline static int getScreenHeight(){return height;};
 
-  //clear Pixel Buffer
-  static void clearBuffer();
 
-  inline static pnt3 getAmbiant()      {return ambiant;};
-  inline static void setAmbiant(pnt3 p){ambiant = p;   };
+  inline static pnt3 getAmbiant() {return ambiant;};
+  inline static void setAmbiant(pnt3 p){ambiant = p;};
   
-  inline static pnt3 getDiffuse()      {return diffuse;};
-  inline static void setDiffuse(pnt3 p){diffuse = p;   };
+  inline static pnt3 getDiffuse() {return diffuse;};
+  inline static void setDiffuse(pnt3 p){diffuse = p;};
   
-  inline static pnt3 getSpecular()      {return specular;};
-  inline static void setSpecular(pnt3 p){specular = p;   };
+  inline static pnt3 getSpecular() {return specular;};
+  inline static void setSpecular(pnt3 p){specular = p;};
   
   inline static float getK(){return averageLightDistance;};
   inline static void  setK(float p){averageLightDistance = p;};
@@ -62,13 +68,17 @@ public:
   inline static float getIl(){return lightIntensity;};
   inline static float setIl(float i){lightIntensity = i;};
   
-  inline static pnt3 getLpos()      {return lightPosition;};
-  inline static void setLpos(pnt3 p){lightPosition = p;   };
+  inline static pnt3 getLpos() {return lightPosition;};
+  inline static void setLpos(pnt3 p){lightPosition = p;};
   
   inline static unsigned int getLightSize(){return lightSize;};
   inline static void setLightSize(unsigned int i){lightSize = i;};
+
+  inline static lightModel getLightModel(){return lMode;};
+  inline static void setLightModel(lightModel l){lMode = l;};
   
-  
+  //clear Pixel Buffer
+  static void clearBuffer();
 private:
   static void MakePix(int x, int y);
   static void MakeCPix(int x, int y, pnt3 color);
@@ -88,6 +98,7 @@ private:
   static pnt3 lightPosition;
   static unsigned int lightSize;
   //static pnt3 viewPoint;  //in screen
+  
   
   //calculation and draw modes
   static algMode aMode;
@@ -114,3 +125,4 @@ private:
 
 };
 
+#endif

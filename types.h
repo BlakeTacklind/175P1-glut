@@ -21,25 +21,18 @@ typedef struct pf2{
  * Struct for 3D points (floats)
  */
 typedef struct pf3{
-  union{
-    float x;
-    float r;
-  };
-  union{
-    float y;
-    float g;
-  };
-  union{
-    float z;
-    float b;
-  };
+  float x;
+  float y;
+  float z;
 } pnt3;
 
-typedef struct pp{
-  pnt3 p3;
-  pntf p2;
-  pnt3 norm;
-} lightingPoint;
+typedef struct cp{
+  int x;
+  int y;
+  pnt3 c;
+} cpnt;
+
+inline pnt dg(cpnt& c){return {c.x, c.y};};
 
 /*
  * Struct for point edge combinations

@@ -36,13 +36,24 @@ public:
   
 private:
   static list<screen*> screenList;
+
+  void fillLine(cpnt& a, cpnt& b);
   
   pnt3 getColor(pnt3 location, pnt3 norm);
   
   pntf convert3dPoint(pnt3 p);
   
-  bool compareSurfaces(const surface& first, const surface& second);
-  
+  //bool compareSurfaces(const surface& first, const surface& second);
+  class compareSurfaces{
+  public:
+    compareSurfaces(pnt3 view):viewVec(view){};
+
+    bool operator()(surface*& first, surface*& second);
+
+  private:
+    const pnt3 viewVec;
+  };
+
   void drawLine(line* l);
   
   float viewDistance;
@@ -53,6 +64,7 @@ private:
   const int offsetX=0, offsetY=0;
   
   inline void MakePix(int x, int y, pnt3 color){mp(x+offsetX, y+offsetY, color);}; 
+
   void (*mp)(int, int, pnt3);
 };
 

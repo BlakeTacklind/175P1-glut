@@ -183,7 +183,7 @@ void userInterface::keypressed(unsigned char key){
     action = "";
     drawUI();
     
-    object3D::getObject(objSelected)->translate(val, val2, atoi(str));
+    //object3D::getObject(objSelected)->translate(val, val2, atoi(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -252,7 +252,7 @@ void userInterface::keypressed(unsigned char key){
     }
 
     drawUI();
-    object3D::getObject(objSelected)->rotate(p1, p2, atof(str));
+    //object3D::getObject(objSelected)->rotate(p1, p2, atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
@@ -291,7 +291,7 @@ void userInterface::keypressed(unsigned char key){
     
     drawUI();
     
-    object3D::getObject(objSelected)->scale(val, val2, atof(str));
+    //object3D::getObject(objSelected)->scale(val, val2, atof(str));
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
