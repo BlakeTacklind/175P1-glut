@@ -101,8 +101,11 @@ void screen::bufferObjects() {
   {
     list<surface*>::iterator it = surfaces.begin();
     while(it != surfaces.end()){
-      if((normal * ((*it)->getNormal())) <= 0) 
+      cout<<"<"<<normal.x<<", "<<normal.y<<", "<<normal.z<<"> * <"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<"> = "<< (normal * ((*it)->getNormal()))<<endl;
+      if((normal * ((*it)->getNormal())) <= 0){
         it = surfaces.erase(it);
+        cout<<"deleted"<<endl;
+      }
       else 
         it++;
     }
@@ -115,7 +118,12 @@ void screen::bufferObjects() {
   //cout<<"test 4.5\n";
   //sort surfaces for display
   surfaces.sort(compareSurfaces(normal));
-  
+
+  {
+    cout<<"Normal list\n";
+    for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++)
+      cout<<"<"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<">"<<endl;
+  }
   //cout<<"test 5\n";
   //scale and translate lines to fill screen
   
@@ -160,6 +168,7 @@ void screen::bufferObjects() {
   
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
 
+    cout<<"surface has "<<(*it)->getNumPoints()<<" points\n";
     cpnt* cpnts;
     if(OpenGLhandler::getDrawMode() != OpenGLhandler::points) cpnts = new cpnt[(*it)->getNumPoints()];
 
@@ -194,98 +203,22 @@ void screen::bufferObjects() {
     for(int i = 1; i < (*it)->getNumPoints(); i++)
       CLlist.push_back(new cline(cpnts[i], cpnts[i-1]));
     
+    cout<<"Printing "<<CLlist.size()<<" lines\n";
+    for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++){
+      cout<<(*it2)->getP1().x<<" "<<(*it2)->getP1().y<<" "<<(*it2)->getP2().x<<" "<<(*it2)->getP2().y<<endl;
+    }
 
     if(OpenGLhandler::getDrawMode() == OpenGLhandler::lines)
-      for(list<cline*>::iterator it = CLlist.begin(); it != CLlist.end(); it++)
-        (*it)->draw(MakePixOff(offsetX, offsetY));
+      for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
+        (*it2)->draw(MakePixOff(offsetX, offsetY));
     else if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
       cline::raster(MakePixOff(offsetX, offsetY), CLlist);
 
-    for(list<cline*>::iterator it = CLlist.begin(); it != CLlist.end(); it++)
-      delete (*it);
+    for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
+      delete *it2;
     
     delete [] cpnts;
   }
-  //cout<<"test 8\n";
-  
-  /*
-  //get 3d object edges
-  list<pnt3**> edge3d;
-  for (int i = 0; i < object3D::getNumObjects(); i++){
-    object3D* o = object3D::getObject(i);
-    for(int j = 0; j < o->getNumEdges(); j++){
-      edge3d.push_back(o->getEdge(j));
-    }
-  }
-  
-  //If there are NO edges, don't display anything
-  if(!edge3d.size()) return;
-  
-  //convert to 2d lines float lines
-  list<pntf**> edge2d;
-  for (list<pnt3**>::iterator it = edge3d.begin(); it != edge3d.end(); it++){
-    pntf** p = new pntf*[2];
-    
-    p[0] = convert3dPoint((*it)[0]);
-    p[1] = convert3dPoint((*it)[1]);
-    
-    edge2d.push_back(p);
-    
-    delete [] (*it);
-  }
-  
-  //find the min and max
-  float xmin, xmax, ymin, ymax;
-  list<pntf**>::iterator it = edge2d.begin();
-  xmin = xmax = (*it)[0]->x;
-  ymin = ymax = (*it)[0]->y;
-  while(it != edge2d.end()){
-         if((*it)[0]->x > xmax) xmax = (*it)[0]->x;
-    else if((*it)[0]->x < xmin) xmin = (*it)[0]->x;
-    
-         if((*it)[1]->x > xmax) xmax = (*it)[1]->x;
-    else if((*it)[1]->x < xmin) xmin = (*it)[1]->x;
-    
-         if((*it)[0]->y > ymax) ymax = (*it)[0]->y;
-    else if((*it)[0]->y < ymin) ymin = (*it)[0]->y;
-    
-         if((*it)[1]->y > ymax) ymax = (*it)[1]->y;
-    else if((*it)[1]->y < ymin) ymin = (*it)[1]->y;
-    
-    it++;
-  }
-  
-  //scale and translate lines to fill screen
-  
-  //find scale value
-  float scale;
-  {
-    float scaleX = (width  - 1) / (xmax - xmin);
-    float scaleY = (height - 1) / (ymax - ymin);
-    scale = scaleX>scaleY?scaleY:scaleX;
-  }
-  
-  it = edge2d.begin();
-  while(it != edge2d.end()){
-    pnt a;
-    pnt b;
-    
-    //translate then scale points to integer counterparts
-    a.x = (int)(scale*((*it)[0]->x - xmin));
-    a.y = (int)(scale*((*it)[0]->y - ymin));
-    b.x = (int)(scale*((*it)[1]->x - xmin));
-    b.y = (int)(scale*((*it)[1]->y - ymin));
-    
-    //clean up array
-    delete (*it)[0];
-    delete (*it)[1];
-    delete [] (*it);
-    
-    //draw the line created by the two integer points
-    drawLine(new line(a, b, true));
-    
-    it++;
-  }*/
 }
 
 /*

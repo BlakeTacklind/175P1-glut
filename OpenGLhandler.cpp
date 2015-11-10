@@ -54,6 +54,7 @@ void OpenGLhandler::initValues(int argc, char** argv){
   setLightModel(Gouraud);
   
   tglDrawMode();
+  tglDrawMode();
 
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   

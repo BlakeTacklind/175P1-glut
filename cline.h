@@ -28,11 +28,8 @@ public:
 
 
 private:
-  struct twoInt{
-    int a, b;
-  };
 
-  twoInt findFrontBackAtLine(int y);
+  int* findFrontBackAtLine(int y);
 
   void FillG();
   void FillP();

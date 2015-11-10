@@ -325,12 +325,11 @@ bool object3Dsurface::load(const char* filename){
         }
         
         //convert pnt values into point locations
-        int k = 0;
         for(list<unsigned int>::iterator it = vals.begin(); it != vals.end(); it++){
           pNorms[*it] = pNorms[*it] + p;
         }
         
-        s[j] = new surface(num3, getArrFromList(vals), p);
+        s[j] = new surface(vals.size(), getArrFromList(vals), p);
       }
 
       //Build Object
