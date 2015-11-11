@@ -34,12 +34,12 @@ public:
   inline pnt3 getNormal(){return normal;};
   void setNormal(const pnt3& p);
   
+  pnt3 getColor(pnt3 location, pnt3 norm);
+  
 private:
   static list<screen*> screenList;
 
   void fillLine(cpnt& a, cpnt& b);
-  
-  pnt3 getColor(pnt3 location, pnt3 norm);
   
   pntf convert3dPoint(pnt3 p);
   
@@ -66,6 +66,14 @@ private:
   inline void MakePix(int x, int y, pnt3 color){mp(x+offsetX, y+offsetY, color);}; 
 
   void (*mp)(int, int, pnt3);
+  
+  
+  struct holder{
+    pnt3 real;
+    pnt rel;
+    pnt3 vec;
+  };
+
 };
 
 #endif	/* SCREEN_H */

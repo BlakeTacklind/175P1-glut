@@ -14,7 +14,8 @@
 #include "types.h"
 #include "OpenGLhandler.h"
 #include "object3Dsurface.h"
-#include "cline.h"
+#include "gline.h"
+#include "pline.h"
 
 using namespace std;
 
@@ -112,19 +113,11 @@ void screen::bufferObjects() {
   }
   
 
-  //cout<<"test 4\n";
   if(surfaces.empty()) return;
   
-  //cout<<"test 4.5\n";
   //sort surfaces for display
   surfaces.sort(compareSurfaces(normal));
 
-  {
-    //cout<<"Normal list\n";
-    //for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++)
-      //cout<<"<"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<">"<<endl;
-  }
-  //cout<<"test 5\n";
   //scale and translate lines to fill screen
   
   //get max and mins of the 2d points
@@ -156,7 +149,6 @@ void screen::bufferObjects() {
       }
     }
   }
-  //cout<<"test 6\n";
   
   //find scale value
   float scale;
@@ -168,56 +160,84 @@ void screen::bufferObjects() {
   
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
 
-    //cout<<"surface has "<<(*it)->getNumPoints()<<" points\n";
     cpnt* cpnts;
-    if(OpenGLhandler::getDrawMode() != OpenGLhandler::points) cpnts = new cpnt[(*it)->getNumPoints()];
+    holder* spnts;
+    if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
+            OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud)
+      cpnts = new cpnt[(*it)->getNumPoints()];
+    if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
+            OpenGLhandler::getLightModel() == OpenGLhandler::Phong)
+      spnts = new holder[(*it)->getNumPoints()];
+    
 
     for(int i = 0; i < (*it)->getNumPoints(); i++){
       pnt3 p3 = (*it)->getParent()->getPoint((*it)->getPntNum(i));
       pntf fp = convert3dPoint(p3);
 
-      if(OpenGLhandler::getDrawMode() != OpenGLhandler::points){
+      if(OpenGLhandler::getDrawMode() == OpenGLhandler::points){
+        MakePix(scale * (fp.x - xmin), scale * (fp.y - ymin),
+          getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
+      }
+      else if (OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
         cpnts[i].x = scale * (fp.x - xmin);
         cpnts[i].y = scale * (fp.y - ymin);
         cpnts[i].c = getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i)));
-
-        //MakePix(cpnts[i].x, cpnts[i].y, cpnts[i].c);
       }
-      else{
-        MakePix(scale * (fp.x - xmin), scale * (fp.y - ymin),
-          getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
+      else if( OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
+        int num = (*it)->getPntNum(i);
+        spnts[i] = {(*it)->getParent()->getPoint(num), 
+            {scale * (fp.x - xmin), scale * (fp.y - ymin)}, 
+            (*it)->getParent()->getPointNormal(num)};
+        MakePix(spnts[i].rel.x, spnts[i].rel.y, getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
       }
     }
 
     if(OpenGLhandler::getDrawMode() == OpenGLhandler::points) continue;
 
     if (OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
-      cout << "Not Implemented Phong" <<endl;
-      continue;
+      list<pline*> PLlist;
+      
+      PLlist.push_back(new pline(spnts[0].rel, spnts[(*it)->getNumPoints()-1].rel,
+              spnts[0].real, spnts[(*it)->getNumPoints()-1].real,
+              ~(spnts[0].vec + spnts[(*it)->getNumPoints()-1].vec) ,this));
+      
+      PLlist.back()->draw(MakePixOff(offsetX, offsetY));
+      
+      for(int i = 1; i < (*it)->getNumPoints(); i++){
+        PLlist.push_back(new pline(spnts[i].rel, spnts[i-1].rel,
+                spnts[i].real, spnts[i-1].real,
+                ~(spnts[i].vec + spnts[i-1].vec) ,this));
+        
+        PLlist.back()->draw(MakePixOff(offsetX, offsetY));
+      }
+      
+      //Raster
+      if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
+        pline::raster(MakePixOff(offsetX, offsetY), list<pline*>& PLlist);
+      
+      for(list<pline*>::iterator it2 = PLlist.begin(); it2 != PLlist.end(); it2++)
+        delete *it2;
     }
+    else if(OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
+      list<gline*> CLlist;
 
-    list<cline*> CLlist;
+      CLlist.push_back(new gline(cpnts[0], cpnts[(*it)->getNumPoints()-1]));
 
-    CLlist.push_back(new cline(cpnts[0], cpnts[(*it)->getNumPoints()-1]));
+      for(int i = 1; i < (*it)->getNumPoints(); i++)
+        CLlist.push_back(new gline(cpnts[i], cpnts[i-1]));
 
-    for(int i = 1; i < (*it)->getNumPoints(); i++)
-      CLlist.push_back(new cline(cpnts[i], cpnts[i-1]));
-    
-    //cout<<"Printing "<<CLlist.size()<<" lines\n";
-    //for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++){
-      //cout<<(*it2)->getP1().x<<" "<<(*it2)->getP1().y<<" "<<(*it2)->getP2().x<<" "<<(*it2)->getP2().y<<endl;
-    //}
 
-    if(OpenGLhandler::getDrawMode() == OpenGLhandler::lines)
-      for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
-        (*it2)->draw(MakePixOff(offsetX, offsetY));
-    else if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
-      cline::raster(MakePixOff(offsetX, offsetY), CLlist);
+      if(OpenGLhandler::getDrawMode() == OpenGLhandler::lines)
+        for(list<gline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
+          (*it2)->draw(MakePixOff(offsetX, offsetY));
+      else if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
+        gline::raster(MakePixOff(offsetX, offsetY), CLlist);
 
-    for(list<cline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
-      delete *it2;
-    
-    delete [] cpnts;
+      for(list<gline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
+        delete *it2;
+
+      delete [] cpnts;
+    }
   }
 }
 

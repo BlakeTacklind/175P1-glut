@@ -156,3 +156,39 @@ void line::Fill(bool BAmode){
   }
 }
 
+
+int* line::findFrontBackAtLine(int y){
+  if(p1.y > y && p2.y > y) return nullptr;
+  if(p1.y < y && p2.y < y) return nullptr;
+
+  int* I = new int[2];
+  bool first = true;
+
+  for(int i = 0; i < getNumPoints(); i++){
+    if(first){
+      if(getPoint(i).y == y){
+        I[0] = i;
+        first = false;
+        
+        if(i == (xTravel?dx:dy)){
+          I[1] = i;
+          return I;
+        }
+      }
+    }
+    else{
+      if(i == (xTravel?dx:dy)){
+        I[1] = i;
+        return I;
+      }
+
+      if(getPoint(i).y != y){
+        I[1] = i-1;
+        return I;
+      }
+    }
+  }
+
+  delete I;
+  return nullptr;
+}

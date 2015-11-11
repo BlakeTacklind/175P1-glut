@@ -18,6 +18,9 @@ public:
   inline pnt getP1(){return p1;};
   inline pnt getP2(){return p2;};
   
+protected:
+  int* findFrontBackAtLine(int y);
+  
 private:
   void Fill(bool BAmode);
   
