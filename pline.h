@@ -17,6 +17,16 @@
 using namespace std;
 
 class pline: public line{
+ 
+  struct pntPair{
+    pnt3 p;
+    int x;
+  };
+  
+  typedef struct h{
+    struct pntPair max, min;
+  } holder;
+
 public:
   pline(pnt P1, pnt P2, pnt3 A, pnt3 B, pnt3 norm, screen* printTo);
   pline();
@@ -44,17 +54,7 @@ private:
   screen* scrn;
   
   pnt3* fill;
-  
-  struct pntPair{
-    pnt3 p;
-    int x;
-  };
-  
-  struct holder{
-    pntPair max, min;
-  };
-
-};
+ };
 
 #endif	/* PLINE_H */
 

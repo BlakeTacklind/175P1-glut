@@ -92,9 +92,9 @@ void gline::raster(MakePixOff mk, list<gline*>& lst){
       return;
     } 
 
-    min = max = (*it)->getPoint(I[0]);
+    min = max = (*it)->getCPoint(I[0]);
 
-    cpnt temp = (*it)->getPoint(I[1]);
+    cpnt temp = (*it)->getCPoint(I[1]);
 
     if(temp.x > max.x) max = temp;
     if(temp.x < min.x) min = temp;

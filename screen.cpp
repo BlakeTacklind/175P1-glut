@@ -186,7 +186,7 @@ void screen::bufferObjects() {
       else if( OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
         int num = (*it)->getPntNum(i);
         spnts[i] = {(*it)->getParent()->getPoint(num), 
-            {scale * (fp.x - xmin), scale * (fp.y - ymin)}, 
+            {(int)(scale * (fp.x - xmin) + .5), (int)(scale * (fp.y - ymin) + .5)}, 
             (*it)->getParent()->getPointNormal(num)};
         MakePix(spnts[i].rel.x, spnts[i].rel.y, getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
       }
@@ -213,7 +213,7 @@ void screen::bufferObjects() {
       
       //Raster
       if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
-        pline::raster(MakePixOff(offsetX, offsetY), list<pline*>& PLlist);
+        pline::raster(MakePixOff(offsetX, offsetY), PLlist);
       
       for(list<pline*>::iterator it2 = PLlist.begin(); it2 != PLlist.end(); it2++)
         delete *it2;

@@ -8,6 +8,7 @@ class line{
   
 public:
   line(pnt a, pnt b, bool BAmode);
+  inline line(){};
   virtual ~line();
 
   inline unsigned int getNumPoints(){return (xTravel?dx:dy) + 1;};

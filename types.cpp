@@ -3,6 +3,11 @@
 
 
 /* check for vector equality */
+bool operator==(const pnt& a, const pnt& b){
+  return a.x == b.x && a.y == b.y;
+}
+
+/* check for vector equality */
 bool operator==(const pnt3& a, const pnt3& b){
   return a.x == b.x && a.y == b.y && a.z == b.z;
 }

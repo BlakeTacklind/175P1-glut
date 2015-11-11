@@ -120,32 +120,32 @@ void pline::raster(MakePixOff mk, list<pline*>& lst) {
     }
     
     //find min max of vals
-    holder* min, max;
+    holder min, max;
     {
       list<holder*>::iterator it2 = vals.begin();
-      min = max = *it2;
+      min = max = **it2;
       it2++;
       while( it2 != vals.end() ){
         //check for change max
         //change in case found a point with a larger max or same max and smaller min
         //assumes no complex points
-        if(max->max.x < (*it2)->max.x || (max->max.x == (*it2)->max.x && max->min.x > (*it2)->min.x)){
-          max = *it2;
+        if(max.max.x < (*it2)->max.x || (max.max.x == (*it2)->max.x && max.min.x > (*it2)->min.x)){
+          max = **it2;
         }
         
         //check for change min
         //change in case found a point with a smaller min or same min and larger max
         //assumes no complex points
-        if(min->min.x > (*it2)->min.x || 
-                (min->min.x == (*it2)->min.x && min->max.x < (*it2)->max.x)){
-          max = *it2;
+        if(min.min.x > (*it2)->min.x || 
+                (min.min.x == (*it2)->min.x && min.max.x < (*it2)->max.x)){
+          max = **it2;
         }
         
         it2++;
       }
     }
     
-    pline* l = new pline({max->min.x, i}, {min->max.x, i}, max->min.p, min->max.p, norm, (*it)->scrn);
+    pline* l = new pline({max.min.x, i}, {min.max.x, i}, max.min.p, min.max.p, norm, (*it)->scrn);
     l->draw(mk);
     delete l;
     
@@ -158,8 +158,8 @@ void pline::raster(MakePixOff mk, list<pline*>& lst) {
 pline::holder* pline::getHolderFromI(int* I) {
   holder* h = new holder;
   
-  int i = getPoint(I[0]);
-  int j = getPoint(I[1]);
+  int i = getPoint(I[0]).x;
+  int j = getPoint(I[1]).x;
   
   if(i>j){
     h->max.x = i;

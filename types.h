@@ -50,6 +50,7 @@ const pnt3 unitZ = {0, 0, 1};
 /*
  * Math for vectors
  */
+bool operator==(const pnt& a, const pnt& b);
 bool operator==(const pnt3& a, const pnt3& b);
 float operator*(const pnt3& a, const pnt3& b);
 pnt3 operator%(const pnt3& a, const pnt3& b);
