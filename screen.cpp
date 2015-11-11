@@ -88,6 +88,16 @@ void screen::fillLine(cpnt& a, cpnt& b){
 
 }
 
+void screen::surfaceElimination(list<surface*>& surfaces){
+  list<surface*>::iterator it = surfaces.begin();
+
+  while(it != surfaces.end())
+    if((normal * ((*it)->getNormal())) >= 0)
+      it = surfaces.erase(it);
+    else it++;
+  
+}
+
 void screen::bufferObjects() {
   //cout<<"test 2\n";
   //get all surfaces
@@ -100,18 +110,8 @@ void screen::bufferObjects() {
   }
 
   //surface elimination
-  {
-    list<surface*>::iterator it = surfaces.begin();
-    while(it != surfaces.end()){
-      //cout<<"<"<<normal.x<<", "<<normal.y<<", "<<normal.z<<"> * <"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<"> = "<< (normal * ((*it)->getNormal()))<<endl;
-      if((normal * ((*it)->getNormal())) >= 0){
-        it = surfaces.erase(it);
-        //cout<<"deleted"<<endl;
-      }
-      else 
-        it++;
-    }
-  }
+  surfaceElimination(surfaces);
+  
 
   if(surfaces.empty()) return;
   
@@ -169,7 +169,7 @@ void screen::bufferObjects() {
             OpenGLhandler::getLightModel() == OpenGLhandler::Phong)
       spnts = new pntHolder[(*it)->getNumPoints()];
     
-
+    //get value of surface vertices
     for(int i = 0; i < (*it)->getNumPoints(); i++){
       pnt3 p3 = (*it)->getParent()->getPoint((*it)->getPntNum(i));
       pntf fp = convert3dPoint(p3);
@@ -192,8 +192,10 @@ void screen::bufferObjects() {
       }
     }
 
+    //skip rest if only displaying points
     if(OpenGLhandler::getDrawMode() == OpenGLhandler::points) continue;
 
+    //perform Phong Algorithm
     if (OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
       list<pline*> PLlist;
       
@@ -215,13 +217,14 @@ void screen::bufferObjects() {
         PLlist.back()->draw(MakePixOff(offsetX, offsetY));
       }
       
-      //Raster
+      //Raster if nessesary
       if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
         pline::raster(MakePixOff(offsetX, offsetY), PLlist, getColorFunc(normal, viewDistance));
       
       for(list<pline*>::iterator it2 = PLlist.begin(); it2 != PLlist.end(); it2++)
         delete (*it2);
     }
+    //perform Gouraud algorithm
     else if(OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
       list<gline*> CLlist;
 
@@ -249,18 +252,7 @@ void screen::bufferObjects() {
  * get a color at a location using the Phong lighting model
  */
 pnt3 screen::getColor(pnt3 location, pnt3 norm) {
-  //light vector
-  pnt3 l = ~(location - OpenGLhandler::getLpos());
-  //reflection vector
-  pnt3 r = l - 2 * norm << l;
-          //Ka*Ia +
-  return OpenGLhandler::getAmbiant() * OpenGLhandler::getIa() + 
-          //Il / (||f - p|| + K) *
-          OpenGLhandler::getIl() / (viewDistance + OpenGLhandler::getK()) * 
-          //(kd * (L dot n) +
-          (OpenGLhandler::getDiffuse() * (l * norm) + 
-          //ks * (r dot v)^n)
-          OpenGLhandler::getSpecular() * pow((r * normal), OpenGLhandler::getLightSize()));
+  return getColorFunc(normal, viewDistance)(location, norm);
 }
 
 /*
@@ -281,23 +273,14 @@ pntf screen::convert3dPoint(pnt3 p){
     r.x = p.x;
     r.y = p.y;
   }
+  else if(normal == -unitZ){
+    r.x = p.x;
+    r.y = p.y;
+  }
   else{
     r.x=outx*p;
     r.y=outy*p;
-
-    //cout<<"test "<<r->x<<" "<<r->y<<endl;
   }
 
   return r;
-}
-
-void screen::drawLine(line* l){
-  const int dist = l->getNumPoints();
-  for(int i = 0; i < dist; i++){
-    pnt p = l->getPoint(i);
-    MakePix(p.x, p.y, {1,1,1});
-  }
-
-  //clean up line after usage
-  delete l;
 }

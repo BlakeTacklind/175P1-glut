@@ -5,8 +5,14 @@
 #include "userInterface.h"
 
 gline::gline(cpnt a, cpnt b):line(dg(a), dg(b), true){
-  p1 = a;
-  p2 = b;
+  if(getP1() == dg(a)){
+    p1 = a;
+    p2 = b;
+  }
+  else{
+    p1 = b;
+    p2 = a;
+  }
 
   numPoints = getNumPoints();
 

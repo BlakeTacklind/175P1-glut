@@ -42,19 +42,9 @@ private:
   void fillLine(cpnt& a, cpnt& b);
   
   pntf convert3dPoint(pnt3 p);
-  
-  //bool compareSurfaces(const surface& first, const surface& second);
-  class compareSurfaces{
-  public:
-    compareSurfaces(pnt3 view):viewVec(view){};
 
-    bool operator()(surface*& first, surface*& second);
+  void surfaceElimination(list<surface*>& surfaces);
 
-  private:
-    const pnt3 viewVec;
-  };
-
-  void drawLine(line* l);
   
   float viewDistance;
   
@@ -74,6 +64,16 @@ private:
     pnt3 vec;
   };
 
+  //bool compareSurfaces(const surface& first, const surface& second);
+  class compareSurfaces{
+  public:
+    compareSurfaces(pnt3 view):viewVec(view){};
+
+    bool operator()(surface*& first, surface*& second);
+
+  private:
+    const pnt3 viewVec;
+  };
 };
 
 #endif	/* SCREEN_H */

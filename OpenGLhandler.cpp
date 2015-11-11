@@ -32,8 +32,8 @@ OpenGLhandler::lightModel OpenGLhandler::lMode;
 
 void OpenGLhandler::initValues(int argc, char** argv){
   
-  width = 400;
-  height = 400;
+  width = 402;
+  height = 402;
   
   PixelBuffer = new float[width * height * 3];
 
@@ -41,14 +41,14 @@ void OpenGLhandler::initValues(int argc, char** argv){
   const pnt3 green = {0,1,0};
   const pnt3 blue  = {0,0,1};
 
-  const pnt3 pnt10 = {10,10,10};
+  const pnt3 pnt10 = {1,1,2};
 
   setAmbiant(red);
   setDiffuse(green);
   setSpecular(blue);
   setK(1.0);
   setIa(.5);
-  setIl(.5);
+  setIl(2);
   setLpos(pnt10);
   setLightSize(3);
   // setLightModel(Gouraud);
@@ -61,7 +61,7 @@ void OpenGLhandler::initValues(int argc, char** argv){
   
   new screen(width/2, height/2, 0      , 0       , unitX, 10, MakeCPix);
   new screen(width/2, height/2, width/2, height/2, unitY, 10, MakeCPix);
-  new screen(width/2, height/2, 0      , height/2, unitZ, 10, MakeCPix);
+  new screen(width/2, height/2, 0      , height/2, -unitZ, 10, MakeCPix);
   new screen(width/2, height/2, width/2, 0       , iso  , 10, MakeCPix);
 
 }
@@ -113,6 +113,13 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
   PixelBuffer[(y*width + x) * 3 ]    = color.x;
   PixelBuffer[(y*width + x) * 3 + 1] = color.y;
   PixelBuffer[(y*width + x) * 3 + 2] = color.z;
+}
+
+void OpenGLhandler::MakeMPix(int x, int y, int intensity){
+  int binOnOff = pow(2, intensity) - 1;
+  for(int i = 0; i < 3*3; i++){
+    if(biOnOff & 1 << i) MakeCPix(x*3+i%3, y*3+i/3, {1,1,1}); 
+  }
 }
 
 void OpenGLhandler::display(){
