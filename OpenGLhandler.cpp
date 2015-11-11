@@ -46,12 +46,13 @@ void OpenGLhandler::initValues(int argc, char** argv){
   setAmbiant(red);
   setDiffuse(green);
   setSpecular(blue);
-  setK(10.0);
+  setK(1.0);
   setIa(.5);
   setIl(.5);
   setLpos(pnt10);
   setLightSize(3);
-  setLightModel(Gouraud);
+  // setLightModel(Gouraud);
+  setLightModel(Phong);
   
   tglDrawMode();
   tglDrawMode();
@@ -213,4 +214,9 @@ void OpenGLhandler::tglDrawMode(){
 void OpenGLhandler::tglAlgMode(){
        if (aMode == DDA) aMode = BA;
   else if (aMode == BA ) aMode = DDA;
+}
+
+void OpenGLhandler::tglLightMode(){
+       if (lMode == Phong  ) lMode = Gouraud;
+  else if (lMode == Gouraud) lMode = Phong;
 }

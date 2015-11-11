@@ -13,6 +13,7 @@
 #include <list>
 #include "MakePixOff.h"
 #include "screen.h"
+#include "getColorFunc.h"
 
 using namespace std;
 
@@ -28,7 +29,7 @@ class pline: public line{
   } holder;
 
 public:
-  pline(pnt P1, pnt P2, pnt3 A, pnt3 B, pnt3 norm, screen* printTo);
+  pline(pnt P1, pnt P2, pnt3 A, pnt3 B, pnt3 norm, getColorFunc);
   pline();
   pline(const pline& orig);
   virtual ~pline();
@@ -39,10 +40,10 @@ public:
   inline pnt3 getPnt3(unsigned int i){pnt3 m=(b-a)/(numPoints-1);return a+m*i;};
 
   void draw(MakePixOff mk);
-  static void raster(MakePixOff mk, list<pline*>& lst);
+  static void raster(MakePixOff mk, list<pline*>& lst, getColorFunc);
 
 private:
-  void Fill();
+  void Fill(getColorFunc);
   
   holder* getHolderFromI(int* I);
   
@@ -51,9 +52,7 @@ private:
   pnt3 a, b;
   pnt3 normal;
   
-  screen* scrn;
-  
-  pnt3* fill;
+  pnt3* fillp;
  };
 
 #endif	/* PLINE_H */

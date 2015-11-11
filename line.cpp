@@ -3,6 +3,9 @@
 #include <math.h>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
+
+using namespace std;
 
 /*
  * create a line and fill its points using the correct algorithm
@@ -10,11 +13,13 @@
 line::line(pnt a, pnt b, bool BAmode){
   int Dx = b.x - a.x, Dy = b.y - a.y;
   
+  //cout<<"test l1"<<endl;
   //determine which direction to travel
   //and which point is the first point
   if (abs(Dx) > abs(Dy)){
     xTravel = true;
     
+    //set direction so always left to right
     if (b.x > a.x){
       p1 = a;
       p2 = b;
@@ -33,6 +38,7 @@ line::line(pnt a, pnt b, bool BAmode){
   else{
     xTravel = false;
     
+    //set direction so always left to right
     if (b.y > a.y){
       p1 = a;
       p2 = b;
@@ -48,8 +54,10 @@ line::line(pnt a, pnt b, bool BAmode){
       dy = -Dy;
     }
   }
+  //cout<<"test l6"<<endl;
   
   Fill(BAmode);
+  //cout<<"test le"<<endl;
 }
 
 //Free line space
@@ -93,6 +101,7 @@ void line::Fill(bool BAmode){
   
   //Run BA algorithm
   else if(BAmode){
+    //cout<<"test l9"<<endl;
     
     //Line travels in x direction
     if(xTravel){

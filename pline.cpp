@@ -9,17 +9,17 @@
 #include "userInterface.h"
 
 pline::pline() {
+  cout<<"should not happen"<<endl;
 }
 
 pline::pline(const pline& orig) {
 }
 
 pline::~pline() {
-  delete [] fill;
+  delete [] fillp;
 }
 
-pline::pline(pnt P1, pnt P2, pnt3 A, pnt3 B, pnt3 norm, screen* printTo):line(P1, P2, true) {
-  
+pline::pline(pnt P1, pnt P2, pnt3 A, pnt3 B, pnt3 norm, getColorFunc getColor):line(P1, P2, true) {
   if(getP1() == P1){
     a = A;
     b = B;
@@ -29,30 +29,29 @@ pline::pline(pnt P1, pnt P2, pnt3 A, pnt3 B, pnt3 norm, screen* printTo):line(P1
     b = A;
   }
   
-  scrn = printTo;
   normal = norm;
   numPoints = getNumPoints();
   
-  Fill();
+  Fill(getColor);
 }
 
-void pline::Fill() {
-  fill = new pnt3[numPoints-2];
+void pline::Fill(getColorFunc getColor) {
+  fillp = new pnt3[numPoints-2];
   pnt3 m = (b-a)/(numPoints-1);
   
-  for(int i = 1; i < numPoints-1; i++){
-    fill[i] = scrn->getColor(a + i*m, normal);
+  for(int i = 0; i < numPoints-2; i++){
+    fillp[i] = getColor(a + i*m, normal);
   }
 }
 
 void pline::draw(MakePixOff mk) {
   for(int i = 0; i < numPoints-2; i++){
-    pnt x = getPoint(i);
-    mk(x.x, x.y , fill[i]);
+    pnt x = getPoint(i+1);
+    mk(x.x, x.y , fillp[i]);
   }
 }
 
-void pline::raster(MakePixOff mk, list<pline*>& lst) {
+void pline::raster(MakePixOff mk, list<pline*>& lst, getColorFunc getColor) {
   int xmin, xmax;
   int ymin, ymax;
   
@@ -99,7 +98,6 @@ void pline::raster(MakePixOff mk, list<pline*>& lst) {
     
     list<pline*>::iterator it = lst.begin();
     
-    it++;
     while(it != lst.end()){
 
       I = (*it)->findFrontBackAtLine(i);
@@ -116,6 +114,7 @@ void pline::raster(MakePixOff mk, list<pline*>& lst) {
     //in case of errors
     if(vals.size() < 2){
       userInterface::printError("Failed to get a possible scan line!");
+      //cout<<i<<" "<<vals.size()<<endl;
       return;
     }
     
@@ -129,28 +128,25 @@ void pline::raster(MakePixOff mk, list<pline*>& lst) {
         //check for change max
         //change in case found a point with a larger max or same max and smaller min
         //assumes no complex points
-        if(max.max.x < (*it2)->max.x || (max.max.x == (*it2)->max.x && max.min.x > (*it2)->min.x)){
+        if(max.max.x < (*it2)->max.x || (max.max.x == (*it2)->max.x && max.min.x > (*it2)->min.x))
           max = **it2;
-        }
         
         //check for change min
         //change in case found a point with a smaller min or same min and larger max
         //assumes no complex points
-        if(min.min.x > (*it2)->min.x || 
-                (min.min.x == (*it2)->min.x && min.max.x < (*it2)->max.x)){
+        if(min.min.x > (*it2)->min.x || (min.min.x == (*it2)->min.x && min.max.x < (*it2)->max.x))
           max = **it2;
-        }
         
         it2++;
       }
+
+      for(list<holder*>::iterator it2 = vals.begin(); it2 != vals.end(); it2++)
+        delete *it2;
     }
     
-    pline* l = new pline({max.min.x, i}, {min.max.x, i}, max.min.p, min.max.p, norm, (*it)->scrn);
-    l->draw(mk);
-    delete l;
+    if(max.min.x > min.max.x)
+      pline({max.min.x, i}, {min.max.x, i}, max.min.p, min.max.p, norm, getColor).draw(mk);
     
-    for(list<holder*>::iterator it2 = vals.begin(); it2 != vals.end(); it2++)
-      delete (*it2);
   }
 
 }

@@ -20,7 +20,7 @@ public:
   screen(int x, int y, int ofX, int ofY, pnt3 vec, float viewDist, void (*mkPix)(int, int, pnt3));
   inline screen(){};
   screen(const screen& orig);
-  virtual ~screen();
+  //virtual ~screen();
 
   static void freeAll();
   
@@ -68,7 +68,7 @@ private:
   void (*mp)(int, int, pnt3);
   
   
-  struct holder{
+  struct pntHolder{
     pnt3 real;
     pnt rel;
     pnt3 vec;

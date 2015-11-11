@@ -16,6 +16,7 @@
 #include "object3Dsurface.h"
 #include "gline.h"
 #include "pline.h"
+#include "getColorFunc.h"
 
 using namespace std;
 
@@ -39,7 +40,7 @@ void screen::setNormal(const pnt3& vec){
   }
 
   normal = ~vec;
-  if(normal == unitX || normal == unitY || normal == unitZ) return;
+  if(normal == unitZ || normal == -unitZ) return;
 
   outx = ~(normal%unitZ);
   outy = normal%outx;
@@ -52,7 +53,7 @@ void screen::setNormal(const pnt3& vec){
 
 screen::screen(const screen& orig) {}
 
-screen::~screen() {}
+//screen::~screen() {}
 
 void screen::freeAll(){
   for(list<screen*>::iterator it = screenList.end(); it != screenList.begin(); it--)
@@ -97,13 +98,13 @@ void screen::bufferObjects() {
       surfaces.push_back(o->getSurface(j));
     }
   }
+
   //surface elimination
-  
   {
     list<surface*>::iterator it = surfaces.begin();
     while(it != surfaces.end()){
       //cout<<"<"<<normal.x<<", "<<normal.y<<", "<<normal.z<<"> * <"<<((*it)->getNormal()).x<<", "<<((*it)->getNormal()).y<<", "<<((*it)->getNormal()).z<<"> = "<< (normal * ((*it)->getNormal()))<<endl;
-      if((normal * ((*it)->getNormal())) <= 0){
+      if((normal * ((*it)->getNormal())) >= 0){
         it = surfaces.erase(it);
         //cout<<"deleted"<<endl;
       }
@@ -111,7 +112,6 @@ void screen::bufferObjects() {
         it++;
     }
   }
-  
 
   if(surfaces.empty()) return;
   
@@ -161,13 +161,13 @@ void screen::bufferObjects() {
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
 
     cpnt* cpnts;
-    holder* spnts;
+    pntHolder* spnts;
     if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
             OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud)
       cpnts = new cpnt[(*it)->getNumPoints()];
-    if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
+    else if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
             OpenGLhandler::getLightModel() == OpenGLhandler::Phong)
-      spnts = new holder[(*it)->getNumPoints()];
+      spnts = new pntHolder[(*it)->getNumPoints()];
     
 
     for(int i = 0; i < (*it)->getNumPoints(); i++){
@@ -186,7 +186,7 @@ void screen::bufferObjects() {
       else if( OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
         int num = (*it)->getPntNum(i);
         spnts[i] = {(*it)->getParent()->getPoint(num), 
-            {(int)(scale * (fp.x - xmin) + .5), (int)(scale * (fp.y - ymin) + .5)}, 
+            {(int)(scale * (fp.x - xmin)), (int)(scale * (fp.y - ymin))}, 
             (*it)->getParent()->getPointNormal(num)};
         MakePix(spnts[i].rel.x, spnts[i].rel.y, getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
       }
@@ -199,24 +199,28 @@ void screen::bufferObjects() {
       
       PLlist.push_back(new pline(spnts[0].rel, spnts[(*it)->getNumPoints()-1].rel,
               spnts[0].real, spnts[(*it)->getNumPoints()-1].real,
-              ~(spnts[0].vec + spnts[(*it)->getNumPoints()-1].vec) ,this));
+              ~(spnts[0].vec + spnts[(*it)->getNumPoints()-1].vec) , 
+              getColorFunc(normal, viewDistance)));
       
       PLlist.back()->draw(MakePixOff(offsetX, offsetY));
-      
+      pline* ln;
       for(int i = 1; i < (*it)->getNumPoints(); i++){
+        
         PLlist.push_back(new pline(spnts[i].rel, spnts[i-1].rel,
                 spnts[i].real, spnts[i-1].real,
-                ~(spnts[i].vec + spnts[i-1].vec) ,this));
+                ~(spnts[i].vec + spnts[i-1].vec) ,
+                getColorFunc(normal, viewDistance)));
+                
         
         PLlist.back()->draw(MakePixOff(offsetX, offsetY));
       }
       
       //Raster
       if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
-        pline::raster(MakePixOff(offsetX, offsetY), PLlist);
+        pline::raster(MakePixOff(offsetX, offsetY), PLlist, getColorFunc(normal, viewDistance));
       
       for(list<pline*>::iterator it2 = PLlist.begin(); it2 != PLlist.end(); it2++)
-        delete *it2;
+        delete (*it2);
     }
     else if(OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
       list<gline*> CLlist;

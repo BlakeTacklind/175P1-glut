@@ -319,12 +319,12 @@ void userInterface::keypressed(unsigned char key){
     int val = atoi(str);
     
     onWindow = true;
-    
+    /*
     if(val >= object3D::getNumObjects()){
       printError("Not an object id!");
       return;
     }
-    
+    */
     objSelected = val;
     
     drawUI();
@@ -424,6 +424,18 @@ void userInterface::keypressed(unsigned char key){
     pnt3 p = {val, val2, (float)atof(str)};
 
     screen::getLastScreen()->setNormal(p);
+    
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
+  }
+  else if(key == 'd'){
+    OpenGLhandler::tglDrawMode();
+    
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
+  }
+  else if(key == 'a'){
+    OpenGLhandler::tglLightMode();
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();

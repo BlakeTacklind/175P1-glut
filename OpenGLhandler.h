@@ -35,6 +35,7 @@ public:
 
   static void tglDrawMode();
   static void tglAlgMode();
+  static void tglLightMode();
   
   inline static int getYmin(){return yMin;};
   inline static int getYmax(){return yMax;};
