@@ -11,7 +11,7 @@
 #include "types.h"
 #include "line.h"
 #include <list>
-#include "MakePixOff.h"
+#include "MakePixFunc.h"
 #include "screen.h"
 #include "getColorFunc.h"
 
@@ -39,8 +39,8 @@ public:
   
   inline pnt3 getPnt3(unsigned int i){pnt3 m=(b-a)/(numPoints-1);return a+m*i;};
 
-  void draw(MakePixOff mk);
-  static void raster(MakePixOff mk, list<pline*>& lst, getColorFunc);
+  void draw(MakePixFunc* mk);
+  static void raster(MakePixFunc* mk, list<pline*>& lst, getColorFunc);
 
 private:
   void Fill(getColorFunc);

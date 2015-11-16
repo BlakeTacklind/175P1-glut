@@ -179,20 +179,20 @@ int* line::findFrontBackAtLine(int y){
         I[0] = i;
         first = false;
         
-        if(i == (xTravel?dx:dy)){
+        if(i == getNumPoints()-1){
           I[1] = i;
           return I;
         }
       }
     }
     else{
-      if(i == (xTravel?dx:dy)){
-        I[1] = i;
+      if(getPoint(i).y != y){
+        I[1] = i-1;
         return I;
       }
 
-      if(getPoint(i).y != y){
-        I[1] = i-1;
+      if(i == getNumPoints()-1){
+        I[1] = i;
         return I;
       }
     }

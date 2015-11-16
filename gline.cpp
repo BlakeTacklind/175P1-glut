@@ -111,22 +111,21 @@ void gline::raster(MakePixFunc* mk, list<gline*>& lst){
     while(it != lst.end()){
 
       I = (*it)->findFrontBackAtLine(i);
-      if(I==nullptr){
-        it++;
-        continue;
+      if(I != nullptr){
+
+        temp = (*it)->getCPoint(I[0]);
+
+        if(temp.x > max.x) max = temp;
+        if(temp.x < min.x) min = temp;
+
+        temp = (*it)->getCPoint(I[1]);
+
+        if(temp.x > max.x) max = temp;
+        if(temp.x < min.x) min = temp;
+
+        delete I;
       }
 
-      temp = (*it)->getCPoint(I[0]);
-
-      if(temp.x > max.x) max = temp;
-      if(temp.x < min.x) min = temp;
-
-      temp = (*it)->getCPoint(I[1]);
-
-      if(temp.x > max.x) max = temp;
-      if(temp.x < min.x) min = temp;
-
-      delete I;
       it++;
     }
 

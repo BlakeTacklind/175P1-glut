@@ -44,14 +44,14 @@ void pline::Fill(getColorFunc getColor) {
   }
 }
 
-void pline::draw(MakePixOff mk) {
+void pline::draw(MakePixFunc* mk) {
   for(int i = 0; i < numPoints-2; i++){
     pnt x = getPoint(i+1);
-    mk(x.x, x.y , fillp[i]);
+    (*mk)(x.x, x.y , fillp[i]);
   }
 }
 
-void pline::raster(MakePixOff mk, list<pline*>& lst, getColorFunc getColor) {
+void pline::raster(MakePixFunc* mk, list<pline*>& lst, getColorFunc getColor) {
   int xmin, xmax;
   int ymin, ymax;
   

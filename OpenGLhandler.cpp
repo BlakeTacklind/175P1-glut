@@ -7,7 +7,9 @@
 #include <math.h>
 #include "MakePixFunc.h"
 #include "MakePixOff.h"
-
+#include "MakeMPixOff.h"
+#include <time.h>
+#include <stdlib.h>
 #include <iostream>
 #include <list>
 using namespace std;
@@ -32,6 +34,9 @@ float OpenGLhandler::lightIntensity;
 pnt3 OpenGLhandler::lightPosition;
 unsigned int OpenGLhandler::lightSize;
 OpenGLhandler::lightModel OpenGLhandler::lMode;
+pnt3 OpenGLhandler::mPixTone;
+unsigned int OpenGLhandler::mPixWidth = 3;
+unsigned int OpenGLhandler::mPixHeight = 3;
 
 void OpenGLhandler::initValues(int argc, char** argv){
   
@@ -43,28 +48,35 @@ void OpenGLhandler::initValues(int argc, char** argv){
   const pnt3 red   = {1,0,0};
   const pnt3 green = {0,1,0};
   const pnt3 blue  = {0,0,1};
+  const pnt3 white = {1,1,1};
+  const pnt3 black = {0,0,0};
 
-  const pnt3 pnt10 = {1,1,2};
+  const pnt3 pnt10 = {1,1,3};
+
+  srand(time(NULL));
 
   setAmbiant(red);
   setDiffuse(green);
   setSpecular(blue);
   setK(1.0);
   setIa(.5);
-  setIl(2);
+  setIl(10);
   setLpos(pnt10);
   setLightSize(3);
   setLightModel(Gouraud);
+  setMPixTone(white);
   
   tglDrawMode();
   tglDrawMode();
 
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   
-  new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
-  new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-  new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-  new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
+  MakeMPixOff(0      , 0       )(100,100,{.5,.1,.1});
+
+  // new screen(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       , white));
+  // new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+  // new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+  // new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
 
 }
 
@@ -117,10 +129,33 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
   PixelBuffer[(y*width + x) * 3 + 2] = color.z;
 }
 
-void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity, pnt3 color){
+void swapBits(int& bits, unsigned int i, unsigned int j){
+  if(1<<i&bits)
+  {
+    
+  }
+  else{
+    
+  }
+}
+
+void OpenGLhandler::suffleBits(int& bits){
+  if(bits == 0) return;
+  unsigned int numBits = mPixWidth * mPixHeight;
+  if(bits == (pow(2, numBits) - 1)) return;
+
+  for(unsigned int i = 0; i < numBits - 1; i++){
+    unsigned int j = rand()%(numBits-i);
+
+  }
+}
+
+void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity){
   int binOnOff = pow(2, intensity) - 1;
-  for(int i = 0; i < 9; i++){
-    if(binOnOff & 1 << i) MakeCPix(x*3+i%3, y*3+i/3, color); 
+  shuffleBits(binOnOff);
+  for(int i = 0; i < mPixWidth * mPixHeight; i++){
+    if(binOnOff & 1 << i)
+      MakeCPix(x * mPixWidth+ i % mPixWidth, y * mPixHeight + i / mPixWidth, mPixTone); 
   }
 }
 

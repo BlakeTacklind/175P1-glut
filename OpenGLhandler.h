@@ -78,12 +78,18 @@ public:
   inline static lightModel getLightModel(){return lMode;};
   inline static void setLightModel(lightModel l){lMode = l;};
   
+  inline static pnt3 getMPixTone() {return mPixTone;};
+  inline static void setMPixTone(pnt3 p){mPixTone = p;};
+  
   //clear Pixel Buffer
   static void clearBuffer();
 private:
   static void MakePix(int x, int y);
   static void MakeCPix(int x, int y, pnt3 color);
-  static void MakeMPix(int x, int y, unsigned int intensity, pnt3 color);
+  static void MakeMPix(int x, int y, unsigned int intensity);
+
+  static void suffleBits(int& bits);
+
   //line drawing
   static void drawLine(line* l);
 
@@ -98,8 +104,10 @@ private:
   static float lightIntensity;
   static pnt3 lightPosition;
   static unsigned int lightSize;
-  //static pnt3 viewPoint;  //in screen
   
+  static pnt3 mPixTone;
+  static unsigned int mPixWidth;
+  static unsigned int mPixHeight;
   
   //calculation and draw modes
   static algMode aMode;

@@ -160,15 +160,13 @@ void screen::bufferObjects() {
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
 
     cpnt* cpnts;
-    //pntHolder* spnts;
+    pntHolder* spnts;
     if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
             OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud)
       cpnts = new cpnt[(*it)->getNumPoints()];
-    /* NOT NECESSARY FOR PROJECT 3
-    else if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
+    if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
             OpenGLhandler::getLightModel() == OpenGLhandler::Phong)
       spnts = new pntHolder[(*it)->getNumPoints()];
-    */
 
     //get value of surface vertices
     for(int i = 0; i < (*it)->getNumPoints(); i++){
@@ -184,22 +182,20 @@ void screen::bufferObjects() {
         cpnts[i].y = scale * (fp.y - ymin);
         cpnts[i].c = getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i)));
       }
-      /* NOT NECESSARY FOR PROJECT 3
       else if( OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
         int num = (*it)->getPntNum(i);
         spnts[i] = {(*it)->getParent()->getPoint(num), 
             {(int)(scale * (fp.x - xmin)), (int)(scale * (fp.y - ymin))}, 
             (*it)->getParent()->getPointNormal(num)};
-        MakePix(spnts[i].rel.x, spnts[i].rel.y, getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
+        (*MakePix)(spnts[i].rel.x, spnts[i].rel.y, getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
       }
-      */
+      
     }
 
     //skip rest if only displaying points
     if(OpenGLhandler::getDrawMode() == OpenGLhandler::points) continue;
 
     //perform Phong Algorithm
-    /* NOT NECESSARY FOR PROJECT 3
     if (OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
       list<pline*> PLlist;
       
@@ -207,8 +203,7 @@ void screen::bufferObjects() {
               spnts[0].real, spnts[(*it)->getNumPoints()-1].real,
               ~(spnts[0].vec + spnts[(*it)->getNumPoints()-1].vec) , 
               getColorFunc(normal, viewDistance)));
-      
-      PLlist.back()->draw(MakePixOff(offsetX, offsetY));
+      PLlist.back()->draw(MakePix);
       pline* ln;
       for(int i = 1; i < (*it)->getNumPoints(); i++){
         
@@ -218,17 +213,16 @@ void screen::bufferObjects() {
                 getColorFunc(normal, viewDistance)));
                 
         
-        PLlist.back()->draw(MakePixOff(offsetX, offsetY));
+        PLlist.back()->draw(MakePix);
       }
       
       //Raster if nessesary
       if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
-        pline::raster(MakePixOff(offsetX, offsetY), PLlist, getColorFunc(normal, viewDistance));
+        pline::raster(MakePix, PLlist, getColorFunc(normal, viewDistance));
       
       for(list<pline*>::iterator it2 = PLlist.begin(); it2 != PLlist.end(); it2++)
         delete (*it2);
     }
-    */
     //perform Gouraud algorithm
     if(OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
       list<gline*> CLlist;
