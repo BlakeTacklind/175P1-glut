@@ -130,24 +130,35 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
 }
 
 void swapBits(int& bits, unsigned int i, unsigned int j){
-  if(1<<i&bits)
-  {
-    
+  if (i==j) return;
+  if((1<<i) & bits){
+    if((1<<j) & bits){
+      return;
+    }
+    else{
+      bits &= ~(1<<i);
+      bits |= 1<<j;
+    }
   }
   else{
-    
+    if((1<<j) & bits){
+      bits &= ~(1<<j);
+      bits |= 1<<i;
+    }
+    else{
+      return;
+    }
   }
 }
 
-void OpenGLhandler::suffleBits(int& bits){
+void OpenGLhandler::shuffleBits(int& bits){
   if(bits == 0) return;
   unsigned int numBits = mPixWidth * mPixHeight;
   if(bits == (pow(2, numBits) - 1)) return;
 
-  for(unsigned int i = 0; i < numBits - 1; i++){
-    unsigned int j = rand()%(numBits-i);
-
-  }
+  for(unsigned int i = 0; i < numBits - 1; i++)
+    swapBits(bits, i, i + (rand()%(numBits-i)));
+  
 }
 
 void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity){
