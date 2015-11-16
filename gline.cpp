@@ -37,14 +37,14 @@ void gline::Fill(){
   }
 }
 
-void gline::draw(MakePixOff mk){
+void gline::draw(MakePixFunc* mk){
   for(int i = 0; i < numPoints; i++){
     pnt p = getPoint(i);
-    mk(p.x, p.y, fill[i]);
+    (*mk)(p.x, p.y, fill[i]);
   }
 }
 
-void gline::raster(MakePixOff mk, list<gline*>& lst){
+void gline::raster(MakePixFunc* mk, list<gline*>& lst){
   int xmin, xmax;
   int ymin, ymax;
   

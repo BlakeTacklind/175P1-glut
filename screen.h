@@ -12,12 +12,13 @@
 #include "line.h"
 #include "surface.h"
 #include <list>
+#include "MakePixFunc.h"
 
 using namespace std;
 
 class screen {
 public:
-  screen(int x, int y, int ofX, int ofY, pnt3 vec, float viewDist, void (*mkPix)(int, int, pnt3));
+  screen(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix);
   inline screen(){};
   screen(const screen& orig);
   //virtual ~screen();
@@ -53,10 +54,7 @@ private:
   pnt3 normal, outy, outx;
   const int offsetX=0, offsetY=0;
   
-  inline void MakePix(int x, int y, pnt3 color){mp(x+offsetX, y+offsetY, color);}; 
-
-  void (*mp)(int, int, pnt3);
-  
+  MakePixFunc* MakePix;
   
   struct pntHolder{
     pnt3 real;

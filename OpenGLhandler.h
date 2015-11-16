@@ -3,7 +3,6 @@
 #define OPENGLHANDLER_H
 
 #include <GL/glut.h>
-//#include "object2D.h"
 #include <list>
 #include "line.h"
 #include "screen.h"
@@ -13,6 +12,7 @@ using namespace std;
 
 class OpenGLhandler{
   friend class MakePixOff;
+  friend class MakeMPixOff;
 public:
   enum drawMode {points, lines, fill};
   enum algMode {DDA, BA};
@@ -83,7 +83,7 @@ public:
 private:
   static void MakePix(int x, int y);
   static void MakeCPix(int x, int y, pnt3 color);
-  static void MakeMPix(int x, int y, unsigned int intensity);
+  static void MakeMPix(int x, int y, unsigned int intensity, pnt3 color);
   //line drawing
   static void drawLine(line* l);
 

@@ -4,6 +4,9 @@
 #include "screen.h"
 #include "object3D.h"
 #include "object3Dsurface.h"
+#include <math.h>
+#include "MakePixFunc.h"
+#include "MakePixOff.h"
 
 #include <iostream>
 #include <list>
@@ -51,18 +54,17 @@ void OpenGLhandler::initValues(int argc, char** argv){
   setIl(2);
   setLpos(pnt10);
   setLightSize(3);
-  // setLightModel(Gouraud);
-  setLightModel(Phong);
+  setLightModel(Gouraud);
   
   tglDrawMode();
   tglDrawMode();
 
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   
-  new screen(width/2, height/2, 0      , 0       , unitX, 10, MakeCPix);
-  new screen(width/2, height/2, width/2, height/2, unitY, 10, MakeCPix);
-  new screen(width/2, height/2, 0      , height/2, -unitZ, 10, MakeCPix);
-  new screen(width/2, height/2, width/2, 0       , iso  , 10, MakeCPix);
+  new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
+  new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+  new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+  new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
 
 }
 
@@ -115,10 +117,10 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
   PixelBuffer[(y*width + x) * 3 + 2] = color.z;
 }
 
-void OpenGLhandler::MakeMPix(int x, int y, int intensity){
+void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity, pnt3 color){
   int binOnOff = pow(2, intensity) - 1;
-  for(int i = 0; i < 3*3; i++){
-    if(biOnOff & 1 << i) MakeCPix(x*3+i%3, y*3+i/3, {1,1,1}); 
+  for(int i = 0; i < 9; i++){
+    if(binOnOff & 1 << i) MakeCPix(x*3+i%3, y*3+i/3, color); 
   }
 }
 

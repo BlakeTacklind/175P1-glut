@@ -26,7 +26,7 @@ public:
 
   inline static char* getStoredFile(){return storedFileName;};
   
-  object3Dsurface(int npnt, pnt3* Points, pnt3* pNormals, int nedge, edge* Edges, int nsurf, surface** surfs);
+  object3Dsurface(int npnt, pnt3* Points, pnt3* pNorms, int nedges, edge* e, int nsurf, surface** surfs);
   object3Dsurface();
   object3Dsurface(const object3Dsurface& orig);
   virtual ~object3Dsurface();
@@ -43,7 +43,6 @@ public:
   
 private:
   static bool close(ifstream& f, list<object3Dsurface*>& tList, bool ret);
-
   
   static char* storedFileName;
   

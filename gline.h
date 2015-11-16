@@ -5,7 +5,7 @@
 #include "types.h"
 #include "line.h"
 #include <list>
-#include "MakePixOff.h"
+#include "MakePixFunc.h"
 
 using namespace std;
 
@@ -21,8 +21,8 @@ public:
   inline cpnt getCP1(){return p1;};
   inline cpnt getCP2(){return p2;};
 
-  void draw(MakePixOff mk);
-  static void raster(MakePixOff mk, list<gline*>& lst);
+  void draw(MakePixFunc* mk);
+  static void raster(MakePixFunc* mk, list<gline*>& lst);
 
 private:
 

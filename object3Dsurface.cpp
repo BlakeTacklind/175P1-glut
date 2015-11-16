@@ -41,14 +41,14 @@ E* getArrFromList(list<E> l){
   return arr;
 }
 
-object3Dsurface::object3Dsurface(int npnt, pnt3* Points, pnt3* pNormals, int nedge, edge* Edges, int nsurf, surface** surfs) {
+object3Dsurface::object3Dsurface(int npnt, pnt3* Points, pnt3* pNorms, int nedges, edge* e, int nsurf, surface** surfs) {
   nPoints = npnt;
   points = Points;
-  pntNorms = pNormals;
-  nEdges = nedge;
-  edges = Edges;
   nSurface = nsurf;
   surfaces = surfs;
+  pntNorms = pNorms;
+  nEdges = nedges;
+  edges = e;
   
   for(int i = 0; i < nSurface; i++)
     surfaces[i]->setParent(this);
@@ -64,7 +64,6 @@ object3Dsurface::object3Dsurface(const object3Dsurface& orig) {
 
 object3Dsurface::~object3Dsurface() {
 }
-
 
 bool object3Dsurface::load(const char* filename){
   storedFileName = const_cast<char*>(filename);
@@ -330,6 +329,10 @@ bool object3Dsurface::load(const char* filename){
         }
         
         s[j] = new surface(vals.size(), getArrFromList(vals), p);
+      }
+
+      for(int j = 0; j < num; j++){
+        pNorms[j] = ~pNorms[j];
       }
 
       //Build Object

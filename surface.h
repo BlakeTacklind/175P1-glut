@@ -37,7 +37,7 @@ public:
 //  inline pnt3 getPntNorm(unsigned int i){return parent->getPointNormal(getPntNum(i));};
   
   inline unsigned int getNumPoints(){return nPnts;};
-  inline unsigned int getPntNum(int i){return pntNums[i];};
+  inline unsigned int getPntNum(unsigned int i){return pntNums[i];};
   
 private:
   pnt3* pnts;

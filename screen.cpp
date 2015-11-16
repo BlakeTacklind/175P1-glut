@@ -22,12 +22,11 @@ using namespace std;
 
 list<screen*> screen::screenList;
 
-screen::screen(int x, int y, int ofX, int ofY, pnt3 vec, float viewDist, void (*mkPix)(int, int, pnt3))
-:offsetX(ofX), offsetY(ofY){
+screen::screen(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix){
   width = x;
   height = y;
   viewDistance = viewDist;
-  mp = mkPix;
+  MakePix = mkPix;
   setNormal(vec);
   
   screenList.push_back(this);
@@ -82,7 +81,7 @@ void screen::fillLine(cpnt& a, cpnt& b){
     pnt x = l.getPoint(i);
     cpnt c = {x.x, x.y, a.c+(i*m)};
 
-    MakePix(x.x, x.y, c.c);
+    (*MakePix)(x.x, x.y, c.c);
   }
 
 
@@ -161,21 +160,23 @@ void screen::bufferObjects() {
   for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); it++){
 
     cpnt* cpnts;
-    pntHolder* spnts;
+    //pntHolder* spnts;
     if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
             OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud)
       cpnts = new cpnt[(*it)->getNumPoints()];
+    /* NOT NECESSARY FOR PROJECT 3
     else if(OpenGLhandler::getDrawMode() != OpenGLhandler::points && 
             OpenGLhandler::getLightModel() == OpenGLhandler::Phong)
       spnts = new pntHolder[(*it)->getNumPoints()];
-    
+    */
+
     //get value of surface vertices
     for(int i = 0; i < (*it)->getNumPoints(); i++){
       pnt3 p3 = (*it)->getParent()->getPoint((*it)->getPntNum(i));
       pntf fp = convert3dPoint(p3);
 
       if(OpenGLhandler::getDrawMode() == OpenGLhandler::points){
-        MakePix(scale * (fp.x - xmin), scale * (fp.y - ymin),
+        (*MakePix)(scale * (fp.x - xmin), scale * (fp.y - ymin),
           getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
       }
       else if (OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
@@ -183,6 +184,7 @@ void screen::bufferObjects() {
         cpnts[i].y = scale * (fp.y - ymin);
         cpnts[i].c = getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i)));
       }
+      /* NOT NECESSARY FOR PROJECT 3
       else if( OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
         int num = (*it)->getPntNum(i);
         spnts[i] = {(*it)->getParent()->getPoint(num), 
@@ -190,12 +192,14 @@ void screen::bufferObjects() {
             (*it)->getParent()->getPointNormal(num)};
         MakePix(spnts[i].rel.x, spnts[i].rel.y, getColor(p3, (*it)->getParent()->getPointNormal((*it)->getPntNum(i))));
       }
+      */
     }
 
     //skip rest if only displaying points
     if(OpenGLhandler::getDrawMode() == OpenGLhandler::points) continue;
 
     //perform Phong Algorithm
+    /* NOT NECESSARY FOR PROJECT 3
     if (OpenGLhandler::getLightModel() == OpenGLhandler::Phong){
       list<pline*> PLlist;
       
@@ -224,8 +228,9 @@ void screen::bufferObjects() {
       for(list<pline*>::iterator it2 = PLlist.begin(); it2 != PLlist.end(); it2++)
         delete (*it2);
     }
+    */
     //perform Gouraud algorithm
-    else if(OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
+    if(OpenGLhandler::getLightModel() == OpenGLhandler::Gouraud){
       list<gline*> CLlist;
 
       CLlist.push_back(new gline(cpnts[0], cpnts[(*it)->getNumPoints()-1]));
@@ -236,9 +241,9 @@ void screen::bufferObjects() {
 
       if(OpenGLhandler::getDrawMode() == OpenGLhandler::lines)
         for(list<gline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
-          (*it2)->draw(MakePixOff(offsetX, offsetY));
+          (*it2)->draw(MakePix);
       else if(OpenGLhandler::getDrawMode() == OpenGLhandler::fill)
-        gline::raster(MakePixOff(offsetX, offsetY), CLlist);
+        gline::raster(MakePix, CLlist);
 
       for(list<gline*>::iterator it2 = CLlist.begin(); it2 != CLlist.end(); it2++)
         delete *it2;
@@ -261,15 +266,7 @@ pnt3 screen::getColor(pnt3 location, pnt3 norm) {
  */
 pntf screen::convert3dPoint(pnt3 p){
   pntf r;
-  if(normal == unitX){
-    r.x = p.y;
-    r.y = p.z;
-  }
-  else if(normal == unitY){
-    r.x = -p.x;
-    r.y = p.z;
-  }
-  else if(normal == unitZ){
+  if(normal == unitZ){
     r.x = p.x;
     r.y = p.y;
   }

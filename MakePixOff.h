@@ -5,8 +5,9 @@
 
 #include "types.h"
 #include "OpenGLhandler.h"
+#include "MakePixFunc.h"
 
-class MakePixOff{
+class MakePixOff: public MakePixFunc{
 public:
   MakePixOff(int offsetX, int offsetY):offx(offsetX), offy(offsetY){};
 
