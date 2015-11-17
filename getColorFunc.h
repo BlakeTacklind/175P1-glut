@@ -26,9 +26,7 @@ public:
             OpenGLhandler::getSpecular() * pow((r * view), OpenGLhandler::getLightSize()));
   
     //in case color is is not an element of [0,1]
-    if(c.x > 1){c / c.x;}
-    if(c.y > 1){c / c.y;}
-    if(c.z > 1){c / c.z;}
+    flatten(c);
 
     return c;
   };

@@ -66,13 +66,14 @@ object3Dsurface::~object3Dsurface() {
 }
 
 bool object3Dsurface::load(const char* filename){
-  storedFileName = const_cast<char*>(filename);
   
 
   ifstream file(filename, ios::in);
   
 
   if(file.is_open()){
+    storedFileName = const_cast<char*>(filename);
+   
     list<object3Dsurface*> tempList;
     string line;
     nObjects = 0;

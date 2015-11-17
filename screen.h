@@ -29,14 +29,15 @@ public:
   void bufferObjects();
   
   inline static screen* getLastScreen(){return screenList.back();};
-  inline int getScreenWidth (){return width; };
-  inline int getScreenHeight(){return height;};
+  inline int  getScreenWidth (){return width; };
+  inline int  getScreenHeight(){return height;};
+
 
   inline pnt3 getNormal(){return normal;};
   void setNormal(const pnt3& p);
   
   pnt3 getColor(pnt3 location, pnt3 norm);
-  
+
 private:
   static list<screen*> screenList;
 
