@@ -27,8 +27,6 @@ public:
   inline static bool isValueMode(){return valueMode;};
 private:
   static char* action;
-
-  static void doAction();
   
   static void drawUI();
   static int objSelected;
@@ -74,7 +72,7 @@ private:
     interpretLightSize(){};
     char* operator()(char**);
   };
-};
+}; 
 
 
 

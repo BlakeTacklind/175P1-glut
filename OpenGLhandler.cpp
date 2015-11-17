@@ -88,7 +88,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutInitWindowPosition(100, 100);
 
-  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 2");
+  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 3");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
 

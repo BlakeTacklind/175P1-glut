@@ -111,7 +111,7 @@ float length(const pnt3& vec){
   return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
 }
 
-pnt3 flatten(pnt3& p){
+pnt3& flatten(pnt3& p){
   if(p.x > 1) p = p/p.x;
   if(p.y > 1) p = p/p.y;
   if(p.z > 1) p = p/p.z;

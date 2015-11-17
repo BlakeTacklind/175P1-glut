@@ -35,13 +35,14 @@ void userInterface::init(){
   objSelected = 0;
   onWindow = true;
   valueMode = false;
+  vals = nullptr;
   drawUI();
 }
 
 void userInterface::drawUI(){
   clear();
   attron(COLOR_PAIR(1));
-  printw("USE [ESC] TO END PROGRAM, press [h] for help");
+  printw("USE [ESC] TO %s, press [h] for help", valueMode?"CANCEL VALUE MOD":"END PROGRAM");
   //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   attroff(COLOR_PAIR(1));
 
@@ -102,10 +103,6 @@ void userInterface::endUI(){
   endwin();
 }
 
-void userInterface::doAction(){
-
-}
-
 void userInterface::keypressed(unsigned char key){
   if (valueMode){
     if(key == 9 || key == ' ' || key == 13){
@@ -119,6 +116,7 @@ void userInterface::keypressed(unsigned char key){
         drawUI();
 
         delete vals;
+        vals = nullptr;
 
         return;
       }
@@ -140,6 +138,7 @@ void userInterface::keypressed(unsigned char key){
     if(key == 27){
       valueMode = false;
       delete vals;
+      vals = nullptr;
       
       action = "";
       drawUI();
@@ -185,8 +184,8 @@ void userInterface::keypressed(unsigned char key){
     valueMode = true;
     
     char** c = new char*[2]; 
-    c[0] = "Start: "; 
-    c[1] = " -End";
+    c[0] = "Enter name of file, or nothing for last file: "; 
+    c[1] = "";
 
 
     vals = new valueHolder(1, c, "", new interpretLoad());

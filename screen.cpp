@@ -55,10 +55,10 @@ screen::screen(const screen& orig) {}
 //screen::~screen() {}
 
 void screen::freeAll(){
-  for(list<screen*>::iterator it = screenList.end(); it != screenList.begin(); it--)
-    delete *it;
-  
-  screenList.clear();
+  while(screenList.end() != screenList.begin()){
+    delete screenList.front();
+    screenList.pop_front();
+  }
 }
 
 void screen::bufferAllScreens() {
@@ -94,7 +94,6 @@ void screen::surfaceElimination(list<surface*>& surfaces){
     if((normal * ((*it)->getNormal())) >= 0)
       it = surfaces.erase(it);
     else it++;
-  
 }
 
 void screen::bufferObjects() {
