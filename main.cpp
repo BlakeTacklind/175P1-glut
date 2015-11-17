@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
   OpenGLhandler::initValues(argc, argv);
  
   //start UI
-  //userInterface::init();
+  userInterface::init();
   
   //load objects from default file
   object3Dsurface::load("objectSurface");

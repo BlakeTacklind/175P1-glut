@@ -12,6 +12,7 @@
 #include <string>
 #include <curses.h>
 #include <iostream>
+#include "valueHolder.h"
 
 using namespace std;
 
@@ -38,13 +39,11 @@ void userInterface::init(){
 
 void userInterface::drawUI(){
   clear();
-  printw("USE [ESC] TO END PROGRAM, press [h] for help");
   attron(COLOR_PAIR(1));
-  printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+  printw("USE [ESC] TO END PROGRAM, press [h] for help\n");
+  //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   attroff(COLOR_PAIR(1));
-  printw("\nCurrent Object Selected: ");
-  if (objSelected == -1) printw("None");
-  else printw("%i", objSelected);
+
   printw("\n%s", action);
 
   refresh();
@@ -70,44 +69,11 @@ void userInterface::endUI(){
 }
 
 void userInterface::doAction(){
-  if(vals->getType() == valueHolder::Translation){
-      object3D::getObject(objSelected)->translate(*((float*)vals->getVal(0)), 
-              *((float*)vals->getVal(1)), *((float*)vals->getVal(2)));
-      OpenGLhandler::bufferObjects();
-      OpenGLhandler::reDraw();
-      return;
-  }
-  if(vals->getType() == valueHolder::Scale){ 
-      object3D::getObject(objSelected)->scale(*((float*)vals->getVal(0)), 
-              *((float*)vals->getVal(1)), *((float*)vals->getVal(2)));
-      OpenGLhandler::bufferObjects();
-      OpenGLhandler::reDraw();
-      return;
-  }
-  if(vals->getType() == valueHolder::Rotation){
-      pnt3 p1 = {*((float*)vals->getVal(0)), *((float*)vals->getVal(1)), *((float*)vals->getVal(2))};
-      pnt3 p2 = {*((float*)vals->getVal(3)), *((float*)vals->getVal(4)), *((float*)vals->getVal(5))};
-      object3D::getObject(objSelected)->rotate(p1, p2, *((float*)vals->getVal(6)));
-      return;
-  }
-  if(vals->getType() == valueHolder::Selection){
-      objSelected = *((int*)vals->getVal(0));
-      return;
-  }
-  if(vals->getType() == valueHolder::Save){
-      object3D::save((char*)vals->getVal(0));
-      return;
-  }
-  if(vals->getType() == valueHolder::Load){
-      object3D::load((char*)vals->getVal(0));
-      OpenGLhandler::bufferObjects();
-      OpenGLhandler::reDraw();
-      return;
-  }
+
 }
 
 void userInterface::keypressed(unsigned char key){
-  /*if (valueMode){
+  if (valueMode){
     if(key == 9 || key == ' ' || key == 13){
 
 
@@ -116,7 +82,7 @@ void userInterface::keypressed(unsigned char key){
    
         doAction();
         
-        action = "Value Entered!";
+        action = "Values Entered!";
         drawUI();
 
         return;
@@ -128,7 +94,7 @@ void userInterface::keypressed(unsigned char key){
    
       
       return;
-    }/*
+    }
     if(key == 27){
       valueMode = false;
       delete vals;
@@ -136,8 +102,8 @@ void userInterface::keypressed(unsigned char key){
       action = "";
       drawUI();
       return;
-    }*/
-    /*
+    }
+    
     if(key > 31 && key < 127){
 
       vals->addChar(key);
@@ -146,7 +112,24 @@ void userInterface::keypressed(unsigned char key){
       drawUI();
     }
   }
-  else */if (key == 't'){
+  else if(key == 'h'){
+    clear();
+    attron(COLOR_PAIR(1));
+    printw("USE [ESC] TO END PROGRAM, press [h] for help");
+    attroff(COLOR_PAIR(1));
+    printw("\nbracketed letter indicates which to press\n");
+    printw("\nAmbient");
+    printw("\nDiffuse");
+    printw("\nSpecular");
+    printw("\nAverageLight");
+    printw("\nAverageLight");
+    printw("\nload from file");
+    printw("[space] for rotate oblique window about z-axis\n");
+    printw("Set [n]ormal for oblique window\n");
+
+    refresh();
+  }
+  else if (key == 't'){
     if(objSelected == -1){
       printError("Error: No object selected");
       return;
@@ -328,22 +311,6 @@ void userInterface::keypressed(unsigned char key){
     objSelected = val;
     
     drawUI();
-  }
-  else if(key == 'h'){
-    clear();
-    printw("USE [ESC] TO END PROGRAM, press [h] for help");
-    printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
-    printw("\nbracketed letter indicates which to press\n");
-    printw("sele[c]t object mode\n");
-    printw("[t]ranslate selected object\n");
-    printw("[r]otate selected object\n");
-    printw("scal[e] selected object\n");
-    printw("[s]ave to file\n");
-    printw("[l]oad from file\n");
-    printw("[space] for rotate oblique window about z-axis\n");
-    printw("Set [n]ormal for oblique window\n");
-
-    refresh();
   }
   else if(key == 's'){
     action = (char*)((string)("Enter name and hit return to save objects to file, hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();

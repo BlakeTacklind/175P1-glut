@@ -88,7 +88,7 @@ private:
   static void MakeCPix(int x, int y, pnt3 color);
   static void MakeMPix(int x, int y, unsigned int intensity);
 
-  static void suffleBits(int& bits);
+  static void shuffleBits(int& bits);
 
   //line drawing
   static void drawLine(line* l);

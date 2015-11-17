@@ -98,7 +98,6 @@ void screen::surfaceElimination(list<surface*>& surfaces){
 }
 
 void screen::bufferObjects() {
-  //cout<<"test 2\n";
   //get all surfaces
   list<surface*> surfaces;
   for(int i = 0; i < object3Dsurface::getNumObjects(); i++){

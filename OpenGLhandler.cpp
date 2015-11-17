@@ -71,12 +71,12 @@ void OpenGLhandler::initValues(int argc, char** argv){
 
   pnt3 iso = {0.612375, 0.612375, -0.50000};
   
-  MakeMPixOff(0      , 0       )(100,100,{.5,.1,.1});
+  // MakeMPixOff(0      , 0       )(100,100,{.5,.1,.1});
 
-  // new screen(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       , white));
-  // new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-  // new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-  // new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
+  new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
+  new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+  new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+  new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
 
 }
 
@@ -130,22 +130,34 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
 }
 
 void swapBits(int& bits, unsigned int i, unsigned int j){
-  if(1<<i&bits)
-  {
-    
+  if(i==j) return;
+  if((1<<i) & bits){
+    if((1<<j) & bits){
+      return;
+    }
+    else{
+      bits &= ~(1<<i);
+      bits |=   1<<j ;
+    }
   }
   else{
-    
+    if((1<<j) & bits){
+      bits &= ~(1<<j);
+      bits |=   1<<i ;
+    }
+    else{
+      return;
+    }
   }
 }
 
-void OpenGLhandler::suffleBits(int& bits){
+void OpenGLhandler::shuffleBits(int& bits){
   if(bits == 0) return;
   unsigned int numBits = mPixWidth * mPixHeight;
   if(bits == (pow(2, numBits) - 1)) return;
 
   for(unsigned int i = 0; i < numBits - 1; i++){
-    unsigned int j = rand()%(numBits-i);
+    swapBits(bits, i, i+rand()%(numBits-i));
 
   }
 }
