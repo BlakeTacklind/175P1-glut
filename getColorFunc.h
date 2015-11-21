@@ -15,7 +15,7 @@ public:
     //light vector
     pnt3 l = ~(OpenGLhandler::getLpos() - location);
     //reflection vector
-    pnt3 r = (2 * (norm << l)) - l;
+    pnt3 r = l - (2 * ((norm) << l));
             //Ka*Ia +
     pnt3 c= OpenGLhandler::getAmbiant() * OpenGLhandler::getIa() + 
             //Il / (||f - p|| + K) *
@@ -23,12 +23,10 @@ public:
             //(kd * (L dot n) +
             (OpenGLhandler::getDiffuse() * (l * norm) + 
             //ks * (r dot v)^n)
-            OpenGLhandler::getSpecular() * pow((r * view), OpenGLhandler::getLightSize()));
+            OpenGLhandler::getSpecular() * pow(posORzero(r * view), OpenGLhandler::getLightSize()));
   
     //in case color is is not an element of [0,1]
-    if(c.x > 1){c / c.x;}
-    if(c.y > 1){c / c.y;}
-    if(c.z > 1){c / c.z;}
+    flatten(c);
 
     return c;
   };

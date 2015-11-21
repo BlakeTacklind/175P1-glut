@@ -13,11 +13,11 @@ int main(int argc, char *argv[])
   //initialize Values
   OpenGLhandler::initValues(argc, argv);
  
-  //start UI
-  //userInterface::init();
-  
   //load objects from default file
   object3Dsurface::load("objectSurface");
+  //start UI
+  userInterface::init();
+
   //draw objects
   screen::bufferAllScreens();
   

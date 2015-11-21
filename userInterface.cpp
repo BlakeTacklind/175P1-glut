@@ -7,11 +7,12 @@
 
 #include "userInterface.h"
 #include "OpenGLhandler.h"
-#include "object3D.h"
+#include "object3Dsurface.h"
 #include "screen.h"
 #include <string>
 #include <curses.h>
 #include <iostream>
+#include "valueHolder.h"
 
 using namespace std;
 
@@ -33,19 +34,52 @@ void userInterface::init(){
   else if(!can_change_color()) action = "Can't change color";
   objSelected = 0;
   onWindow = true;
+  valueMode = false;
+  vals = nullptr;
   drawUI();
 }
 
 void userInterface::drawUI(){
   clear();
-  printw("USE [ESC] TO END PROGRAM, press [h] for help");
   attron(COLOR_PAIR(1));
-  printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+  printw("USE [ESC] TO %s, press [h] for help", valueMode?"CANCEL VALUE MOD":"END PROGRAM");
+  //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   attroff(COLOR_PAIR(1));
-  printw("\nCurrent Object Selected: ");
-  if (objSelected == -1) printw("None");
-  else printw("%i", objSelected);
+
+  printw("\nCurrent File Loaded: \"%s\"", object3Dsurface::getStoredFile());
+  printw("\n");
+  printw("\nLighting Settings:");
+
+  printw("\n");
+  pnt3 t = OpenGLhandler::getLpos();
+  printw("\nLight Postion: (%f, %f, %f)", t.x, t.y, t.z);
+  printw("\nAverage Light Distance (K): %f", OpenGLhandler::getK());
+  printw("\nLight Size (n): %u", OpenGLhandler::getLightSize());
+
+  printw("\n");
+  t = OpenGLhandler::getMPixTone();
+  printw("\nMega Pixel Tone: {%f, %f, %f}", t.x, t.y, t.z);
+
+  printw("\n");
+  t = OpenGLhandler::getAmbiant();
+  printw("\nAmbient Light: {%f, %f, %f}", t.x, t.y, t.z);
+  printw(" with intensity %f", OpenGLhandler::getIa());
+
+  t = OpenGLhandler::getDiffuse();
+  printw("\nDiffuse Light: {%f, %f, %f}", t.x, t.y, t.z);
+  t = OpenGLhandler::getSpecular();
+  printw("\nSpectral Light: {%f, %f, %f}", t.x, t.y, t.z);
+  printw("\nLight intensity %f", OpenGLhandler::getIl());
+
+
+  printw("\n");
+  t = screen::getLastScreen()->getNormal();
+  printw("\n4th quadrant view normal: <%f, %f, %f>", t.x, t.y, t.z);
+
+  printw("\n");
   printw("\n%s", action);
+
+  if(vals != nullptr) move(18 + vals->getCursorRelative().y, vals->getCursorRelative().x);
 
   refresh();
 }
@@ -69,376 +103,328 @@ void userInterface::endUI(){
   endwin();
 }
 
-void userInterface::doAction(){
-  if(vals->getType() == valueHolder::Translation){
-      object3D::getObject(objSelected)->translate(*((float*)vals->getVal(0)), 
-              *((float*)vals->getVal(1)), *((float*)vals->getVal(2)));
-      OpenGLhandler::bufferObjects();
-      OpenGLhandler::reDraw();
-      return;
-  }
-  if(vals->getType() == valueHolder::Scale){ 
-      object3D::getObject(objSelected)->scale(*((float*)vals->getVal(0)), 
-              *((float*)vals->getVal(1)), *((float*)vals->getVal(2)));
-      OpenGLhandler::bufferObjects();
-      OpenGLhandler::reDraw();
-      return;
-  }
-  if(vals->getType() == valueHolder::Rotation){
-      pnt3 p1 = {*((float*)vals->getVal(0)), *((float*)vals->getVal(1)), *((float*)vals->getVal(2))};
-      pnt3 p2 = {*((float*)vals->getVal(3)), *((float*)vals->getVal(4)), *((float*)vals->getVal(5))};
-      object3D::getObject(objSelected)->rotate(p1, p2, *((float*)vals->getVal(6)));
-      return;
-  }
-  if(vals->getType() == valueHolder::Selection){
-      objSelected = *((int*)vals->getVal(0));
-      return;
-  }
-  if(vals->getType() == valueHolder::Save){
-      object3D::save((char*)vals->getVal(0));
-      return;
-  }
-  if(vals->getType() == valueHolder::Load){
-      object3D::load((char*)vals->getVal(0));
-      OpenGLhandler::bufferObjects();
-      OpenGLhandler::reDraw();
-      return;
-  }
-}
-
 void userInterface::keypressed(unsigned char key){
-  /*if (valueMode){
+  if (valueMode){
     if(key == 9 || key == ' ' || key == 13){
 
 
       if(!vals->nextVal()){
         valueMode = false;
-   
-        doAction();
+
+        action = vals->interpret();
         
-        action = "Value Entered!";
         drawUI();
+
+        delete vals;
+        vals = nullptr;
 
         return;
       }
 
-      action = "Finished Value!";
+      action = vals->getMessage();
 
       drawUI();
    
       
       return;
-    }/*
+    }
+    if(key == 8){
+      vals->removeChar();
+      action = vals->getMessage();
+      drawUI();
+      return;
+    }
+
     if(key == 27){
       valueMode = false;
       delete vals;
+      vals = nullptr;
       
       action = "";
       drawUI();
       return;
-    }*/
-    /*
+    }
+    
     if(key > 31 && key < 127){
 
       vals->addChar(key);
     
       action = vals->getMessage();
       drawUI();
+      delete action;
     }
-  }
-  else */if (key == 't'){
-    if(objSelected == -1){
-      printError("Error: No object selected");
-      return;
-    }
-
-    onWindow = false;
-    
-    action = "Current Action: Enter translation values\n"
-    "                   translate x\n"
-    "                   translate y\n"
-    "                   translate z\n";
-    drawUI();
-    move(5,0);
-    /*
-    printw("Translate %i (0  , 0  , 0  )", objSelected);
-    move(5, 13);
-    
-    vals = new translation();
-    action = vals->getMessage();
-    drawUI();
-    return;
-    */
-    char str[80];
-    getstr(str);
-    float val = atof(str);
-    
-    getstr(str);
-    float val2 = atof(str);
-
-    getstr(str);
-    
-    onWindow = true;
-    
-    action = "";
-    drawUI();
-    
-    //object3D::getObject(objSelected)->translate(val, val2, atoi(str));
-    
-    OpenGLhandler::bufferObjects();
-    OpenGLhandler::reDraw();
-  }
-  else if(key == 'r'){
-    if(objSelected == -1){
-      printError("Error: No object selected");
-      return;
-    }
-    onWindow = false;
-    
-    action = "Define an axis then a rotation angle, in degrees\n"
-      "                       point 1 x\n"
-      "                       point 1 y\n"
-      "                       point 1 z\n"
-      "                       point 2 x\n"
-      "                       point 2 y\n"
-      "                       point 2 z\n"
-      "                       angle\n";
-    /*
-    vals = new rotation();
-    action = vals->getMessage();
-    drawUI();
-    return;
-    */
-    drawUI();
-    move(5,0);
-
-    pnt3 p1;
-    pnt3 p2;
-
-    char str[80];
-    getstr(str);
-
-    p1.x = atof(str);
-
-    getstr(str);
-
-    p1.y = atof(str);
-
-    getstr(str);
-
-    p1.z = atof(str);
-
-    getstr(str);
-
-    p2.x = atof(str);
-
-    getstr(str);
-
-    p2.y = atof(str);
-
-    getstr(str);
-
-    p2.z = atof(str);
-
-    getstr(str);
-
-    action = "";
-    
-    onWindow = true;
-    
-    if(p1 == p2){
-      printError("Line is not defined! (points are the same)");
-      return;
-    }
-
-    drawUI();
-    //object3D::getObject(objSelected)->rotate(p1, p2, atof(str));
-    
-    OpenGLhandler::bufferObjects();
-    OpenGLhandler::reDraw();
-  }
-  else if(key == 'e'){
-    if(objSelected == -1){
-      printError("Error: No object selected");
-      return;
-    }
-
-    onWindow = false;
-    
-    action = "Current Action: Enter scale values\n"
-    "                  scale x\n"
-    "                  scale y\n"
-    "                  scale z\n";
-    /*
-    vals = new scale();
-    action = vals->getMessage();
-    drawUI();
-    return;*/
-    drawUI();
-    move(5,0);
-    
-    char str[80];
-    getstr(str);
-    float val = atof(str);
-
-    getstr(str);
-    float val2 = atof(str);
-
-    getstr(str);
-    
-    action = "";
-    onWindow = true;
-    
-    drawUI();
-    
-    //object3D::getObject(objSelected)->scale(val, val2, atof(str));
-    
-    OpenGLhandler::bufferObjects();
-    OpenGLhandler::reDraw();
-  }
-  else if(key == 'c'){
-    action = "Current Action: Enter id of object to be selected\n";
-
-    onWindow = false;
-    
-    drawUI();
-    printw("Select object: 0");
-    move(5, 15);
-
-    /*
-    vals = new selection();
-    action = vals->getMessage();
-    drawUI();
-    return;
-    */
-    char str[80];
-    getstr(str);
-    
-    action = "";
-    
-    int val = atoi(str);
-    
-    onWindow = true;
-    /*
-    if(val >= object3D::getNumObjects()){
-      printError("Not an object id!");
-      return;
-    }
-    */
-    objSelected = val;
-    
-    drawUI();
   }
   else if(key == 'h'){
     clear();
+    attron(COLOR_PAIR(1));
     printw("USE [ESC] TO END PROGRAM, press [h] for help");
-    printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
+    attroff(COLOR_PAIR(1));
     printw("\nbracketed letter indicates which to press\n");
-    printw("sele[c]t object mode\n");
-    printw("[t]ranslate selected object\n");
-    printw("[r]otate selected object\n");
-    printw("scal[e] selected object\n");
-    printw("[s]ave to file\n");
-    printw("[l]oad from file\n");
-    printw("[space] for rotate oblique window about z-axis\n");
-    printw("Set [n]ormal for oblique window\n");
+    printw("\n[l]oad from [f]ile");
+    printw("\n[space] for rotate oblique window about z-axis");
+    printw("\n[n] Set normal for oblique window");
+    printw("\n\nAlter Modes:");
+    printw("\n[x] Tgl Mega Pix");
+    printw("\n[r] Tgl Draw Mode");
+    //printw("\n[x] Algorithms");
+    printw("\n\nLighting Settings:");
+    printw("\n[A]mbient");
+    printw("\n[D]iffuse");
+    printw("\n[S]pecular");
+    printw("\n[K] Average Light Distance");
+    printw("\n[q] Light position");
+    printw("\n[w] Light Intensity");
+    printw("\n[e] Ambient Intensity");
+    printw("\n[z] Light Size");
+    printw("\n[t] Set Mega Pix tone");
 
     refresh();
   }
-  else if(key == 's'){
-    action = (char*)((string)("Enter name and hit return to save objects to file, hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();
-    drawUI();
-
-    onWindow = false;
-    
-    /*
-    vals = new saveFile();
-    action = vals->getMessage();
-    drawUI();
-    return;
-    */
-    char str[80];
-    getstr(str);
-    onWindow = true;
-    
-    if(str[0] == 0){if(object3D::save()) action = "File saved";}
-    else if(object3D::save(str)) action = "File saved";
-    
-    drawUI();
-  }
   else if(key == 'l'){
-    action = (char*)((string)("Enter name and hit return to load objects from file, or hit return for ")).append(object3D::getStoredFile()).append("\n").c_str();
-    drawUI();
-
-    onWindow = false;
+    valueMode = true;
     
-    /*
-    vals = new loadFile();
+    char** c = new char*[2]; 
+    c[0] = "Enter name of file, or nothing for last file: "; 
+    c[1] = "";
+
+
+    vals = new valueHolder(1, c, "", new interpretLoad());
     action = vals->getMessage();
     drawUI();
     return;
-    */
-    char str[80];
-    getstr(str);
-    onWindow = true;
-    
-    if(str[0] == 0){if(object3D::load()) action = "File Loaded";}
-    else if(object3D::load(str)) action = "File Loaded";
-    
-    drawUI();
-    OpenGLhandler::bufferObjects();
-    OpenGLhandler::reDraw();
   }
   else if(key == ' '){
     screen* s = screen::getLastScreen();
     s->setNormal(rotateAboutZ(s->getNormal(), 1));
 
+    drawUI();
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
   }
   else if(key == 'n'){
 
-    onWindow = false;
+    valueMode = true;
     
-    action = "Enter Normal vector values\n"
-    "                      x\n"
-    "                      y\n"
-    "                      z\n";
+    char** c = new char*[4]; 
+    c[0] = "Enter New view direction: <"; 
+    c[1] = ", ";
+    c[2] = ", ";
+    c[3] = ">";
+
+
+    vals = new valueHolder(3, c, "0", new interpretNewNormal());
+    action = vals->getMessage();
     drawUI();
-    move(5,0);
+    return;
+  }
+  else if(key == 'a'){
 
-    char str[80];
-    getstr(str);
-    float val = atof(str);
+    valueMode = true;
     
-    getstr(str);
-    float val2 = atof(str);
+    char** c = new char*[4]; 
+    c[0] = "Enter New Ambient: {"; 
+    c[1] = ", ";
+    c[2] = ", ";
+    c[3] = "}";
 
-    getstr(str);
-    
-    onWindow = true;
-    
-    action = "";
+
+    vals = new valueHolder(3, c, "0", new interpretNewPnt3(OpenGLhandler::setAmbiant, "New Ambiant color set"));
+    action = vals->getMessage();
     drawUI();
-
-    pnt3 p = {val, val2, (float)atof(str)};
-
-    screen::getLastScreen()->setNormal(p);
-    
-    OpenGLhandler::bufferObjects();
-    OpenGLhandler::reDraw();
+    return;
   }
   else if(key == 'd'){
+
+    valueMode = true;
+    
+    char** c = new char*[4]; 
+    c[0] = "Enter New Diffuse: {"; 
+    c[1] = ", ";
+    c[2] = ", ";
+    c[3] = "}";
+
+
+    vals = new valueHolder(3, c, "0", new interpretNewPnt3(OpenGLhandler::setDiffuse, "New Diffuse color set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 's'){
+
+    valueMode = true;
+    
+    char** c = new char*[4]; 
+    c[0] = "Enter New Specular: {"; 
+    c[1] = ", ";
+    c[2] = ", ";
+    c[3] = "}";
+
+
+    vals = new valueHolder(3, c, "0", new interpretNewPnt3(OpenGLhandler::setSpecular, "New Specular color set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'q'){
+
+    valueMode = true;
+    
+    char** c = new char*[4]; 
+    c[0] = "Enter New Light Origin: ("; 
+    c[1] = ", ";
+    c[2] = ", ";
+    c[3] = ")";
+
+
+    vals = new valueHolder(3, c, "0", new interpretNewPnt3(OpenGLhandler::setLpos, "New light position set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 't'){
+
+    valueMode = true;
+    
+    char** c = new char*[4]; 
+    c[0] = "Enter New Mega Pixel tone: {"; 
+    c[1] = ", ";
+    c[2] = ", ";
+    c[3] = "}";
+
+
+    vals = new valueHolder(3, c, "0", new interpretNewPnt3(OpenGLhandler::setMPixTone, "New mega pixel tone set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'w'){
+
+    valueMode = true;
+    
+    char** c = new char*[2]; 
+    c[0] = "Enter Light Intensity const: "; 
+    c[1] = " ";
+
+
+    vals = new valueHolder(1, c, "0", new interpretNewFloat(OpenGLhandler::setIl, "New Light Intensity set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'e'){
+
+    valueMode = true;
+    
+    char** c = new char*[2]; 
+    c[0] = "Enter Ambiant Intensity const: "; 
+    c[1] = " ";
+
+
+    vals = new valueHolder(1, c, "0", new interpretNewFloat(OpenGLhandler::setIa, "New Ambiant Intensity set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'k'){
+
+    valueMode = true;
+    
+    char** c = new char*[2]; 
+    c[0] = "Set Average Light Distance: "; 
+    c[1] = " ";
+
+
+    vals = new valueHolder(1, c, "0", new interpretNewFloat(OpenGLhandler::setK, "New Average Light Distance set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'z'){
+
+    valueMode = true;
+    
+    char** c = new char*[2]; 
+    c[0] = "Interpret light size: "; 
+    c[1] = " ";
+
+
+    vals = new valueHolder(1, c, "0", new interpretLightSize());
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'r'){
     OpenGLhandler::tglDrawMode();
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
   }
-  else if(key == 'a'){
+  else if(key == 'x'){
+    OpenGLhandler::tglPixMode();
+    
+    OpenGLhandler::bufferObjects();
+    OpenGLhandler::reDraw();
+  }/*
+  else if(key == 'x'){
     OpenGLhandler::tglLightMode();
     
     OpenGLhandler::bufferObjects();
     OpenGLhandler::reDraw();
-  }
+  }*/
 }
 
+
+
+char* userInterface::interpretLoad::operator()(char** c){
+  if(c[0][0] == 0) {
+    if(object3Dsurface::load());
+      return "Successful load";
+  }
+  else{
+    if(object3Dsurface::load(c[0]))
+      return "Successful load";
+  }
+  return "failed load!";
+}
+
+char* userInterface::interpretNewNormal::operator()(char** c){
+  pnt3 p = {(float)atof(c[0]), (float)atof(c[1]), (float)atof(c[2])};
+
+  if (p == zeroVector) return "Can't use zero Vector as normal";
+
+  screen::getLastScreen()->setNormal(p);
+  
+  OpenGLhandler::bufferObjects();
+  OpenGLhandler::reDraw();
+
+  return "normal set";
+}
+
+char* userInterface::interpretNewPnt3::operator()(char** c){
+  pnt3 p = {(float)atof(c[0]), (float)atof(c[1]), (float)atof(c[2])};
+
+  setter(p);
+  
+  OpenGLhandler::bufferObjects();
+  OpenGLhandler::reDraw();
+
+  return (char*)mes;
+}
+
+char* userInterface::interpretNewFloat::operator()(char** c){
+  setter((float)atof(c[0]));
+  
+  OpenGLhandler::bufferObjects();
+  OpenGLhandler::reDraw();
+
+  return (char*)mes;
+}
+
+char* userInterface::interpretLightSize::operator()(char** c){
+  OpenGLhandler::setLightSize((unsigned int)atoi(c[0]));
+
+  OpenGLhandler::bufferObjects();
+  OpenGLhandler::reDraw();
+
+  return "New Light size set";
+}

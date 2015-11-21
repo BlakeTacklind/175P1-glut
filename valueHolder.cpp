@@ -9,32 +9,48 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include "userInterface.h"
 
 using namespace std;
 
-valueHolder::valueHolder(valTypes tp, unsigned int in):t(tp){
+valueHolder::valueHolder(unsigned int in, char** del, char* def, InterpreterFunc* f):nVal(in){
+  delimiters = del;
+  defaultStr = def;
+  interpreter = f;
+
   onVal = 0;
   onChar = 0;
-  nVal = in;
-  message = (char*)((string)("Entering a value ")).append(to_string(in)).append("\n").c_str();
+  
+  strvals = new char*[nVal];
+  strvals[0] = new char[maxCharLength+1];
+  strcpy(strvals[0], defaultStr);
+}
+valueHolder::valueHolder():nVal(0){
+  onVal = 0;
+  onChar = 0;
 }
 
 valueHolder::~valueHolder(){
+  delete interpreter;
+  delete [] delimiters;
 }
 
 valueHolder::valueHolder(const valueHolder& orig) {
+
 }
 
 void valueHolder::addChar(unsigned char c){
+  if(maxCharLength<=onChar){
+    userInterface::printError("String to long, remove characters or go to next value");
+    return;
+  }
   strvals[onVal][onChar++] = c;
   strvals[onVal][onChar  ] = 0;
-  if(maxCharLength<onChar) nextVal();
 }
-/*
+
 bool valueHolder::removeChar(){
   if(!onChar){
     if(onVal){
-      delete vals[onVal];
       onChar = strlen(strvals[--onVal]);
       return false;
     }
@@ -46,107 +62,45 @@ bool valueHolder::removeChar(){
   
   return true;
 }
-*/
-threeFloats::threeFloats(valTypes tp):valueHolder(tp, 3){
-  vals    = (void**)new float*[maxNumVal];
-  strvals = new char*[maxNumVal];
-  strvals[0] = new char[maxCharLength+1];
-}
-/*
-threeFloats::~threeFloats() {
-  while(!onVal){
-    delete (char*)strvals[onVal];
-    delete (float*)vals[--onVal];
-  }
-  delete (char*) strvals[0];
-  
-  delete [] vals;
-  delete [] strvals;
-}
-*/
-bool threeFloats::nextVal(){
-  onChar = 0; 
-  *((float*)vals[onVal]) = atof(strvals[onVal]);
-  
-  if (nVal < ++onVal) return true;
 
-  vals[onVal] = (void*)new float;
-  return false;
-}
-
-rotation::rotation():valueHolder(Rotation, 7){
-  vals    = (void**)new float*[maxNumVal];
-  strvals = new char*[maxNumVal];
-  strvals[0] = new char[maxCharLength+1];
-}
-/*
-rotation::~rotation() {
-  while(!onVal){
-    delete (char*)strvals[onVal];
-    delete (float*)vals[--onVal];
-  }
-  delete (char*) strvals[0];
-  
-  delete [] vals;
-  delete [] strvals;
-}
-*/
-bool rotation::nextVal(){
+bool valueHolder::nextVal(){
   onChar = 0;
-  *((float*)vals[onVal]) = atof(strvals[onVal]);
-  if (nVal < ++onVal) return true;
+  if (nVal == ++onVal) return false;
+
+  strvals[onVal] = new char[maxCharLength+1];
+  strcpy(strvals[onVal], defaultStr);
   
-  vals[onVal] = (void*)new float;
-  return false;
+  return true;
 }
 
-selection::selection():valueHolder(Selection, 1){
-  vals    = (void**)new int*[maxNumVal];
-  strvals = new char*[maxNumVal];
-  strvals[0] = new char[maxCharLength+1];
-}
-/*
-selection::~selection() {
-  while(!onVal){
-    delete (char*)strvals[onVal];
-    delete (int*)  vals[--onVal];
+char* valueHolder::getMessage(){
+  char* str = new char[80];
+
+  strcpy(str, delimiters[0]);
+
+  int i = 0;
+  for (; i <= onVal; i++){
+    strcat(str, strvals[i]);
+    strcat(str, delimiters[i+1]);
   }
-  delete (char*) strvals[0];
-  
-  delete [] vals;
-  delete [] strvals;
-}
-*/
-bool selection::nextVal(){
-  onChar = 0;
-  *((int*)vals[onVal]) = atoi(strvals[onVal]);
 
-  if (nVal < ++onVal) return true;
-  
-  vals[onVal] = (void*)new int;
-  return false;
-}
-
-singleString::singleString(valTypes tp):valueHolder(tp, 1){
-  vals    = (void**)new char*[maxNumVal];
-  strvals = new char*[maxNumVal];
-  strvals[0] = new char[maxCharLength+1];
-}
-/*
-singleString::~singleString() {
-  while(!onVal){
-    delete (char*)strvals[onVal];
-    delete (char*) vals[--onVal];
+  for (; i < nVal; i++){
+    strcat(str, defaultStr);
+    strcat(str, delimiters[i+1]);
   }
-  delete (char*) strvals[0];
-  
-  delete [] vals;
-  delete [] strvals;
+
+  return str;
 }
-*/
-bool singleString::nextVal(){
-  onChar = 0;
-  strcpy((char*)vals[onVal], strvals[onVal]);
-  vals[++onVal] = (void*)new char[maxCharLength+1];
-  return nVal < onVal;
+
+
+pnt valueHolder::getCursorRelative(){
+  unsigned int len = strlen(delimiters[0]);
+  int i = 0;
+  for (; i < onVal; i++){
+    len += strlen(strvals[i]);
+    len += strlen(delimiters[i+1]);
+  }
+
+  return {(int)(len + onChar), 0};
 }
+

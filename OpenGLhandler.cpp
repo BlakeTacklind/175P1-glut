@@ -2,7 +2,6 @@
 #include "OpenGLhandler.h"
 #include "userInterface.h"
 #include "screen.h"
-#include "object3D.h"
 #include "object3Dsurface.h"
 #include <math.h>
 #include "MakePixFunc.h"
@@ -37,6 +36,8 @@ OpenGLhandler::lightModel OpenGLhandler::lMode;
 pnt3 OpenGLhandler::mPixTone;
 unsigned int OpenGLhandler::mPixWidth = 3;
 unsigned int OpenGLhandler::mPixHeight = 3;
+OpenGLhandler::pixelModel OpenGLhandler::pMode = Color;
+
 
 void OpenGLhandler::initValues(int argc, char** argv){
   
@@ -69,14 +70,12 @@ void OpenGLhandler::initValues(int argc, char** argv){
   tglDrawMode();
   tglDrawMode();
 
-  pnt3 iso = {0.612375, 0.612375, -0.50000};
-  
-  MakeMPixOff(0      , 0       )(100,100,{.5,.1,.1});
+  const pnt3 iso = {0.612375, 0.612375, -0.50000};
 
-  // new screen(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       , white));
-  // new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-  // new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-  // new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
+  new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
+  new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+  new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+  new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
 
 }
 
@@ -89,7 +88,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutInitWindowPosition(100, 100);
 
-  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 2");
+  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 3");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
 
@@ -104,7 +103,7 @@ void OpenGLhandler::init(int* argc, char** argv)
  */
 void OpenGLhandler::onClose(void){
   delete [] PixelBuffer;
-  object3D::freeAll();
+  // object3Dsurface::freeAll();
   screen::freeAll();
   userInterface::endUI();
 }
@@ -130,20 +129,20 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
 }
 
 void swapBits(int& bits, unsigned int i, unsigned int j){
-  if (i==j) return;
+  if(i==j) return;
   if((1<<i) & bits){
     if((1<<j) & bits){
       return;
     }
     else{
       bits &= ~(1<<i);
-      bits |= 1<<j;
+      bits |=   1<<j ;
     }
   }
   else{
     if((1<<j) & bits){
       bits &= ~(1<<j);
-      bits |= 1<<i;
+      bits |=   1<<i ;
     }
     else{
       return;
@@ -156,9 +155,10 @@ void OpenGLhandler::shuffleBits(int& bits){
   unsigned int numBits = mPixWidth * mPixHeight;
   if(bits == (pow(2, numBits) - 1)) return;
 
-  for(unsigned int i = 0; i < numBits - 1; i++)
-    swapBits(bits, i, i + (rand()%(numBits-i)));
-  
+  for(unsigned int i = 0; i < numBits - 1; i++){
+    swapBits(bits, i, i+rand()%(numBits-i));
+
+  }
 }
 
 void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity){
@@ -191,46 +191,7 @@ void OpenGLhandler::clearBuffer(){
  * Draw objects depending on draw mode
  */
 void OpenGLhandler::bufferObjects(drawMode m, pnt3 view, int x, int y){
-  clearBuffer();
-  list<surface*> surfaces;
-  
-  //create list of surfaces
-  for (int i = 0; i < object3Dsurface::getNumObjects(); i++){
-    object3Dsurface* obj = object3Dsurface::getObject(i);
-    for (int j = 0; j < obj->getNumSurface(); j++){
-      surfaces.push_back(obj->getSurface(j));
-    }
-  }
-  
-  //reduce list of surfaces
-  for(list<surface*>::iterator it = surfaces.begin(); it != surfaces.end(); ){
-    if((*it)->getNormal() * view >= 0)
-      surfaces.erase(it);
-    else
-      it++;
-  }
-  
-  //sort list of surfaces
-  
-  
-  //get intensity of points
-  
-  
-  
-  //fill points to screen
 
-  //Draw object vertexes
-  if (m == points){
-    
-  }
-  //Draw object with wireframe
-  else if (m == lines){
-    
-  }
-  //Rasterize objects
-  else if (m == fill){
-    
-  }
   
 }
 
@@ -274,4 +235,31 @@ void OpenGLhandler::tglAlgMode(){
 void OpenGLhandler::tglLightMode(){
        if (lMode == Phong  ) lMode = Gouraud;
   else if (lMode == Gouraud) lMode = Phong;
+}
+
+void OpenGLhandler::tglPixMode(){
+  if(pMode == Color){
+    pMode = Mega;
+
+    pnt3 p = screen::getLastScreen()->getNormal();
+
+    screen::freeAll();
+
+    new screen(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       ));
+    new screen(width/6, height/6,  unitY, 10, new MakeMPixOff(width/6, height/6));
+    new screen(width/6, height/6, -unitZ, 10, new MakeMPixOff(0      , height/6));
+    new screen(width/6, height/6,  p    , 10, new MakeMPixOff(width/6, 0       ));
+  }
+  else{
+    pMode = Color;
+
+    pnt3 p = screen::getLastScreen()->getNormal();
+
+    screen::freeAll();
+
+    new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
+    new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+    new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+    new screen(width/2, height/2,  p    , 10, new MakePixOff(width/2, 0       ));
+  }
 }

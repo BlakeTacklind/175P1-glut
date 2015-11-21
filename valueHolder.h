@@ -4,103 +4,46 @@
  *
  * Created on October 22, 2015, 2:25 PM
  */
-
 #ifndef VALUEHOLDER_H
 #define	VALUEHOLDER_H
 
 #include <string>
+#include "InterpreterFunc.h"
+#include "types.h"
 
 using namespace std;
 
 class valueHolder {
 public:
-  enum valTypes{
-    None, Translation, Scale, Rotation, Selection, Save, Load
-  };
   
   valueHolder();
-  valueHolder(valTypes tp, unsigned int i);
+  valueHolder(unsigned int i, char** del, char* def, InterpreterFunc* f);
   valueHolder(const valueHolder& orig);
   virtual ~valueHolder();
   
   void addChar(unsigned char c);
-  //bool removeChar();
+  bool removeChar();
   inline bool isNext(){return nVal-1 > onVal;};
-  virtual bool nextVal() = 0;
-  inline void* getVal(unsigned int i){return i<nVal?vals[i]:nullptr;};
-  inline void** getValues(){return vals;};
+  bool nextVal();
+
+  char* getValue(unsigned int i){return strvals[i];}
   
-  inline valTypes getType(){return t;};
-  
-  inline char* getMessage(){return message;};
-  
-protected:
-  const valTypes t = None;
-  void** vals;
+  char* getMessage();
+  inline char* interpret(){return (*interpreter)(strvals);};
+
+  pnt getCursorRelative();
+
+private:
   char** strvals;
-  unsigned int nVal;
-  const unsigned int maxNumVal = 10;
-  const unsigned int maxCharLength = 20;
+  char** delimiters;
+  const unsigned int nVal = 0;
   unsigned int onVal;
   unsigned int onChar;
-  char* message;
-private:
-};
+  char* defaultStr;
 
-class threeFloats: public valueHolder{
-private:
-  const unsigned int numVal = 3;
-public:
-  threeFloats(valTypes tp);
-  //virtual ~threeFloats();
-  bool nextVal();
-};
+  InterpreterFunc* interpreter;
 
-class translation: public threeFloats{
-public:
-  inline translation():threeFloats(Translation){};
-};
-
-class scale: public threeFloats{
-public:
-  inline scale():threeFloats(Scale){};
-};
-
-class rotation: public valueHolder{
-private:
-  const unsigned int numVal = 7;
-public:
-  rotation();
-  //virtual ~rotation();
-  bool nextVal();
-};
-
-class selection: public valueHolder{
-private:
-  const unsigned int numVal = 1;
-public:
-  selection();
-  //virtual ~selection();
-  bool nextVal();
-};
-
-class singleString: public valueHolder{
-private:
-  const unsigned int numVal = 1;
-public:
-  singleString(valTypes tp);
-  //virtual ~singleString();
-  bool nextVal();
-};
-
-class saveFile: public singleString{
-public:
-  inline saveFile():singleString(Save){};
-};
-
-class loadFile: public singleString{
-public:
-  inline loadFile():singleString(Load){};
+  static const unsigned int maxCharLength = 20;
 };
 
 #endif	/* VALUEHOLDER_H */

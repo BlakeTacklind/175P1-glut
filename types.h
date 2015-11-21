@@ -64,6 +64,9 @@ pnt3 operator+(const pnt3& a, const pnt3& b);
 pnt3 operator<<(const pnt3& a, const pnt3& b);
 pnt3 rotateAboutZ(const pnt3& p, const float a);
 float length(const pnt3& a);
+pnt3& flatten(pnt3&);
+inline float posORzero(float a){return a>0?a:0;};
+//char* toString(pnt3);
 
 const float deg2rad = 3.14159265/180;
 

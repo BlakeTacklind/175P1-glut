@@ -1,6 +1,7 @@
 #include "types.h"
 #include <math.h>
 
+//char* toString(pnt3 p){}
 
 /* check for vector equality */
 bool operator==(const pnt& a, const pnt& b){
@@ -108,4 +109,11 @@ pnt3 rotateAboutZ(const pnt3& p, const float a){
  */
 float length(const pnt3& vec){
   return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+}
+
+pnt3& flatten(pnt3& p){
+  if(p.x > 1) p = p/p.x;
+  if(p.y > 1) p = p/p.y;
+  if(p.z > 1) p = p/p.z;
+  return p;
 }
