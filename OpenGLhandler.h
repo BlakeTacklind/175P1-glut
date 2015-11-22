@@ -26,7 +26,7 @@ public:
   //Free space
   static void onClose(void);
 
-  inline static void bufferObjects(){clearBuffer(); screen::bufferAllScreens();};
+  inline static void bufferObjects(){clearBuffer(); screen3d::bufferAllScreens();};
 
   static const char* getDrawModeStr();
   static const char* getAlgModeStr();

@@ -20,9 +20,9 @@
 
 using namespace std;
 
-list<screen*> screen::screenList;
+list<screen3d*> screen3d::screenList;
 
-screen::screen(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix){
+screen3d::screen3d(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix){
   width = x;
   height = y;
   viewDistance = viewDist;
@@ -32,7 +32,7 @@ screen::screen(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix){
   screenList.push_back(this);
 }
 
-void screen::setNormal(const pnt3& vec){
+void screen3d::setNormal(const pnt3& vec){
   if (vec == zeroVector){
     userInterface::printError("can't use zero vector as normal vector");
     return;
@@ -50,29 +50,29 @@ void screen::setNormal(const pnt3& vec){
   }
 }
 
-screen::screen(const screen& orig) {}
+screen3d::screen3d(const screen3d& orig) {}
 
 //screen::~screen() {}
 
-void screen::freeAll(){
+void screen3d::freeAll(){
   while(screenList.end() != screenList.begin()){
     delete screenList.front();
     screenList.pop_front();
   }
 }
 
-void screen::bufferAllScreens() {
-  for(list<screen*>::iterator it = screenList.begin(); it != screenList.end(); it++){
+void screen3d::bufferAllScreens() {
+  for(list<screen3d*>::iterator it = screenList.begin(); it != screenList.end(); it++){
     (*it)->bufferObjects();
   }
 }
 
-bool screen::compareSurfaces::operator()(surface*& first, surface*& second) {
+bool screen3d::compareSurfaces::operator()(surface*& first, surface*& second) {
   return ((second->getCentroid() - first->getCentroid()) * viewVec) > 0;  
 }
 
 
-void screen::fillLine(cpnt& a, cpnt& b){
+void screen3d::fillLine(cpnt& a, cpnt& b){
   line l(dg(a), dg(b), true);
 
   pnt3 m = (b.c-a.c)/l.getNumPoints();
@@ -87,7 +87,7 @@ void screen::fillLine(cpnt& a, cpnt& b){
 
 }
 
-void screen::surfaceElimination(list<surface*>& surfaces){
+void screen3d::surfaceElimination(list<surface*>& surfaces){
   list<surface*>::iterator it = surfaces.begin();
 
   while(it != surfaces.end())
@@ -96,7 +96,7 @@ void screen::surfaceElimination(list<surface*>& surfaces){
     else it++;
 }
 
-void screen::bufferObjects() {
+void screen3d::bufferObjects() {
   //get all surfaces
   list<surface*> surfaces;
   for(int i = 0; i < object3Dsurface::getNumObjects(); i++){
@@ -248,7 +248,7 @@ void screen::bufferObjects() {
 /*
  * get a color at a location using the Phong lighting model
  */
-pnt3 screen::getColor(pnt3 location, pnt3 norm) {
+pnt3 screen3d::getColor(pnt3 location, pnt3 norm) {
   return getColorFunc(normal, viewDistance)(location, norm);
 }
 
@@ -256,7 +256,7 @@ pnt3 screen::getColor(pnt3 location, pnt3 norm) {
  * convert 3d point into a 2d coordinate system
  * using parallel projection
  */
-pntf screen::convert3dPoint(pnt3 p){
+pntf screen3d::convert3dPoint(pnt3 p){
   pntf r;
   if(normal == unitZ){
     r.x = p.x;

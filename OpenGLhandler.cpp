@@ -72,10 +72,10 @@ void OpenGLhandler::initValues(int argc, char** argv){
 
   const pnt3 iso = {0.612375, 0.612375, -0.50000};
 
-  new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
-  new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-  new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-  new screen(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
+  new screen3d(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
+  new screen3d(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+  new screen3d(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+  new screen3d(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
 
 }
 
@@ -104,7 +104,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 void OpenGLhandler::onClose(void){
   delete [] PixelBuffer;
   // object3Dsurface::freeAll();
-  screen::freeAll();
+  screen3d::freeAll();
   userInterface::endUI();
 }
 
@@ -241,25 +241,25 @@ void OpenGLhandler::tglPixMode(){
   if(pMode == Color){
     pMode = Mega;
 
-    pnt3 p = screen::getLastScreen()->getNormal();
+    pnt3 p = screen3d::getLastScreen()->getNormal();
 
-    screen::freeAll();
+    screen3d::freeAll();
 
-    new screen(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       ));
-    new screen(width/6, height/6,  unitY, 10, new MakeMPixOff(width/6, height/6));
-    new screen(width/6, height/6, -unitZ, 10, new MakeMPixOff(0      , height/6));
-    new screen(width/6, height/6,  p    , 10, new MakeMPixOff(width/6, 0       ));
+    new screen3d(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       ));
+    new screen3d(width/6, height/6,  unitY, 10, new MakeMPixOff(width/6, height/6));
+    new screen3d(width/6, height/6, -unitZ, 10, new MakeMPixOff(0      , height/6));
+    new screen3d(width/6, height/6,  p    , 10, new MakeMPixOff(width/6, 0       ));
   }
   else{
     pMode = Color;
 
-    pnt3 p = screen::getLastScreen()->getNormal();
+    pnt3 p = screen3d::getLastScreen()->getNormal();
 
-    screen::freeAll();
+    screen3d::freeAll();
 
-    new screen(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
-    new screen(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-    new screen(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-    new screen(width/2, height/2,  p    , 10, new MakePixOff(width/2, 0       ));
+    new screen3d(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
+    new screen3d(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
+    new screen3d(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
+    new screen3d(width/2, height/2,  p    , 10, new MakePixOff(width/2, 0       ));
   }
 }

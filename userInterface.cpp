@@ -73,7 +73,7 @@ void userInterface::drawUI(){
 
 
   printw("\n");
-  t = screen::getLastScreen()->getNormal();
+  t = screen3d::getLastScreen()->getNormal();
   printw("\n4th quadrant view normal: <%f, %f, %f>", t.x, t.y, t.z);
 
   printw("\n");
@@ -194,7 +194,7 @@ void userInterface::keypressed(unsigned char key){
     return;
   }
   else if(key == ' '){
-    screen* s = screen::getLastScreen();
+    screen3d* s = screen3d::getLastScreen();
     s->setNormal(rotateAboutZ(s->getNormal(), 1));
 
     drawUI();
@@ -392,7 +392,7 @@ char* userInterface::interpretNewNormal::operator()(char** c){
 
   if (p == zeroVector) return "Can't use zero Vector as normal";
 
-  screen::getLastScreen()->setNormal(p);
+  screen3d::getLastScreen()->setNormal(p);
   
   OpenGLhandler::bufferObjects();
   OpenGLhandler::reDraw();

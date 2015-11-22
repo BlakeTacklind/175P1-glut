@@ -16,11 +16,11 @@
 
 using namespace std;
 
-class screen {
+class screen3d {
 public:
-  screen(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix);
-  inline screen(){};
-  screen(const screen& orig);
+  screen3d(int x, int y, pnt3 vec, float viewDist, MakePixFunc* mkPix);
+  inline screen3d(){};
+  screen3d(const screen3d& orig);
   //virtual ~screen();
 
   static void freeAll();
@@ -28,7 +28,7 @@ public:
   static void bufferAllScreens();
   void bufferObjects();
   
-  inline static screen* getLastScreen(){return screenList.back();};
+  inline static screen3d* getLastScreen(){return screenList.back();};
   inline int  getScreenWidth (){return width; };
   inline int  getScreenHeight(){return height;};
 
@@ -39,7 +39,7 @@ public:
   pnt3 getColor(pnt3 location, pnt3 norm);
 
 private:
-  static list<screen*> screenList;
+  static list<screen3d*> screenList;
 
   void fillLine(cpnt& a, cpnt& b);
   

@@ -68,6 +68,11 @@ pnt3& flatten(pnt3&);
 inline float posORzero(float a){return a>0?a:0;};
 //char* toString(pnt3);
 
+pntf operator*(const float i, const pntf& p);
+inline pntf operator*(const pntf& p, const float i){return i*p;};
+pntf operator+(const pntf& a, const pntf& b);
+pntf operator+=(const pntf& a, const pntf& b);
+
 const float deg2rad = 3.14159265/180;
 
 #endif	/* TYPES_H */

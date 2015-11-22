@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   userInterface::init();
 
   //draw objects
-  screen::bufferAllScreens();
+  screen3d::bufferAllScreens();
   
   //initialize glut!
   OpenGLhandler::init(&argc, argv);
