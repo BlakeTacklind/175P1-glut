@@ -70,6 +70,9 @@ inline float posORzero(float a){return a>0?a:0;};
 
 pntf operator*(const float i, const pntf& p);
 inline pntf operator*(const pntf& p, const float i){return i*p;};
+pntf operator/(const float i, const pntf& p);
+inline pntf operator/(const pntf& p, const float i){return i/p;};
+float operator*(const pntf& a, const pntf& b);
 pntf operator+(const pntf& a, const pntf& b);
 pntf operator-(const pntf& a, const pntf& b);
 pntf operator-(const pntf& a, const float i);
@@ -77,6 +80,8 @@ pntf operator+(const pntf& a, const float i);
 pntf& operator+=(pntf& a, const pntf& b);
 
 float dist(const pntf& a, const pntf& b);
+float distSqr(const pntf& a, const pntf& b);
+float dist(const pntf& c, const pntf& l1, const pntf& l2);
 
 const float deg2rad = 3.14159265/180;
 

@@ -30,8 +30,8 @@ public:
   inline pntf getControlPoint(unsigned int i){return controlPoints[i];};
   inline unsigned int getNumControlPoints(){return nPoints;};
   
-  void addPoint(unsigned int pos, pntf loc);
-  void removePoint(unsigned int);
+  virtual void addPoint(unsigned int pos, pntf loc);
+  virtual void removePoint(unsigned int);
   void modifyPoint(unsigned int p, pntf loc);
 
   pntf* getMinMax();
@@ -78,6 +78,9 @@ class bSpline : public curve2d{
 public:
   bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order);
   bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order, float* r);
+  
+  override void addPoint(unsigned int pos, pntf loc);
+  override void removePoint(unsigned int);
   
   inline bool canRemove(){return k<getNumPoints();};
   

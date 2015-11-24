@@ -5,12 +5,34 @@ pntf operator*(const float i, const pntf& p){
   return {p.x*i, p.y*i};
 }
 
+pntf operator/(const float i, const pntf& p){
+  return {p.x/i, p.y/i};
+}
+
 pntf operator+(const pntf& a, const pntf& b){
   return {a.x+b.x, a.y+b.y};
 }
 
+float operator*(const pntf& a, const pntf& b){
+  return a.x*b.x+a.y*b.y;
+}
+
 pntf operator-(const pntf& a, const pntf& b){
   return {a.x-b.x, a.y-b.y};
+}
+
+float dist(const pntf& p, const pntf& l1, const pntf& l2){
+  // Return minimum distance between line segment [l1,l2] and point p
+  const float lensqr = distSqr(1l, l2);  // i.e. |l2-l1|^2 -  avoid a sqrt
+  if (lensqr == 0.0) return dist(p, l1);   // l1 == l2 case
+  // Consider the line extending the segment, parameterized as l1 + t (l2 - l1).
+  // We find projection of point p onto the line. 
+  // It falls where t = [(p-l1) . (l2-l1)] / |l2-l1|^2
+  const float t = (p - l1)*(l2 - l1);
+  if (t < 0.0) return dist(p, l1);       // Beyond the 'l1' end of the segment
+  else if (t > lensqr) return dist(p, l2);  // Beyond the 'l2' end of the segment
+  const pntf projection = l1 + ((t / lensqr)*(l2 - l1));  // Projection falls on the segment
+  return dist(p, projection);
 }
 
 pntf operator-(const pntf& a, const float i){
@@ -30,6 +52,11 @@ pntf& operator+=(pntf& a, const pntf& b){
 float dist(const pntf& a, const pntf& b){
   pntf c = b - a;
   return sqrt(c.x*c.x + c.y*c.y);
+}
+
+float distSqr(const pntf& a, const pntf& b){
+  pntf c = b - a;
+  return c.x*c.x + c.y*c.y;
 }
 
 /* check for vector equality */

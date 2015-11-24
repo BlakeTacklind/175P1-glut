@@ -48,6 +48,24 @@ void curve2d::addPoint(unsigned int pos, pntf loc) {
   controlPoints = c;
 }
 
+void bSpline::addPoint(unsigned int pos, pntf loc) {
+  curve2d::addPoint(pos, loc);
+  
+  if(pos > getNumControlPoints()){
+    //userInterface::printError("insert position not possible");
+    return;
+  }
+  
+  float* c = new float[getK()+getNumControlPoints()];
+  
+  copy(u ,u+pos+getK()-2 , c);
+  c[u+pos+getK()-2] = 1;
+  copy(u+pos+getK()-1, u+getNumControlPoints()+getK()-1, c);
+  
+  delete [] u;
+  u = c;
+}
+
 void curve2d::modifyPoint(unsigned int p, pntf loc) {
   if(p >= nPoints){
     userInterface::printError("point does not exist");
@@ -74,6 +92,22 @@ void curve2d::removePoint(unsigned int p) {
   
   delete [] controlPoints;
   controlPoints = c;
+}
+
+void bSpline::removePoint(unsigned int i) {
+  curve2d::removePoint(i);
+  
+  if(i > getNumControlPoints()){
+    return;
+  }
+  
+  float* c = new float[getK()+getNumControlPoints()];
+  
+  copy(u ,u+i+getK()-2 , c);
+  copy(u+i+getK()-3, u+getNumControlPoints()+getK()+1, c);
+  
+  delete [] u;
+  u = c;
 }
 
 bSpline::bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order, float* r):
