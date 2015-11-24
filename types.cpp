@@ -27,6 +27,11 @@ pntf& operator+=(pntf& a, const pntf& b){
   return a;
 }
 
+float dist(const pntf& a, const pntf& b){
+  pntf c = b - a;
+  return sqrt(c.x*c.x + c.y*c.y);
+}
+
 /* check for vector equality */
 bool operator==(const pnt& a, const pnt& b){
   return a.x == b.x && a.y == b.y;

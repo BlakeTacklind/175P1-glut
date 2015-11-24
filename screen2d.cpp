@@ -44,9 +44,6 @@ void screen2d::freeAll(){
 void screen2d::draw(){
   if (curve2d::getNumCurves() == 0) return;
   
-  // cout<<"test 0\n";
-
-  float xMin, xMax, yMin, yMax;
   xMax = xMin = curve2d::getCurve(0)->getMinMax()[0].x;
   yMax = yMin = curve2d::getCurve(0)->getMinMax()[0].y;
 
@@ -73,7 +70,6 @@ void screen2d::draw(){
   xMin -= padding;
   yMin -= padding;
 
-  float scale;
   {
     float scaleX = (width  - 1) / (xMax - xMin);
     float scaleY = (height - 1) / (yMax - yMin);
@@ -140,3 +136,36 @@ void screen2d::drawAll(){
     (*it)->draw();
 }
 
+screen2d* screen2d::findScreen(int x, int y){
+  return screenList.front();
+}
+
+pixelSelectionHelper screen2d::getNearestPoint(int x, int y){
+  pixelSelectionHelper help = {0, 0, nullptr};
+  if(!curve2d::getNumCurves()) return help;
+
+  pntf p = {(x/scale)+xMin, (y/scale)+yMin};
+
+
+  help.c = curve2d::getCurve(0);
+  float minDist = dist(p, curve2d::getCurve(0)->getControlPoint(0));
+
+  for(int i = 0; i < curve2d::getNumCurves(); i++){
+    curve2d* c = curve2d::getCurve(i);
+    for (int j = 0; j < c->getNumPoints(); ++j){
+      float d = dist(p, c->getControlPoint(j));
+      
+      if(d < minDist){
+        help.c = c;
+        minDist = d;
+        help.index = j;
+      }
+    }
+  }
+
+  help.distance = minDist*scale;
+  p = help.c->getControlPoint(help.index);
+  help.position = {(p.x - xMin) * scale, (p.y - yMin) * scale};
+
+  return help;
+}

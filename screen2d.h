@@ -11,8 +11,15 @@
 #include "types.h"
 #include "MakePixFunc.h"
 #include <list>
+#include "curve2d.h"
 
 using namespace std;
+
+typedef struct {
+  unsigned int distance, index;
+  curve2d* c;
+  pnt position;
+} pixelSelectionHelper;
 
 class screen2d {
 public:
@@ -22,6 +29,10 @@ public:
 
   void draw();
 
+  pixelSelectionHelper getNearestPoint(int x, int y);
+
+  static screen2d* findScreen(int, int);
+
   static void freeAll();
   static void drawAll();
 
@@ -29,9 +40,12 @@ private:
   MakePixFunc* makePix;
   unsigned int width, height;
 
+  float xMin, xMax, yMin, yMax;
+  float scale;
 
   static list<screen2d*> screenList;
 };
+
 
 #endif	/* SCREEN2D_H */
 

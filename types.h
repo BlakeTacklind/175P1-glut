@@ -76,6 +76,8 @@ pntf operator-(const pntf& a, const float i);
 pntf operator+(const pntf& a, const float i);
 pntf& operator+=(pntf& a, const pntf& b);
 
+float dist(const pntf& a, const pntf& b);
+
 const float deg2rad = 3.14159265/180;
 
 #endif	/* TYPES_H */

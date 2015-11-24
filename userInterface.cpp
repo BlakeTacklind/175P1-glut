@@ -347,7 +347,15 @@ void userInterface::keypressed(unsigned char key){
 
 
 void userInterface::leftMouseClick(int x, int y, bool ButtonDown){
-  cout<<"button action"<<endl;
+  if(ButtonDown){
+    pixelSelectionHelper h = screen2d::findScreen(x, 402 - y)->getNearestPoint(x, 402 - y);
+
+    //cout<<"x "<<x<<" y "<<y<<" distance "<<h.distance<<endl;
+
+    if(h.distance < 10){
+      cout<<"found something!"<<endl;
+    }
+  }
 }
 
 /*

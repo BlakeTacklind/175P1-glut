@@ -43,10 +43,11 @@ public:
   static void freeAll();
   static unsigned int getNumCurves(){return nCurves;};
   static curve2d* getCurve(unsigned int i){return curveList[i];};
+
+  inline unsigned int getNumPoints(){return nPoints;};
   
 protected:
   inline pntf* getControlPoints(){return controlPoints;};
-  inline unsigned int getNumPoints(){return nPoints;};
   virtual bool canRemove()=0;
 
   curveType myType;
