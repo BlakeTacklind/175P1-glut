@@ -60,11 +60,18 @@ void screen2d::draw(){
     if(yMax < p[1].y) yMax = p[1].y;
   }
   
-  xMin -= 10;
-  yMin -= 10;
+  float padding;
+  {
+    float paddingX = (xMax - xMin) / 10;
+    float paddingY = (yMax - yMin) / 10;
+    padding = paddingY>paddingX?paddingX:paddingY;
+  }
 
-  xMax += 10;
-  yMax += 10;
+  xMax += padding;
+  yMax += padding;
+
+  xMin -= padding;
+  yMin -= padding;
 
   float scale;
   {
@@ -110,11 +117,11 @@ void screen2d::draw(){
       p = (pnts[j] - minPoint) * scale;
       pnt p2 = {(int)p.x, (int)p.y};
 
-      cout<<"test 7 "<<p1.x<<" "<<p1.y<<endl; 
-      cout<<"test 7 "<<p2.x<<" "<<p2.y<<endl; 
+      // cout<<"test 7 "<<p1.x<<" "<<p1.y<<endl; 
+      // cout<<"test 7 "<<p2.x<<" "<<p2.y<<endl; 
       line l(p1, p2, true);
 
-      cout<<"test 8\n"; 
+      // cout<<"test 8\n"; 
       
       for(int k = 0; k < l.getNumPoints(); k++){
         // cout<<l.getPoint(k).x<<" "<< l.getPoint(k).y<<" "<<minPoint.x<<" "<<minPoint.y<<endl;

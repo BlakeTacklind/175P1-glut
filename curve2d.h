@@ -48,6 +48,8 @@ protected:
   inline pntf* getControlPoints(){return controlPoints;};
   inline unsigned int getNumPoints(){return nPoints;};
   virtual bool canRemove()=0;
+
+  curveType myType;
   
 private:
   static bool closeStuff(ifstream&, list<curve2d*>&, bool);
@@ -63,9 +65,9 @@ private:
 
 class bezier : public curve2d{
 public:
-  inline bezier(unsigned int nPnts, pntf* cPnts):curve2d(nPnts, cPnts){};
+  inline bezier(unsigned int nPnts, pntf* cPnts):curve2d(nPnts, cPnts){myType = Bezier;};
   
-  inline bool canRemove(){return true;};
+  inline bool canRemove(){return getNumPoints()>2;};
   pnt3 getColor(){return {1,0,0};};
   
   pntf* draw(unsigned int resolution);
@@ -80,6 +82,9 @@ public:
   
   pntf* draw(unsigned int resolution);
   pnt3 getColor(){return {0,1,0};};
+
+  inline unsigned int getK(){return k;};
+  inline float getU(unsigned int i){return u[i];};
 
 private:
   //inline float getU(unsigned int i){return u[i];};

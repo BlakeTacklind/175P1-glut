@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
   OpenGLhandler::initValues(argc, argv);
  
   //load objects from default file
-  curve2d::load("curveObjects");
+  curve2d::load("curveObjects2");
   //start UI
   //userInterface::init();
 

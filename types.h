@@ -72,6 +72,8 @@ pntf operator*(const float i, const pntf& p);
 inline pntf operator*(const pntf& p, const float i){return i*p;};
 pntf operator+(const pntf& a, const pntf& b);
 pntf operator-(const pntf& a, const pntf& b);
+pntf operator-(const pntf& a, const float i);
+pntf operator+(const pntf& a, const float i);
 pntf& operator+=(pntf& a, const pntf& b);
 
 const float deg2rad = 3.14159265/180;

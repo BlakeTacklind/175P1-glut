@@ -346,6 +346,10 @@ void userInterface::keypressed(unsigned char key){
 }
 
 
+void userInterface::leftMouseClick(int x, int y, bool ButtonDown){
+  cout<<"button action"<<endl;
+}
+
 /*
 char* userInterface::interpretLoad::operator()(char** c){
   if(c[0][0] == 0) {

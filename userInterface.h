@@ -20,6 +20,8 @@ public:
   static void init();
   static void endUI();
   static void keypressed(unsigned char key);  
+  static void leftMouseClick(int x, int y, bool buttonDown);
+  static void mouseMove(int x, int y);
 
   static void printError(char* s);
   static void holdUntilUsage();

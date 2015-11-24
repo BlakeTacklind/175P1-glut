@@ -12,12 +12,12 @@ using namespace std;
 
 class OpenGLhandler{
   friend class MakePixOff;
-  friend class MakeMPixOff;
+  // friend class MakeMPixOff;
 public:
-  enum drawMode {points, lines, fill};
-  enum algMode {DDA, BA};
-  enum lightModel {Phong, Gouraud};
-  enum pixelModel {Color, Mega};
+  // enum drawMode {points, lines, fill};
+  // enum algMode {DDA, BA};
+  // enum lightModel {Phong, Gouraud};
+  // enum pixelModel {Color, Mega};
 
   static void initValues(int argc, char** agrv);
   static void init(int* argc, char** argv);
@@ -88,17 +88,17 @@ public:
   //clear Pixel Buffer
   static void clearBuffer();
 private:
-  static void MakePix(int x, int y);
+  // static void MakePix(int x, int y);
   static void MakeCPix(int x, int y, pnt3 color);
-  static void MakeMPix(int x, int y, unsigned int intensity);
+  // static void MakeMPix(int x, int y, unsigned int intensity);
 
-  static void shuffleBits(int& bits);
+  // static void shuffleBits(int& bits);
 
   //line drawing
-  static void drawLine(line* l);
+  // static void drawLine(line* l);
 
   //Add objects to buffer
-  static void bufferObjects(drawMode m, pnt3 view, int x, int y);
+  // static void bufferObjects(drawMode m, pnt3 view, int x, int y);
   
   /*
   //Lighting
@@ -121,7 +121,7 @@ private:
   static pixelModel pMode;
 */
   static unsigned int resolution;
-  
+
   //Main window handle
   static int MainWindow;
   //Window sizes
@@ -138,6 +138,9 @@ private:
   
   //Keystroke callback
   static void Keystroke(unsigned char key, int x, int y);
+
+  
+  static void mouseClick(int button, int state, int x, int y);
 
 };
 

@@ -6,7 +6,7 @@
 #include <math.h>
 #include "MakePixFunc.h"
 #include "MakePixOff.h"
-#include "MakeMPixOff.h"
+// #include "MakeMPixOff.h"
 #include <time.h>
 #include <stdlib.h>
 #include <iostream>
@@ -47,7 +47,7 @@ void OpenGLhandler::initValues(int argc, char** argv){
   
   PixelBuffer = new float[width * height * 3];
 
-  setResolution(10);
+  setResolution(100);
 
   new screen2d(width, height, new MakePixOff(0,0));
 }
@@ -66,6 +66,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   glutDisplayFunc(display);
 
   glutKeyboardFunc(Keystroke);
+  glutMouseFunc(mouseClick);
   
   glutMainLoop();
 
@@ -89,11 +90,11 @@ void OpenGLhandler::Keystroke(unsigned char key, int x, int y){
   else userInterface::keypressed(key);
 }
 
-void OpenGLhandler::MakePix(int x, int y){
-  PixelBuffer[(y*width + x) * 3 ]    = 1;
-  PixelBuffer[(y*width + x) * 3 + 1] = 1;
-  PixelBuffer[(y*width + x) * 3 + 2] = 1;
-}
+// void OpenGLhandler::MakePix(int x, int y){
+//   PixelBuffer[(y*width + x) * 3 ]    = 1;
+//   PixelBuffer[(y*width + x) * 3 + 1] = 1;
+//   PixelBuffer[(y*width + x) * 3 + 2] = 1;
+// }
 
 void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
   PixelBuffer[(y*width + x) * 3 ]    = color.x;
@@ -163,20 +164,20 @@ void OpenGLhandler::clearBuffer(){
 /*
  * Draw objects depending on draw mode
  */
-void OpenGLhandler::bufferObjects(drawMode m, pnt3 view, int x, int y){
+// void OpenGLhandler::bufferObjects(drawMode m, pnt3 view, int x, int y){
 
   
-}
+// }
 
-void OpenGLhandler::drawLine(line* l){
-  const int dist = l->getNumPoints();
-  for(int i = 0; i < dist; i++){
-    pnt p = l->getPoint(i);
-    MakePix(p.x, p.y);
-  }
+// void OpenGLhandler::drawLine(line* l){
+//   const int dist = l->getNumPoints();
+//   for(int i = 0; i < dist; i++){
+//     pnt p = l->getPoint(i);
+//     MakePix(p.x, p.y);
+//   }
   
-  delete l;
-}
+//   delete l;
+// }
 
 
 void OpenGLhandler::reDraw(){
@@ -210,3 +211,9 @@ void OpenGLhandler::tglLightMode(){
   else if (lMode == Gouraud) lMode = Phong;
 }
 */
+
+void OpenGLhandler::mouseClick(int button, int state, int x, int y){
+  if (GLUT_LEFT_BUTTON == button){
+    userInterface::leftMouseClick(x, y, GLUT_DOWN==state);
+  }
+}

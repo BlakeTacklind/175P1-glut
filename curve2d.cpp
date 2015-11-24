@@ -78,6 +78,7 @@ void curve2d::removePoint(unsigned int p) {
 
 bSpline::bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order, float* r):
 curve2d(nPnts, cPnts){
+  myType = BSpline;
   k = order;
   u = r;
   
@@ -87,7 +88,6 @@ curve2d(nPnts, cPnts){
 
 bSpline::bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order)
 :bSpline(nPnts, cPnts, order, getDefaultKnots(order+nPnts)){
-
 }
 
 float* bSpline::getDefaultKnots(unsigned int j){
@@ -153,8 +153,6 @@ pntf* bSpline::draw(unsigned int resolution) {
     return nullptr;
   }
   
-  for(int j = 0; j < getNumControlPoints(); j++) cout<<"cPoint["<<j<<"]=("<<getControlPoint(j).x<<","<<getControlPoint(j).y<<")"<<endl;
-
   pntf* p = new pntf[resolution];
   float uMin = u[k-2];
   float uMax = u[getNumPoints()-1];
@@ -167,47 +165,33 @@ pntf* bSpline::draw(unsigned int resolution) {
     unsigned int seg = getSegment(pos);
     
     pntf d[k];
-    cout<<"pnt k"<<k<<" segment "<<seg<<endl;
     
     std::copy(&(getControlPoints()[seg]), &(getControlPoints()[seg + k]), d);
-    for(int j = 0; j < k; j++) cout<<"d["<<j<<","<<0<<"]=("<<d[j].x<<","<<d[j].y<<")"<<endl;
 
 
     for(int j = 0; j < k-1; j++){
-      cout<<"gen "<<j<<endl;
       for(int q = 0; q < k-j-1; q++){
-        cout<<"L "<<seg+q+j<<" R "<<k+seg-1+q<<endl;
         float uL = u[seg+q+j];
         float uR = u[k+seg-1+q];
-        cout<<"uL "<<uL<<" uR "<<uR<<endl;
+
         float foo = (uR - pos) / (uR - uL);
         float bar = (pos - uL) / (uR - uL);
-        cout<<"foo "<<foo<<" bar "<<bar<<endl;
+
         d[q] = (d[q] * foo) + (d[q+1] * bar);
-        cout<<"d["<<q<<","<<j+1<<"]=("<<d[q].x<<","<<d[q].y<<")"<<endl;
       }
     }
 
     
     p[i] = d[0];
   }
-  cout<<"test end 1\n";
+
   return p;
 }
-
-/*float bSpline::getU(unsigned int i) {
-  float f = 0;
-  
-  for(int j = 0; j < i; j++)
-    f += u[j];
-  
-  return f;
-}*/
 
 unsigned int bSpline::getSegment(float f) {
   unsigned int i = 0;
   
-  while(u[i+k] < f) i++;
+  while(u[i+k-1] < f) i++;
   
   return i;
 }
@@ -441,4 +425,37 @@ pntf* curve2d::getMinMax(){
   p[1] = max;
 
   return p;
+}
+
+bool curve2d::save(char* filename){
+  
+  ofstream file(filename);
+  if (file.is_open()){
+    storedFileName = filename;
+    file << nCurves;
+    for (int i = 0; i < nCurves; i++){
+
+      if(curveList[i]->myType == BSpline) file<<"\nbs";
+      else file<<"\nbz";
+
+      file << "\n" << curveList[i]->nPoints;
+
+      if(curveList[i]->myType == BSpline) file<<"\n"<<((bSpline*)curveList[i])->getK();
+
+      for (int j = 0 ; j < curveList[i]->nPoints; j++)
+        file << "\n" << curveList[i]->controlPoints[j].x << " " << curveList[i]->controlPoints[j].y;
+      
+      if(curveList[i]->myType == BSpline){
+        file<<"\nT";
+        for (int j = 0 ; j < curveList[i]->getNumPoints() + ((bSpline*)curveList[i])->getK(); j++)
+          file << "\n"<< ((bSpline*)curveList[i])->getU(j);
+      }
+
+    }
+    
+    file.close();
+    return true;
+  }
+  userInterface::printError("failed to open save file");
+  return false;
 }
