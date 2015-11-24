@@ -11,25 +11,38 @@
 #include "types.h"
 #include "MakePixFunc.h"
 #include <list>
+#include <fstream>
+
+using namespace std;
 
 class curve2d {
 public:
-  
-  static bool load(char*);
-  static bool save(char*);
-  inline static bool load(){load(savedFileName);};
-  inline static bool save(){save(savedFileName);};
+  enum curveType {Bezier, BSpline};
+
+  static bool load(char* filename);
+  static bool save(char* filename);
+  inline static bool load(){load(storedFileName);};
+  inline static bool save(){save(storedFileName);};
   
   curve2d(unsigned int nPnts, pntf* cPnts);
   virtual ~curve2d();
   
   inline pntf getControlPoint(unsigned int i){return controlPoints[i];};
+  inline unsigned int getNumControlPoints(){return nPoints;};
   
   void addPoint(unsigned int pos, pntf loc);
   void removePoint(unsigned int);
   void modifyPoint(unsigned int p, pntf loc);
+
+  pntf* getMinMax();
   
-  virtual pntf* draw(unsigned int resolution) = 0;
+  virtual pntf* draw(unsigned int resolution)=0;
+  virtual pnt3 getColor()=0;
+
+  inline static char* getStoredFile(){return storedFileName;};
+  static void freeAll();
+  static unsigned int getNumCurves(){return nCurves;};
+  static curve2d* getCurve(unsigned int i){return curveList[i];};
   
 protected:
   inline pntf* getControlPoints(){return controlPoints;};
@@ -37,18 +50,23 @@ protected:
   virtual bool canRemove()=0;
   
 private:
-  static char* savedFileName;
-  static list<curve2d*> curveList;
-  
+  static bool closeStuff(ifstream&, list<curve2d*>&, bool);
+
+  static char* storedFileName;
+  static curve2d** curveList;
+  static unsigned int nCurves;
+
   unsigned int nPoints;
   pntf* controlPoints;
 };
+
 
 class bezier : public curve2d{
 public:
   inline bezier(unsigned int nPnts, pntf* cPnts):curve2d(nPnts, cPnts){};
   
   inline bool canRemove(){return true;};
+  pnt3 getColor(){return {1,0,0};};
   
   pntf* draw(unsigned int resolution);
 };
@@ -61,10 +79,12 @@ public:
   inline bool canRemove(){return k<getNumPoints();};
   
   pntf* draw(unsigned int resolution);
+  pnt3 getColor(){return {0,1,0};};
 
 private:
   //inline float getU(unsigned int i){return u[i];};
   unsigned int getSegment(float f);
+  static float* getDefaultKnots(unsigned int);
   
   unsigned int k;
   float* u;

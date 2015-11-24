@@ -7,8 +7,8 @@
 
 #include "userInterface.h"
 #include "OpenGLhandler.h"
-#include "object3Dsurface.h"
-#include "screen.h"
+#include "curve2d.h"
+#include "screen2d.h"
 #include <string>
 #include <curses.h>
 #include <iostream>
@@ -46,35 +46,7 @@ void userInterface::drawUI(){
   //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   attroff(COLOR_PAIR(1));
 
-  printw("\nCurrent File Loaded: \"%s\"", object3Dsurface::getStoredFile());
-  printw("\n");
-  printw("\nLighting Settings:");
-
-  printw("\n");
-  pnt3 t = OpenGLhandler::getLpos();
-  printw("\nLight Postion: (%f, %f, %f)", t.x, t.y, t.z);
-  printw("\nAverage Light Distance (K): %f", OpenGLhandler::getK());
-  printw("\nLight Size (n): %u", OpenGLhandler::getLightSize());
-
-  printw("\n");
-  t = OpenGLhandler::getMPixTone();
-  printw("\nMega Pixel Tone: {%f, %f, %f}", t.x, t.y, t.z);
-
-  printw("\n");
-  t = OpenGLhandler::getAmbiant();
-  printw("\nAmbient Light: {%f, %f, %f}", t.x, t.y, t.z);
-  printw(" with intensity %f", OpenGLhandler::getIa());
-
-  t = OpenGLhandler::getDiffuse();
-  printw("\nDiffuse Light: {%f, %f, %f}", t.x, t.y, t.z);
-  t = OpenGLhandler::getSpecular();
-  printw("\nSpectral Light: {%f, %f, %f}", t.x, t.y, t.z);
-  printw("\nLight intensity %f", OpenGLhandler::getIl());
-
-
-  printw("\n");
-  t = screen3d::getLastScreen()->getNormal();
-  printw("\n4th quadrant view normal: <%f, %f, %f>", t.x, t.y, t.z);
+  printw("\nCurrent File Loaded: \"%s\"", curve2d::getStoredFile());
 
   printw("\n");
   printw("\n%s", action);
@@ -179,7 +151,7 @@ void userInterface::keypressed(unsigned char key){
     printw("\n[t] Set Mega Pix tone");
 
     refresh();
-  }
+  }/*
   else if(key == 'l'){
     valueMode = true;
     
@@ -374,7 +346,7 @@ void userInterface::keypressed(unsigned char key){
 }
 
 
-
+/*
 char* userInterface::interpretLoad::operator()(char** c){
   if(c[0][0] == 0) {
     if(object3Dsurface::load());
@@ -428,3 +400,4 @@ char* userInterface::interpretLightSize::operator()(char** c){
 
   return "New Light size set";
 }
+*/

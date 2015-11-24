@@ -6,10 +6,14 @@ pntf operator*(const float i, const pntf& p){
 }
 
 pntf operator+(const pntf& a, const pntf& b){
-  return {a.x+b.y, a.y+b.y};
+  return {a.x+b.x, a.y+b.y};
 }
 
-pntf& operator+=(const pntf& a, const pntf& b){
+pntf operator-(const pntf& a, const pntf& b){
+  return {a.x-b.x, a.y-b.y};
+}
+
+pntf& operator+=(pntf& a, const pntf& b){
   a.x+=b.x;
   a.y+=b.y;
   return a;

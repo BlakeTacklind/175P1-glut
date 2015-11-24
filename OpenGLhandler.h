@@ -31,12 +31,11 @@ public:
   static const char* getDrawModeStr();
   static const char* getAlgModeStr();
 
+/*
   inline static drawMode getDrawMode(){return dMode;};
-
   static void tglDrawMode();
   static void tglAlgMode();
   static void tglLightMode();
-  static void tglPixMode();
   
   inline static int getYmin(){return yMin;};
   inline static int getYmax(){return yMax;};
@@ -81,7 +80,11 @@ public:
   
   inline static pnt3 getMPixTone() {return mPixTone;};
   inline static void setMPixTone(pnt3 p){mPixTone = flatten(p);};
-  
+  */
+
+  inline static unsigned int getResolution(){return resolution;};
+  inline static void setResolution(unsigned int i){resolution = i;};
+
   //clear Pixel Buffer
   static void clearBuffer();
 private:
@@ -97,6 +100,7 @@ private:
   //Add objects to buffer
   static void bufferObjects(drawMode m, pnt3 view, int x, int y);
   
+  /*
   //Lighting
   static pnt3 ambiant, diffuse, specular;
   //approximating the “average distance” between the scene and the light source
@@ -115,7 +119,9 @@ private:
   static drawMode dMode;
   static lightModel lMode;
   static pixelModel pMode;
-
+*/
+  static unsigned int resolution;
+  
   //Main window handle
   static int MainWindow;
   //Window sizes

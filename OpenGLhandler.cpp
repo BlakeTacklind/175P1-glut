@@ -1,8 +1,8 @@
 #include <GL/glut.h>
 #include "OpenGLhandler.h"
 #include "userInterface.h"
-#include "screen.h"
-#include "object3Dsurface.h"
+#include "screen2d.h"
+#include "curve2d.h"
 #include <math.h>
 #include "MakePixFunc.h"
 #include "MakePixOff.h"
@@ -14,29 +14,30 @@
 using namespace std;
 
 float* OpenGLhandler::PixelBuffer;
-OpenGLhandler::algMode OpenGLhandler::aMode;
+// OpenGLhandler::algMode OpenGLhandler::aMode;
 int OpenGLhandler::MainWindow;
-OpenGLhandler::drawMode OpenGLhandler::dMode;
-int OpenGLhandler::xMin;
-int OpenGLhandler::yMin;
-int OpenGLhandler::xMax;
-int OpenGLhandler::yMax;
+// OpenGLhandler::drawMode OpenGLhandler::dMode;
+// int OpenGLhandler::xMin;
+// int OpenGLhandler::yMin;
+// int OpenGLhandler::xMax;
+// int OpenGLhandler::yMax;
 unsigned int OpenGLhandler::width;
 unsigned int OpenGLhandler::height;
-pnt3 OpenGLhandler::ambiant;
-pnt3 OpenGLhandler::diffuse;
-pnt3 OpenGLhandler::specular;
+// pnt3 OpenGLhandler::ambiant;
+// pnt3 OpenGLhandler::diffuse;
+// pnt3 OpenGLhandler::specular;
   //approximating the “average distance” between the scene and the light source
-float OpenGLhandler::averageLightDistance;
-float OpenGLhandler::ambientIntensity;
-float OpenGLhandler::lightIntensity;
-pnt3 OpenGLhandler::lightPosition;
-unsigned int OpenGLhandler::lightSize;
-OpenGLhandler::lightModel OpenGLhandler::lMode;
-pnt3 OpenGLhandler::mPixTone;
-unsigned int OpenGLhandler::mPixWidth = 3;
-unsigned int OpenGLhandler::mPixHeight = 3;
-OpenGLhandler::pixelModel OpenGLhandler::pMode = Color;
+// float OpenGLhandler::averageLightDistance;
+// float OpenGLhandler::ambientIntensity;
+// float OpenGLhandler::lightIntensity;
+// pnt3 OpenGLhandler::lightPosition;
+// unsigned int OpenGLhandler::lightSize;
+// OpenGLhandler::lightModel OpenGLhandler::lMode;
+// pnt3 OpenGLhandler::mPixTone;
+// unsigned int OpenGLhandler::mPixWidth = 3;
+// unsigned int OpenGLhandler::mPixHeight = 3;
+// OpenGLhandler::pixelModel OpenGLhandler::pMode = Color;
+unsigned int OpenGLhandler::resolution;
 
 
 void OpenGLhandler::initValues(int argc, char** argv){
@@ -46,37 +47,9 @@ void OpenGLhandler::initValues(int argc, char** argv){
   
   PixelBuffer = new float[width * height * 3];
 
-  const pnt3 red   = {1,0,0};
-  const pnt3 green = {0,1,0};
-  const pnt3 blue  = {0,0,1};
-  const pnt3 white = {1,1,1};
-  const pnt3 black = {0,0,0};
+  setResolution(10);
 
-  const pnt3 pnt10 = {1,1,3};
-
-  srand(time(NULL));
-
-  setAmbiant(red);
-  setDiffuse(green);
-  setSpecular(blue);
-  setK(1.0);
-  setIa(.5);
-  setIl(10);
-  setLpos(pnt10);
-  setLightSize(3);
-  setLightModel(Gouraud);
-  setMPixTone(white);
-  
-  tglDrawMode();
-  tglDrawMode();
-
-  const pnt3 iso = {0.612375, 0.612375, -0.50000};
-
-  new screen3d(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
-  new screen3d(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-  new screen3d(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-  new screen3d(width/2, height/2,  iso  , 10, new MakePixOff(width/2, 0       ));
-
+  new screen2d(width, height, new MakePixOff(0,0));
 }
 
 void OpenGLhandler::init(int* argc, char** argv)
@@ -103,8 +76,8 @@ void OpenGLhandler::init(int* argc, char** argv)
  */
 void OpenGLhandler::onClose(void){
   delete [] PixelBuffer;
-  // object3Dsurface::freeAll();
-  screen3d::freeAll();
+  curve2d::freeAll();
+  screen2d::freeAll();
   userInterface::endUI();
 }
 
@@ -128,6 +101,7 @@ void OpenGLhandler::MakeCPix(int x, int y, pnt3 color){
   PixelBuffer[(y*width + x) * 3 + 2] = color.z;
 }
 
+/*
 void swapBits(int& bits, unsigned int i, unsigned int j){
   if(i==j) return;
   if((1<<i) & bits){
@@ -160,7 +134,6 @@ void OpenGLhandler::shuffleBits(int& bits){
 
   }
 }
-
 void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity){
   int binOnOff = pow(2, intensity) - 1;
   shuffleBits(binOnOff);
@@ -169,7 +142,7 @@ void OpenGLhandler::MakeMPix(int x, int y, unsigned int intensity){
       MakeCPix(x * mPixWidth+ i % mPixWidth, y * mPixHeight + i / mPixWidth, mPixTone); 
   }
 }
-
+*/
 void OpenGLhandler::display(){
   glClear(GL_COLOR_BUFFER_BIT);
   glLoadIdentity();
@@ -209,7 +182,7 @@ void OpenGLhandler::drawLine(line* l){
 void OpenGLhandler::reDraw(){
   glutPostRedisplay();
 }
-
+/*
 const char* OpenGLhandler::getDrawModeStr(){
   if (dMode == points) return "Points";
   if (dMode == lines ) return "Lines";
@@ -236,30 +209,4 @@ void OpenGLhandler::tglLightMode(){
        if (lMode == Phong  ) lMode = Gouraud;
   else if (lMode == Gouraud) lMode = Phong;
 }
-
-void OpenGLhandler::tglPixMode(){
-  if(pMode == Color){
-    pMode = Mega;
-
-    pnt3 p = screen3d::getLastScreen()->getNormal();
-
-    screen3d::freeAll();
-
-    new screen3d(width/6, height/6,  unitX, 10, new MakeMPixOff(0      , 0       ));
-    new screen3d(width/6, height/6,  unitY, 10, new MakeMPixOff(width/6, height/6));
-    new screen3d(width/6, height/6, -unitZ, 10, new MakeMPixOff(0      , height/6));
-    new screen3d(width/6, height/6,  p    , 10, new MakeMPixOff(width/6, 0       ));
-  }
-  else{
-    pMode = Color;
-
-    pnt3 p = screen3d::getLastScreen()->getNormal();
-
-    screen3d::freeAll();
-
-    new screen3d(width/2, height/2,  unitX, 10, new MakePixOff(0      , 0       ));
-    new screen3d(width/2, height/2,  unitY, 10, new MakePixOff(width/2, height/2));
-    new screen3d(width/2, height/2, -unitZ, 10, new MakePixOff(0      , height/2));
-    new screen3d(width/2, height/2,  p    , 10, new MakePixOff(width/2, 0       ));
-  }
-}
+*/
