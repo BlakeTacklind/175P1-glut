@@ -59,8 +59,8 @@ void bSpline::addPoint(unsigned int pos, pntf loc) {
   float* c = new float[getK()+getNumControlPoints()];
   
   copy(u ,u+pos+getK()-2 , c);
-  c[u+pos+getK()-2] = 1;
   copy(u+pos+getK()-1, u+getNumControlPoints()+getK()-1, c);
+  c[pos+getK()-2] = (c[pos+getK()-3] + c[pos+getK()-1]) / 2;
   
   delete [] u;
   u = c;

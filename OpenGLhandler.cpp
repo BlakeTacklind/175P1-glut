@@ -67,6 +67,8 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutKeyboardFunc(Keystroke);
   glutMouseFunc(mouseClick);
+  glutMotionFunc(userInterface::mouseMove);
+  glutPassiveMotionFunc(userInterface::mouseMovePassive);
   
   glutMainLoop();
 
@@ -217,3 +219,8 @@ void OpenGLhandler::mouseClick(int button, int state, int x, int y){
     userInterface::leftMouseClick(x, y, GLUT_DOWN==state);
   }
 }
+
+void OpenGLhandler::mouseMotion(int x, int y) {
+  userInterface::mouseMove(x,y);
+}
+

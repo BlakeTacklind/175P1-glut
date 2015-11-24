@@ -144,8 +144,7 @@ pixelSelectionHelper screen2d::getNearestPoint(int x, int y){
   pixelSelectionHelper help = {0, 0, nullptr};
   if(!curve2d::getNumCurves()) return help;
 
-  pntf p = {(x/scale)+xMin, (y/scale)+yMin};
-
+  pntf p = translate(x,y);
 
   help.c = curve2d::getCurve(0);
   float minDist = dist(p, curve2d::getCurve(0)->getControlPoint(0));
@@ -154,6 +153,54 @@ pixelSelectionHelper screen2d::getNearestPoint(int x, int y){
     curve2d* c = curve2d::getCurve(i);
     for (int j = 0; j < c->getNumPoints(); ++j){
       float d = dist(p, c->getControlPoint(j));
+      
+      if(d < minDist){
+        help.c = c;
+        minDist = d;
+        help.index = j;
+      }
+    }
+  }
+
+  help.distance = minDist*scale;
+  p = help.c->getControlPoint(help.index);
+  help.position = {(p.x - xMin) * scale, (p.y - yMin) * scale};
+
+  return help;
+}
+
+pntf screen2d::translate(int x, int y) {
+  return {(x/scale)+xMin, (y/scale)+yMin};
+}
+
+pixelSelectionHelper screen2d::getNearestLine(int x, int y) {
+  pixelSelectionHelper help = {0, 0, nullptr};
+  if(!curve2d::getNumCurves()) return help;
+  
+  pntf p = translate(x,y);
+
+  help.c = curve2d::getCurve(0);
+  float minDist = dist(p, curve2d::getCurve(0)->getControlPoint(0));
+
+  for(int i = 0; i < curve2d::getNumCurves(); i++){
+    curve2d* c = curve2d::getCurve(i);
+    
+    float d = dist(p, c->getControlPoint(0));
+    if(d < minDist){
+      help.c = c;
+      minDist = d;
+      help.index = 0;
+    }
+    
+    d = dist(p, c->getControlPoint(c->getNumControlPoints()-1));
+    if(d < minDist){
+      help.c = c;
+      minDist = d;
+      help.index = c->getNumControlPoints();
+    }
+    
+    for (int j = 1; j < c->getNumPoints(); ++j){
+      d = dist(p, c->getControlPoint(j), c->getControlPoint(j-1));
       
       if(d < minDist){
         help.c = c;

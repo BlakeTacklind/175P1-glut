@@ -30,6 +30,9 @@ public:
   void draw();
 
   pixelSelectionHelper getNearestPoint(int x, int y);
+  pixelSelectionHelper getNearestLine(int x, int y);
+  
+  pntf translate(int x, int y);
 
   static screen2d* findScreen(int, int);
 

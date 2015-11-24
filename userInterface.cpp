@@ -16,12 +16,13 @@
 
 using namespace std;
 
-int userInterface::objSelected;
+//int userInterface::objSelected;
 char* userInterface::action;
 bool userInterface::valueMode;
 bool userInterface::isStarted = false;
-bool userInterface::onWindow;
+//bool userInterface::onWindow;
 valueHolder* userInterface::vals;
+userInterface::mode userInterface::currMode = modify;
 
 void userInterface::init(){
   initscr();
@@ -32,8 +33,8 @@ void userInterface::init(){
   action = "";
   if(!has_colors()) action = "Does not support color!";
   else if(!can_change_color()) action = "Can't change color";
-  objSelected = 0;
-  onWindow = true;
+//  objSelected = 0;
+//  onWindow = true;
   valueMode = false;
   vals = nullptr;
   drawUI();
@@ -347,16 +348,101 @@ void userInterface::keypressed(unsigned char key){
 
 
 void userInterface::leftMouseClick(int x, int y, bool ButtonDown){
-  if(ButtonDown){
-    pixelSelectionHelper h = screen2d::findScreen(x, 402 - y)->getNearestPoint(x, 402 - y);
+  if(ButtonDown){    
+    screen2d* s = screen2d::findScreen(x, OpenGLhandler::getScreenHeight() - y);
 
-    //cout<<"x "<<x<<" y "<<y<<" distance "<<h.distance<<endl;
+    if(currMode == add){
+      pixelSelectionHelper h = s->getNearestLine(x, OpenGLhandler::getScreenHeight() - y);
+      
+      if(h.distance < clickDistance){
+        h.c->addPoint(h.index, s->translate(x, y));
+        s->draw();
+        
+        currMode = modify;
+        
+        selectedCurve = h.c;
+        selectedPoint = h.index;
+        setTime();
 
-    if(h.distance < 10){
-      cout<<"found something!"<<endl;
+        valueMode = true;
+        char** c = new char*[3]; 
+        c[0] = "new position ("; 
+        c[1] = ", "; 
+        c[2] = ")";
+        vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
+
+        return;
+      }
+    }
+    else{
+      pixelSelectionHelper h = s->getNearestPoint(x, OpenGLhandler::getScreenHeight() - y);
+      
+      if(h.distance < clickDistance){
+        if(currMode == modify){
+          selectedCurve = h.c;
+          selectedPoint = h.index;
+          setTime();
+          
+          valueMode = true;
+          char** c = new char*[3]; 
+          c[0] = "new position ("; 
+          c[1] = ", "; 
+          c[2] = ")";
+          vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
+          
+          return;
+        }
+        else  if(currMode == remove){
+          h.c->removePoint(h.index);
+          s->draw();
+        }
+      }
+      
+      selectedCurve = nullptr;
+      selectedPoint = 0;
+    }    
+  }
+  else{
+    if(getTime() > holdTime){
+      selectedCurve = nullptr;
+      selectedPoint = 0;
+      
+      if(valueMode){
+        valueMode = false;
+        delete vals;
+      }
     }
   }
 }
+
+unsigned long int userInterface::getTime() {
+  timeval tv;
+  gettimeofday(&tv, 0);
+  return tv.tv_usec - lastTime;
+}
+
+void userInterface::setTime() {
+  timeval tv;
+  gettimeofday(&tv, 0);
+  lastTime = tv.tv_usec;
+}
+
+void userInterface::mouseMove(int x, int y) {
+  if(selectedCurve == nullptr) return;
+  
+  screen2d* s = screen2d::findScreen(x, OpenGLhandler::getScreenHeight() - y);
+  if(currMode == modify){
+    selectedCurve->modifyPoint(selectedPoint, s->translate(x, OpenGLhandler::getScreenHeight() - y));  
+    s->draw();
+  }
+}
+
+char* userInterface::interpretNewAddPoint::operator()(char** c) {
+  pntf p = {(float)atof(c[0]), (float)atof(c[1])};
+  curve->addPoint(index, p);
+  return mes;
+}
+
 
 /*
 char* userInterface::interpretLoad::operator()(char** c){

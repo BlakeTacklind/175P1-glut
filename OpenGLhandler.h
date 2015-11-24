@@ -28,10 +28,13 @@ public:
 
   inline static void bufferObjects(){clearBuffer(); screen3d::bufferAllScreens();};
 
+  inline static int getScreenWidth (){return width; };
+  inline static int getScreenHeight(){return height;};
+  
+/*
   static const char* getDrawModeStr();
   static const char* getAlgModeStr();
 
-/*
   inline static drawMode getDrawMode(){return dMode;};
   static void tglDrawMode();
   static void tglAlgMode();
@@ -47,8 +50,6 @@ public:
   inline static int setXmin(int i){xMin = i;};
   inline static int setXmax(int i){xMax = i;};
   
-  inline static int getScreenWidth (){return width; };
-  inline static int getScreenHeight(){return height;};
 
 
   inline static pnt3 getAmbiant() {return ambiant;};
@@ -139,8 +140,14 @@ private:
   //Keystroke callback
   static void Keystroke(unsigned char key, int x, int y);
 
-  
+  //Mouse Click Event Callback
   static void mouseClick(int button, int state, int x, int y);
+  
+  //Mouse motion Event Callback
+  static void mouseMotion(int x, int y);
+
+  //Mouse motion Event Callback
+  static void mousePassiveMotion(int x, int y);
 
 };
 
