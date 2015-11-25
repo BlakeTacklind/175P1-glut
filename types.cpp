@@ -23,7 +23,7 @@ pntf operator-(const pntf& a, const pntf& b){
 
 float dist(const pntf& p, const pntf& l1, const pntf& l2){
   // Return minimum distance between line segment [l1,l2] and point p
-  const float lensqr = distSqr(1l, l2);  // i.e. |l2-l1|^2 -  avoid a sqrt
+  const float lensqr = distSqr(l1, l2);  // i.e. |l2-l1|^2 -  avoid a sqrt
   if (lensqr == 0.0) return dist(p, l1);   // l1 == l2 case
   // Consider the line extending the segment, parameterized as l1 + t (l2 - l1).
   // We find projection of point p onto the line. 

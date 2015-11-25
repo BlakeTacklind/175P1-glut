@@ -22,7 +22,13 @@ bool userInterface::valueMode;
 bool userInterface::isStarted = false;
 //bool userInterface::onWindow;
 valueHolder* userInterface::vals;
-userInterface::mode userInterface::currMode = modify;
+userInterface::mode userInterface::currMode = Modify;
+curve2d* userInterface::selectedCurve = nullptr;
+unsigned int userInterface::selectedPoint = 0;
+unsigned long int userInterface::lastTime;
+bool userInterface::isMoving = false;
+bool userInterface::isMaximum = false;
+userInterface::DrawMode userInterface::dMode = both;
 
 void userInterface::init(){
   initscr();
@@ -41,6 +47,8 @@ void userInterface::init(){
 }
 
 void userInterface::drawUI(){
+  if(!isStarted) return;
+
   clear();
   attron(COLOR_PAIR(1));
   printw("USE [ESC] TO %s, press [h] for help", valueMode?"CANCEL VALUE MODE":"END PROGRAM");
@@ -50,20 +58,31 @@ void userInterface::drawUI(){
   printw("\nCurrent File Loaded: \"%s\"", curve2d::getStoredFile());
 
   printw("\n");
+  printw("\nResolution %u %s", OpenGLhandler::getResolution(), isMaximum?"(Maximized)":"");
+
+  printw("\n");
   printw("\nIn %s mode", getModeStr());
+  printw("\nDrawing %s", getDrawStr());
   
   printw("\n");
   printw("\n%s", action);
 
-  if(vals != nullptr) move(5 + vals->getCursorRelative().y, vals->getCursorRelative().x);
+  if(vals != nullptr) move(8 + vals->getCursorRelative().y, vals->getCursorRelative().x);
 
   refresh();
 }
 
-string userInterface::getModeStr() {
-  if(currMode == add   ) return "Add";
-  if(currMode == modify) return "Modify";
-  if(currMode == remove) return "Remove";
+char* userInterface::getModeStr() {
+  if(currMode == Add   ) return "Add";
+  if(currMode == Modify) return "Modify";
+  if(currMode == Remove) return "Remove";
+  if(currMode == UMod  ) return "U modification";
+}
+
+char* userInterface::getDrawStr() {
+  if(dMode == curves ) return "Curves";
+  if(dMode == both   ) return "Both Control Lines and Curves";
+  if(dMode == control) return "Control lines";
 }
 
 void userInterface::printError(char* mes){
@@ -94,6 +113,7 @@ void userInterface::keypressed(unsigned char key){
         valueMode = false;
 
         action = vals->interpret();
+
         
         drawUI();
 
@@ -145,8 +165,10 @@ void userInterface::keypressed(unsigned char key){
     printw("\n[l]oad from file");
     printw("\n[p] save to file");
     
+    printw("\nSet [R]esolution");
+    printw("\nMaximize R[e]solution");
     printw("\n\nAlter Modes:");
-//    printw("\n[r] Tgl Draw Mode");
+    printw("\n[q] Tgl Draw Mode");
     printw("\n[A]dd mode");
     printw("\n[s] remove mode");
     printw("\nmo[d]dify mode");
@@ -178,7 +200,55 @@ void userInterface::keypressed(unsigned char key){
     action = vals->getMessage();
     drawUI();
     return;
-  }/*
+  }
+  else if(key == 'a'){
+    currMode = Add;
+    drawUI();
+    return;
+  }
+  else if(key == 's'){
+    currMode = Remove;
+    drawUI();
+    return;
+  }
+  else if(key == 'd'){
+    currMode = Modify;
+    drawUI();
+    return;
+  }
+  else if(key == 'r'){
+    valueMode = true;
+    
+    char** c = new char*[2]; 
+    c[0] = "Set Resolution to: "; 
+    c[1] = "";
+
+
+    vals = new valueHolder(1, c, "", new interpretNewUInt(OpenGLhandler::setResolution, "new resolution set"));
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }
+  else if(key == 'e'){
+    if(!drawCurves()) dMode = both;
+
+    while(!isMaximum){
+      OpenGLhandler::setResolution(OpenGLhandler::getResolution() + 1);
+      screen2d::drawAll();
+      OpenGLhandler::reDraw();
+      drawUI();
+    }
+  }
+  else if(key == 'q'){
+         if(dMode == curves ) dMode = both;
+    else if(dMode == both   ) dMode = control;
+    else if(dMode == control) dMode = curves;
+
+    screen2d::drawAll();
+    OpenGLhandler::reDraw();
+    drawUI();
+  }
+  /*
   else if(key == ' '){
     screen3d* s = screen3d::getLastScreen();
     s->setNormal(rotateAboutZ(s->getNormal(), 1));
@@ -361,72 +431,125 @@ void userInterface::keypressed(unsigned char key){
 
 
 void userInterface::leftMouseClick(int x, int y, bool ButtonDown){
-  if(y > getHelpHeight()){
-    if(ButtonDown){
-      screen2d* s = screen2d::getMainScreen();
+  
+  if(ButtonDown){
+    if(valueMode){
+      valueMode = false;
+      delete vals;
+      vals = nullptr;
+      action = "";
+      drawUI();
+    }
 
-      if(currMode == add){
-        pixelSelectionHelper h = s->getNearestLine(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y);
+    if(y > getHelpHeight()){
+      screen2d* s = screen2d::getMainScreen();
+      if(currMode == UMod){
+        currMode = Modify;
+        drawUI();
+      }
+
+      if(currMode == Add){
+        pixelSelectionHelper h = s->getNearestLine(x, OpenGLhandler::getScreenHeight() - y);
 
         if(h.distance < clickDistance){
-          h.c->addPoint(h.index, s->translate(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y));
+          h.c->addPoint(h.index, s->translate(x, OpenGLhandler::getScreenHeight() - y));
           s->draw();
 
-          currMode = modify;
+          // currMode = Modify;
 
           selectedCurve = h.c;
           selectedPoint = h.index;
           setTime();
 
-          valueMode = true;
-          char** c = new char*[3]; 
-          c[0] = "new position ("; 
-          c[1] = ", "; 
-          c[2] = ")";
-          vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
+          isMoving = true;
+          screen2d::drawAll();
+          OpenGLhandler::reDraw();
 
           return;
         }
+        else{
+          selectedCurve = h.c;
+          screen2d::drawAll();
+          OpenGLhandler::reDraw();
+        }
       }
       else{
-        pixelSelectionHelper h = s->getNearestPoint(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y);
+        pixelSelectionHelper h = s->getNearestPoint(x, OpenGLhandler::getScreenHeight() - y);
+        // cout<<"x "<<x<<" y "<<OpenGLhandler::getScreenHeight() - y<<" dist "<<h.distance<<endl;
 
         if(h.distance < clickDistance){
-          if(currMode == modify){
+          if(currMode == Modify){
+
             selectedCurve = h.c;
             selectedPoint = h.index;
-            setTime();
 
-            valueMode = true;
-            char** c = new char*[3]; 
-            c[0] = "new position ("; 
-            c[1] = ", "; 
-            c[2] = ")";
-            vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
+            isMoving = true;
+
+            setTime();
+            screen2d::drawAll();
+            OpenGLhandler::reDraw();
 
             return;
           }
-          else  if(currMode == remove){
+          else  if(currMode == Remove){
+            selectedCurve = h.c;
             h.c->removePoint(h.index);
-            s->draw();
+            screen2d::drawAll();
+            OpenGLhandler::reDraw();
           }
         }
-
-        selectedCurve = nullptr;
-        selectedPoint = 0;
+        else{
+          h = s->getNearestLine(x, OpenGLhandler::getScreenHeight() - y);
+          selectedCurve = h.c;
+          screen2d::drawAll();
+          OpenGLhandler::reDraw();
+        }
       }
     }
     else{
-      if(getTime() > holdTime){
-        selectedCurve = nullptr;
-        selectedPoint = 0;
+      if(selectedCurve->getCurveType() == curve2d::BSpline){
+        selectedPoint = ((bSpline*)selectedCurve)->getUNum(screen2d::getHelpScreen()->translateX(x));
+        currMode = UMod;
+        setTime();
+        isMoving = true;
 
-        if(valueMode){
-          valueMode = false;
-          delete vals;
-          vals = nullptr;
-        }
+        // cout<<"test "<<selectedPoint<<endl;
+
+        drawUI();
       }
+    }
+  }
+  else{
+    isMoving = false;
+  
+    if(getTime() < holdTime){
+
+
+      if(currMode == Modify){
+        char** c = new char*[3]; 
+        c[0] = "new position for point ("; 
+        c[1] = ", "; 
+        c[2] = ")";
+        vals = new valueHolder(2, c, "0", new interpretNewModPoint(selectedCurve, selectedPoint, "New position set for point"));
+      }
+      else if(currMode == Add){
+        char** c = new char*[3]; 
+        c[0] = "new position for new point ("; 
+        c[1] = ", "; 
+        c[2] = ")";
+        vals = new valueHolder(2, c, "0", new interpretNewAddPoint(selectedCurve, selectedPoint, "New point's position set"));
+      }
+      else if(currMode == UMod){
+        char** c = new char*[2]; 
+        c[0] = "new knot value: "; 
+        c[1] = ""; 
+        vals = new valueHolder(1, c, "0", new interpretNewUModPoint((bSpline*)selectedCurve, selectedPoint, "New U set"));
+      }
+      else return;
+
+      valueMode = true;
+      action = vals->getMessage();
+      drawUI();
     }
   }
 }
@@ -434,40 +557,97 @@ void userInterface::leftMouseClick(int x, int y, bool ButtonDown){
 unsigned long int userInterface::getTime() {
   timeval tv;
   gettimeofday(&tv, 0);
-  return tv.tv_usec - lastTime;
+  return ((tv.tv_sec*1000)+(tv.tv_usec/1000.0))+.5 - lastTime;
 }
 
 void userInterface::setTime() {
   timeval tv;
   gettimeofday(&tv, 0);
-  lastTime = tv.tv_usec;
+  lastTime = ((tv.tv_sec*1000)+(tv.tv_usec/1000.0))+.5;
+  // cout<<"time: "<<lastTime<<endl;
 }
 
 void userInterface::mouseMove(int x, int y) {
+  if(!isMoving) return;
   if(selectedCurve == nullptr) return;
-  
-  screen2d* s = screen2d::getMainScreen();
-  if(currMode == modify){
-    selectedCurve->modifyPoint(selectedPoint, s->translate(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y));  
-    s->draw();
+  if(getTime() < holdTime) return;
+
+
+
+  if(currMode == Modify || currMode == Add){
+    screen2d* s = screen2d::getMainScreen();
+    selectedCurve->modifyPoint(selectedPoint, s->translate(x, OpenGLhandler::getScreenHeight() - y));  
+    screen2d::drawAll();
+    OpenGLhandler::reDraw();
+  }
+  else if(currMode == UMod){
+    screen2d* s = screen2d::getHelpScreen();
+    float f = s->translateX(x);
+    bSpline* b = ((bSpline*)selectedCurve);
+    if(selectedPoint != 0 && f < b->getU(selectedPoint-1)) f = b->getU(selectedPoint-1);
+    if(selectedPoint != b->getNumU() && f > b->getU(selectedPoint+1)) f = b->getU(selectedPoint+1);
+
+    b->modifyU(selectedPoint, f);
+
+    screen2d::drawAll();
+    OpenGLhandler::reDraw();
   }
 }
 
 char* userInterface::interpretNewAddPoint::operator()(char** c) {
   pntf p = {(float)atof(c[0]), (float)atof(c[1])};
   curve->addPoint(index, p);
-  return mes;
+
+  screen2d::drawAll();
+  OpenGLhandler::reDraw();
+
+  return (char*)mes;
+}
+
+char* userInterface::interpretNewModPoint::operator()(char** c) {
+  pntf p = {(float)atof(c[0]), (float)atof(c[1])};
+  curve->modifyPoint(index, p);
+
+  screen2d::drawAll();
+  OpenGLhandler::reDraw();
+
+  return (char*)mes;
+}
+
+char* userInterface::interpretNewUModPoint::operator()(char** c) {
+  float p = (float)atof(c[0]);
+
+  if(index != 0)
+    if(curve->getU(index-1) > p)
+      return "Can't change knot to less then previous knot";
+  
+  if(index != (curve->getK()+curve->getNumControlPoints()-1))
+    if(curve->getU(index+1) < p)
+      return "Can't change knot to greater then next knot";
+
+  curve->modifyU(index, p);
+
+  screen2d::drawAll();
+  OpenGLhandler::reDraw();
+
+  return (char*)mes;
 }
 
 
 char* userInterface::interpretLoad::operator()(char** c){
   if(c[0][0] == 0) {
-    if(curve2d::load());
+    if(curve2d::load()){
+      screen2d::drawAll();
+      OpenGLhandler::reDraw();
       return "Successful load";
+    }
   }
   else{
-    if(curve2d::load(c[0]))
+    if(curve2d::load(c[0])){
+      screen2d::drawAll();
+      OpenGLhandler::reDraw();
       return "Successful load";
+    }
   }
   return "failed load!";
 }
@@ -483,6 +663,14 @@ char* userInterface::interpretSave::operator()(char** c){
   }
   return "failed save!";
 }
+
+char* userInterface::interpretNewUInt::operator()(char** c){
+  setter((unsigned int)atoi(c[0]));
+  screen2d::drawAll();
+  OpenGLhandler::reDraw();
+  return (char*)mes;
+}
+
 
 /*
 char* userInterface::interpretNewNormal::operator()(char** c){
@@ -502,15 +690,6 @@ char* userInterface::interpretNewPnt3::operator()(char** c){
   pnt3 p = {(float)atof(c[0]), (float)atof(c[1]), (float)atof(c[2])};
 
   setter(p);
-  
-  OpenGLhandler::bufferObjects();
-  OpenGLhandler::reDraw();
-
-  return (char*)mes;
-}
-
-char* userInterface::interpretNewFloat::operator()(char** c){
-  setter((float)atof(c[0]));
   
   OpenGLhandler::bufferObjects();
   OpenGLhandler::reDraw();

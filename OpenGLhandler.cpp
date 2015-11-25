@@ -42,8 +42,8 @@ unsigned int OpenGLhandler::resolution;
 
 void OpenGLhandler::initValues(int argc, char** argv){
   
-  width = 402;
-  height = 402;
+  width = 800;
+  height = 800;
   
   PixelBuffer = new float[width * height * 3];
 
@@ -69,7 +69,7 @@ void OpenGLhandler::init(int* argc, char** argv)
   glutKeyboardFunc(Keystroke);
   glutMouseFunc(mouseClick);
   glutMotionFunc(userInterface::mouseMove);
-  glutPassiveMotionFunc(userInterface::mouseMovePassive);
+  //glutPassiveMotionFunc(userInterface::mouseMovePassive);
   
   glutMainLoop();
 

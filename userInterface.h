@@ -19,7 +19,8 @@ using namespace std;
 
 class userInterface {
 public:
-  
+  enum DrawMode {curves, control, both};
+
   static void init();
   static void endUI();
   static void keypressed(unsigned char key);  
@@ -29,6 +30,13 @@ public:
 
   static void printError(char* s);
   static void holdUntilUsage();
+
+  inline static bool drawCurves(){return dMode != control;};
+  inline static bool drawControl(){return dMode != curves;};
+
+  static char* getDrawStr();
+
+  inline static void setIsMaxRes(bool b){isMaximum = b;};
   
   inline static curve2d* getSelectedCurve(){return selectedCurve;};
   
@@ -36,10 +44,10 @@ public:
 
   inline static bool isValueMode(){return valueMode;};
 private:
-  enum mode {modify, add, remove};
+  enum mode {Modify, Add, Remove, UMod};
   static mode currMode;
   
-  static string getModeStr();
+  static char* getModeStr();
   
   static const unsigned int helpHeight = 50;
   
@@ -47,9 +55,13 @@ private:
   
   static void drawUI();
   static int objSelected;
+
+  static DrawMode dMode;
   
 //  static bool onWindow;
   static bool isStarted;
+
+  static bool isMaximum;
 
   static bool valueMode;
   static valueHolder* vals;
@@ -62,14 +74,36 @@ private:
   static unsigned long int lastTime;
   static void setTime();
   static unsigned long int getTime();
-  static const unsigned long int holdTime = 100000;
+  static const unsigned long int holdTime = 250;
+
+  static bool isMoving;
   
   class interpretNewAddPoint: public InterpreterFunc{
   public:
     interpretNewAddPoint(curve2d* c, unsigned int i, char* m): curve(c), mes(m), index(i){};
     char* operator()(char**);
   private:
-    const curve2d* curve;
+    curve2d* curve;
+    const char* mes;
+    const unsigned int index;
+  };
+
+  class interpretNewModPoint: public InterpreterFunc{
+  public:
+    interpretNewModPoint(curve2d* c, unsigned int i, char* m): curve(c), mes(m), index(i){};
+    char* operator()(char**);
+  private:
+    curve2d* curve;
+    const char* mes;
+    const unsigned int index;
+  };
+
+  class interpretNewUModPoint: public InterpreterFunc{
+  public:
+    interpretNewUModPoint(bSpline* c, unsigned int i, char* m): curve(c), mes(m), index(i){};
+    char* operator()(char**);
+  private:
+    bSpline* curve;
     const char* mes;
     const unsigned int index;
   };
@@ -84,6 +118,15 @@ private:
   public:
     interpretSave(){};
     char* operator()(char**);
+  };
+
+  class interpretNewUInt: public InterpreterFunc{
+  public:
+    interpretNewUInt(void(*f)(unsigned int), char* m):setter(f), mes(m){};
+    char* operator()(char**);
+  private:
+    void (*setter)(unsigned int);
+    const char* mes;
   };
 /*
   class interpretNewPnt3: public InterpreterFunc{

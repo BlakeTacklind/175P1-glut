@@ -36,8 +36,10 @@ public:
   pixelSelectionHelper getNearestLine(int x, int y);
   
   pntf translate(int x, int y);
+  float translateX(int y);
 
-  static screen2d* getMainScreen();
+  inline static screen2d* getMainScreen(){return mainScreen;};
+  inline static screen2d* getHelpScreen(){return helpScreen;};
 
   static void freeAll();
   static void drawAll();

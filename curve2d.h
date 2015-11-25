@@ -80,8 +80,8 @@ public:
   bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order);
   bSpline(unsigned int nPnts, pntf* cPnts, unsigned int order, float* r);
   
-  override void addPoint(unsigned int pos, pntf loc);
-  override void removePoint(unsigned int);
+  void addPoint(unsigned int pos, pntf loc);
+  void removePoint(unsigned int);
   
   inline bool canRemove(){return k<getNumPoints();};
   
@@ -90,6 +90,11 @@ public:
 
   inline unsigned int getK(){return k;};
   inline float getU(unsigned int i){return u[i];};
+
+  unsigned int getUNum(float);
+  inline void modifyU(unsigned int i, float f){u[i] = f;};
+
+  inline unsigned int getNumU(){return getNumPoints()+getK()-1;};
 
 private:
   //inline float getU(unsigned int i){return u[i];};

@@ -56,14 +56,44 @@ void bSpline::addPoint(unsigned int pos, pntf loc) {
     return;
   }
   
-  float* c = new float[getK()+getNumControlPoints()];
+  float* c = new float[getK()+getNumControlPoints()-1];
+
+  // for(int i = 0; i < getK()+getNumControlPoints()-1; i++) c[i] =0;
   
+  // cout<<"Before: ";
+  // for(int i = 0; i < getK()+getNumControlPoints()-1; i++)
+  //   cout<<u[i]<<" ";
+  // cout<<"\n";
+
   copy(u ,u+pos+getK()-2 , c);
-  copy(u+pos+getK()-1, u+getNumControlPoints()+getK()-1, c);
-  c[pos+getK()-2] = (c[pos+getK()-3] + c[pos+getK()-1]) / 2;
+
+  // cout<<"After1: ";
+  // for(int i = 0; i < getK()+getNumControlPoints(); i++)
+  //   cout<<c[i]<<" ";
+  // cout<<"\n";
+
+  copy(u+pos+getK()-2, u+getNumControlPoints()+getK()-1, c+pos+getK()-1);
+
+  // cout<<"After2: ";
+  // for(int i = 0; i < getK()+getNumControlPoints(); i++)
+  //   cout<<c[i]<<" ";
+  // cout<<"\n";
+
+
+  c[pos+getK()-2] = (c[pos+getK()-3] + c[pos+getK()-1]) / 2.0;
   
+  // cout<<"After3: ";
+  // for(int i = 0; i < getK()+getNumControlPoints(); i++)
+  //   cout<<c[i]<<" ";
+  // cout<<"\n";
+
   delete [] u;
   u = c;
+
+  // cout<<"After: ";
+  // for(int i = 0; i < getK()+getNumControlPoints(); i++)
+  //   cout<<u[i]<<" ";
+  // cout<<"\n";
 }
 
 void curve2d::modifyPoint(unsigned int p, pntf loc) {
@@ -80,6 +110,11 @@ void curve2d::removePoint(unsigned int p) {
     userInterface::printError("point does not exist");
     return;
   }
+
+  if(!canRemove()){
+    userInterface::printError("Cannot remove point");
+    return;
+  }
   
   pntf* c = new pntf[--nPoints];
   
@@ -88,24 +123,46 @@ void curve2d::removePoint(unsigned int p) {
     c[i] = controlPoints[i];
   
   for(; i < nPoints; i++)
-    c[i] = controlPoints[i-1];
+    c[i] = controlPoints[i+1];
   
   delete [] controlPoints;
   controlPoints = c;
 }
 
-void bSpline::removePoint(unsigned int i) {
-  curve2d::removePoint(i);
+void bSpline::removePoint(unsigned int pos) {
+  curve2d::removePoint(pos);
   
-  if(i > getNumControlPoints()){
+  if(pos > getNumControlPoints()){
     return;
   }
   
-  float* c = new float[getK()+getNumControlPoints()];
+  if(!canRemove()){
+    return;
+  }
   
-  copy(u ,u+i+getK()-2 , c);
-  copy(u+i+getK()-3, u+getNumControlPoints()+getK()+1, c);
+  float* c = new float[getK()+getNumControlPoints()-1];
   
+  // for(int i = 0; i < getK()+getNumControlPoints()-1; i++) c[i] =0;
+  
+  // cout<<"Before: ";
+  // for(int i = 0; i <= getK()+getNumControlPoints()-1; i++)
+  //   cout<<u[i]<<" ";
+  // cout<<"\n";
+
+  copy(u ,u+pos+getK()-2 , c);
+
+  // cout<<"After1: ";
+  // for(int i = 0; i < getK()+getNumControlPoints()-1; i++)
+  //   cout<<c[i]<<" ";
+  // cout<<"\n";
+
+  copy(u+pos+getK()-1, u+getNumControlPoints()+getK(), c+pos+getK()-2);
+  
+  // cout<<"After2: ";
+  // for(int i = 0; i < getK()+getNumControlPoints()-1; i++)
+  //   cout<<c[i]<<" ";
+  // cout<<"\n";
+
   delete [] u;
   u = c;
 }
@@ -226,6 +283,15 @@ unsigned int bSpline::getSegment(float f) {
   unsigned int i = 0;
   
   while(u[i+k-1] < f) i++;
+  
+  return i;
+}
+
+unsigned int bSpline::getUNum(float f) {
+  if(f > u[getNumPoints()+getK()-2]) return getNumPoints()+getK()-2;
+  
+  unsigned int i = 0;
+  while(u[i] < f) i++;
   
   return i;
 }
@@ -364,9 +430,9 @@ bool curve2d::load(char* filename){
         if(getline(file, line)){
           if (!line.compare("T")){
             float last = 0;
-            float* knots = new float[numPoints+k];
+            float* knots = new float[numPoints+k-1];
 
-            for(int j = 0; j < numPoints+k; j++){
+            for(int j = 0; j < numPoints+k-1; j++){
               if(getline(file, line)){
                 knots[j] = atof(line.c_str());
 
@@ -481,7 +547,7 @@ bool curve2d::save(char* filename){
       
       if(curveList[i]->myType == BSpline){
         file<<"\nT";
-        for (int j = 0 ; j < curveList[i]->getNumPoints() + ((bSpline*)curveList[i])->getK(); j++)
+        for (int j = 0 ; j < curveList[i]->getNumPoints() + ((bSpline*)curveList[i])->getK()-1; j++)
           file << "\n"<< ((bSpline*)curveList[i])->getU(j);
       }
 
