@@ -43,18 +43,27 @@ void userInterface::init(){
 void userInterface::drawUI(){
   clear();
   attron(COLOR_PAIR(1));
-  printw("USE [ESC] TO %s, press [h] for help", valueMode?"CANCEL VALUE MOD":"END PROGRAM");
+  printw("USE [ESC] TO %s, press [h] for help", valueMode?"CANCEL VALUE MODE":"END PROGRAM");
   //printw("\nHAVE FOCUS ON: %s\n", onWindow?"GLUT screen":"Terminal");
   attroff(COLOR_PAIR(1));
 
   printw("\nCurrent File Loaded: \"%s\"", curve2d::getStoredFile());
 
   printw("\n");
+  printw("\nIn %s mode", getModeStr());
+  
+  printw("\n");
   printw("\n%s", action);
 
-  if(vals != nullptr) move(18 + vals->getCursorRelative().y, vals->getCursorRelative().x);
+  if(vals != nullptr) move(5 + vals->getCursorRelative().y, vals->getCursorRelative().x);
 
   refresh();
+}
+
+string userInterface::getModeStr() {
+  if(currMode == add   ) return "Add";
+  if(currMode == modify) return "Modify";
+  if(currMode == remove) return "Remove";
 }
 
 void userInterface::printError(char* mes){
@@ -133,26 +142,17 @@ void userInterface::keypressed(unsigned char key){
     printw("USE [ESC] TO END PROGRAM, press [h] for help");
     attroff(COLOR_PAIR(1));
     printw("\nbracketed letter indicates which to press\n");
-    printw("\n[l]oad from [f]ile");
-    printw("\n[space] for rotate oblique window about z-axis");
-    printw("\n[n] Set normal for oblique window");
+    printw("\n[l]oad from file");
+    printw("\n[p] save to file");
+    
     printw("\n\nAlter Modes:");
-    printw("\n[x] Tgl Mega Pix");
-    printw("\n[r] Tgl Draw Mode");
-    //printw("\n[x] Algorithms");
-    printw("\n\nLighting Settings:");
-    printw("\n[A]mbient");
-    printw("\n[D]iffuse");
-    printw("\n[S]pecular");
-    printw("\n[K] Average Light Distance");
-    printw("\n[q] Light position");
-    printw("\n[w] Light Intensity");
-    printw("\n[e] Ambient Intensity");
-    printw("\n[z] Light Size");
-    printw("\n[t] Set Mega Pix tone");
+//    printw("\n[r] Tgl Draw Mode");
+    printw("\n[A]dd mode");
+    printw("\n[s] remove mode");
+    printw("\nmo[d]dify mode");
 
     refresh();
-  }/*
+  }
   else if(key == 'l'){
     valueMode = true;
     
@@ -166,6 +166,19 @@ void userInterface::keypressed(unsigned char key){
     drawUI();
     return;
   }
+  else if(key == 'p'){
+    valueMode = true;
+    
+    char** c = new char*[2]; 
+    c[0] = "Enter name of file, or nothing for last file: "; 
+    c[1] = "";
+
+
+    vals = new valueHolder(1, c, "", new interpretSave());
+    action = vals->getMessage();
+    drawUI();
+    return;
+  }/*
   else if(key == ' '){
     screen3d* s = screen3d::getLastScreen();
     s->setNormal(rotateAboutZ(s->getNormal(), 1));
@@ -348,68 +361,71 @@ void userInterface::keypressed(unsigned char key){
 
 
 void userInterface::leftMouseClick(int x, int y, bool ButtonDown){
-  if(ButtonDown){    
-    screen2d* s = screen2d::findScreen(x, OpenGLhandler::getScreenHeight() - y);
+  if(y > getHelpHeight()){
+    if(ButtonDown){
+      screen2d* s = screen2d::getMainScreen();
 
-    if(currMode == add){
-      pixelSelectionHelper h = s->getNearestLine(x, OpenGLhandler::getScreenHeight() - y);
-      
-      if(h.distance < clickDistance){
-        h.c->addPoint(h.index, s->translate(x, y));
-        s->draw();
-        
-        currMode = modify;
-        
-        selectedCurve = h.c;
-        selectedPoint = h.index;
-        setTime();
+      if(currMode == add){
+        pixelSelectionHelper h = s->getNearestLine(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y);
 
-        valueMode = true;
-        char** c = new char*[3]; 
-        c[0] = "new position ("; 
-        c[1] = ", "; 
-        c[2] = ")";
-        vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
+        if(h.distance < clickDistance){
+          h.c->addPoint(h.index, s->translate(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y));
+          s->draw();
 
-        return;
-      }
-    }
-    else{
-      pixelSelectionHelper h = s->getNearestPoint(x, OpenGLhandler::getScreenHeight() - y);
-      
-      if(h.distance < clickDistance){
-        if(currMode == modify){
+          currMode = modify;
+
           selectedCurve = h.c;
           selectedPoint = h.index;
           setTime();
-          
+
           valueMode = true;
           char** c = new char*[3]; 
           c[0] = "new position ("; 
           c[1] = ", "; 
           c[2] = ")";
           vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
-          
+
           return;
         }
-        else  if(currMode == remove){
-          h.c->removePoint(h.index);
-          s->draw();
-        }
       }
-      
-      selectedCurve = nullptr;
-      selectedPoint = 0;
-    }    
-  }
-  else{
-    if(getTime() > holdTime){
-      selectedCurve = nullptr;
-      selectedPoint = 0;
-      
-      if(valueMode){
-        valueMode = false;
-        delete vals;
+      else{
+        pixelSelectionHelper h = s->getNearestPoint(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y);
+
+        if(h.distance < clickDistance){
+          if(currMode == modify){
+            selectedCurve = h.c;
+            selectedPoint = h.index;
+            setTime();
+
+            valueMode = true;
+            char** c = new char*[3]; 
+            c[0] = "new position ("; 
+            c[1] = ", "; 
+            c[2] = ")";
+            vals = new valueHolder(2, c, "0.0", new interpretNewAddPoint(h.c, h.index, "New position set"));
+
+            return;
+          }
+          else  if(currMode == remove){
+            h.c->removePoint(h.index);
+            s->draw();
+          }
+        }
+
+        selectedCurve = nullptr;
+        selectedPoint = 0;
+      }
+    }
+    else{
+      if(getTime() > holdTime){
+        selectedCurve = nullptr;
+        selectedPoint = 0;
+
+        if(valueMode){
+          valueMode = false;
+          delete vals;
+          vals = nullptr;
+        }
       }
     }
   }
@@ -430,9 +446,9 @@ void userInterface::setTime() {
 void userInterface::mouseMove(int x, int y) {
   if(selectedCurve == nullptr) return;
   
-  screen2d* s = screen2d::findScreen(x, OpenGLhandler::getScreenHeight() - y);
+  screen2d* s = screen2d::getMainScreen();
   if(currMode == modify){
-    selectedCurve->modifyPoint(selectedPoint, s->translate(x, OpenGLhandler::getScreenHeight() - y));  
+    selectedCurve->modifyPoint(selectedPoint, s->translate(x, OpenGLhandler::getScreenHeight() - getHelpHeight() - y));  
     s->draw();
   }
 }
@@ -444,19 +460,31 @@ char* userInterface::interpretNewAddPoint::operator()(char** c) {
 }
 
 
-/*
 char* userInterface::interpretLoad::operator()(char** c){
   if(c[0][0] == 0) {
-    if(object3Dsurface::load());
+    if(curve2d::load());
       return "Successful load";
   }
   else{
-    if(object3Dsurface::load(c[0]))
+    if(curve2d::load(c[0]))
       return "Successful load";
   }
   return "failed load!";
 }
 
+char* userInterface::interpretSave::operator()(char** c){
+  if(c[0][0] == 0) {
+    if(curve2d::save());
+      return "Successful save";
+  }
+  else{
+    if(curve2d::save(c[0]))
+      return "Successful save";
+  }
+  return "failed save!";
+}
+
+/*
 char* userInterface::interpretNewNormal::operator()(char** c){
   pnt3 p = {(float)atof(c[0]), (float)atof(c[1]), (float)atof(c[2])};
 

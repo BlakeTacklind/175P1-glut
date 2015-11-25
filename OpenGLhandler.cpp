@@ -49,7 +49,8 @@ void OpenGLhandler::initValues(int argc, char** argv){
 
   setResolution(100);
 
-  new screen2d(width, height, new MakePixOff(0,0));
+  screen2d::setMainScreen(new screen2d(width, height - userInterface::getHelpHeight(), new MakePixOff(0,0)));
+  screen2d::setHelpScreen(new screen2d(width, userInterface::getHelpHeight(), new MakePixOff(0,height - userInterface::getHelpHeight())));
 }
 
 void OpenGLhandler::init(int* argc, char** argv)
@@ -61,7 +62,7 @@ void OpenGLhandler::init(int* argc, char** argv)
 
   glutInitWindowPosition(100, 100);
 
-  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 3");
+  MainWindow = glutCreateWindow("Blake Tacklind - 997051049 - Project 4");
   glClearColor(0, 0, 0, 0);
   glutDisplayFunc(display);
 
@@ -220,7 +221,4 @@ void OpenGLhandler::mouseClick(int button, int state, int x, int y){
   }
 }
 
-void OpenGLhandler::mouseMotion(int x, int y) {
-  userInterface::mouseMove(x,y);
-}
 

@@ -12,6 +12,7 @@
 #include "MakePixFunc.h"
 #include <list>
 #include "curve2d.h"
+#include "line.h"
 
 using namespace std;
 
@@ -28,16 +29,21 @@ public:
   virtual ~screen2d();
 
   void draw();
+  void draw(curve2d*);
+  line* draw(line*);
 
   pixelSelectionHelper getNearestPoint(int x, int y);
   pixelSelectionHelper getNearestLine(int x, int y);
   
   pntf translate(int x, int y);
 
-  static screen2d* findScreen(int, int);
+  static screen2d* getMainScreen();
 
   static void freeAll();
   static void drawAll();
+  
+  inline static void setMainScreen(screen2d* s){mainScreen = s;};
+  inline static void setHelpScreen(screen2d* s){helpScreen = s;};
 
 private:
   MakePixFunc* makePix;
@@ -46,7 +52,9 @@ private:
   float xMin, xMax, yMin, yMax;
   float scale;
 
-  static list<screen2d*> screenList;
+//  static list<screen2d*> screenList;
+  static screen2d* mainScreen;
+  static screen2d* helpScreen;
 };
 
 

@@ -29,11 +29,19 @@ public:
 
   static void printError(char* s);
   static void holdUntilUsage();
+  
+  inline static curve2d* getSelectedCurve(){return selectedCurve;};
+  
+  static unsigned int getHelpHeight(){return helpHeight;};
 
   inline static bool isValueMode(){return valueMode;};
 private:
   enum mode {modify, add, remove};
   static mode currMode;
+  
+  static string getModeStr();
+  
+  static const unsigned int helpHeight = 50;
   
   static char* action;
   
@@ -65,6 +73,18 @@ private:
     const char* mes;
     const unsigned int index;
   };
+
+  class interpretLoad: public InterpreterFunc{
+  public:
+    interpretLoad(){};
+    char* operator()(char**);
+  };
+  
+  class interpretSave: public InterpreterFunc{
+  public:
+    interpretSave(){};
+    char* operator()(char**);
+  };
 /*
   class interpretNewPnt3: public InterpreterFunc{
   public:
@@ -87,12 +107,6 @@ private:
   class interpretNewNormal: public InterpreterFunc{
   public:
     interpretNewNormal(){};
-    char* operator()(char**);
-  };
-
-  class interpretLoad: public InterpreterFunc{
-  public:
-    interpretLoad(){};
     char* operator()(char**);
   };
 

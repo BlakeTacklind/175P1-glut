@@ -14,7 +14,9 @@
 
 using namespace std;
 
-list<screen2d*> screen2d::screenList;
+//list<screen2d*> screen2d::screenList;
+screen2d* screen2d::mainScreen;
+screen2d* screen2d::helpScreen;
 
 screen2d::screen2d(int x, int y, MakePixFunc* mkPix) {
   if(x <= 0 || y <= 0){
@@ -25,7 +27,7 @@ screen2d::screen2d(int x, int y, MakePixFunc* mkPix) {
   height = y;
   makePix = mkPix;
 
-  screenList.push_back(this);
+//  screenList.push_back(this);
 }
 
 screen2d::screen2d(const screen2d& orig) {
@@ -35,10 +37,8 @@ screen2d::~screen2d() {
 }
 
 void screen2d::freeAll(){
-  while(screenList.end() != screenList.begin()){
-    delete screenList.front();
-    screenList.pop_front();
-  }
+  delete mainScreen;
+  delete helpScreen;
 }
 
 void screen2d::draw(){
@@ -131,13 +131,38 @@ void screen2d::draw(){
   // cout<<"test e\n";
 }
 
-void screen2d::drawAll(){
-  for(list<screen2d*>::iterator it = screenList.begin(); it != screenList.end(); it++)
-    (*it)->draw();
+void screen2d::draw(curve2d* c) {
+  if(c->getCurveType() == curve2d::BSpline){
+    bSpline* b = (bSpline*)c;
+    unsigned int num = b->getNumPoints()+b->getK();
+    xMin = b->getU(0);
+    xMax = b->getU(num-1);
+    
+    xMin -= (xMax-xMin) / 10
+    
+    scale = ((xMax - xMin) / (width - 1))*.9;
+    
+    for(int i = 0; i < num; i++){
+      int x = (b->getU(i) - xMin) * scale;
+      delete draw(new line({x, 0}, {x, height - 1}, true));
+    }
+  }
 }
 
-screen2d* screen2d::findScreen(int x, int y){
-  return screenList.front();
+line* screen2d::draw(line* l){
+  for(int i = 0; i < l->getNumPoints(); i++)
+    makePix(l->getPoint(i));
+  
+  return l;
+}
+
+void screen2d::drawAll(){
+  mainScreen->draw();
+  helpScreen->draw(userInterface::getSelectedCurve());
+}
+
+screen2d* screen2d::getMainScreen(){
+  return mainScreen;
 }
 
 pixelSelectionHelper screen2d::getNearestPoint(int x, int y){

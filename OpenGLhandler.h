@@ -143,12 +143,6 @@ private:
   //Mouse Click Event Callback
   static void mouseClick(int button, int state, int x, int y);
   
-  //Mouse motion Event Callback
-  static void mouseMotion(int x, int y);
-
-  //Mouse motion Event Callback
-  static void mousePassiveMotion(int x, int y);
-
 };
 
 #endif

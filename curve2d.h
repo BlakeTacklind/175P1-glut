@@ -46,6 +46,7 @@ public:
 
   inline unsigned int getNumPoints(){return nPoints;};
   
+  inline curveType getCurveType(){return myType;};
 protected:
   inline pntf* getControlPoints(){return controlPoints;};
   virtual bool canRemove()=0;
