@@ -128,6 +128,15 @@ private:
     void (*setter)(unsigned int);
     const char* mes;
   };
+
+  class interpretNewK: public InterpreterFunc{
+  public:
+    interpretNewK(bSpline* b, char* m):curve(b), mes(m){};
+    char* operator()(char**);
+  private:
+   bSpline* curve;
+    const char* mes;
+  };
 /*
   class interpretNewPnt3: public InterpreterFunc{
   public:

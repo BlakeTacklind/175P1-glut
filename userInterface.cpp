@@ -262,7 +262,7 @@ void userInterface::keypressed(unsigned char key){
     c[0] = "Set k to: "; 
     c[1] = "";
 
-    vals = new valueHolder(1, c, "0", new interpretNewUInt(b->setK, "new k set"));
+    vals = new valueHolder(1, c, "0", new interpretNewK(b, "new k set"));
     action = vals->getMessage();
     screen2d::drawAll();
     OpenGLhandler::reDraw();
@@ -686,6 +686,13 @@ char* userInterface::interpretSave::operator()(char** c){
 
 char* userInterface::interpretNewUInt::operator()(char** c){
   setter((unsigned int)atoi(c[0]));
+  screen2d::drawAll();
+  OpenGLhandler::reDraw();
+  return (char*)mes;
+}
+
+char* userInterface::interpretNewK::operator()(char** c){
+  curve->setK((unsigned int)atoi(c[0]));
   screen2d::drawAll();
   OpenGLhandler::reDraw();
   return (char*)mes;
