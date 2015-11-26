@@ -251,7 +251,7 @@ void userInterface::keypressed(unsigned char key){
     drawUI();
   }
   else if(key == 'f'){
-    if(selectedCurve->getCurveType() != BSpline){
+    if(selectedCurve->getCurveType() != curve2d::BSpline){
       printError("Not a B-Spline Selected");
       return;
     }
