@@ -173,6 +173,8 @@ void userInterface::keypressed(unsigned char key){
     printw("\n[s] remove mode");
     printw("\nmo[d]dify mode");
 
+    printw("\n[f] Set k if b-Spline Selected");
+
     refresh();
   }
   else if(key == 'l'){
@@ -244,6 +246,24 @@ void userInterface::keypressed(unsigned char key){
     else if(dMode == both   ) dMode = control;
     else if(dMode == control) dMode = curves;
 
+    screen2d::drawAll();
+    OpenGLhandler::reDraw();
+    drawUI();
+  }
+  else if(key == 'f'){
+    if(selectedCurve->getCurveType() != BSpline){
+      printError("Not a B-Spline Selected");
+      return;
+    }
+
+    bSpline* b = (bSpline*)selectedCurve;
+
+    char** c = new char*[2]; 
+    c[0] = "Set k to: "; 
+    c[1] = "";
+
+    vals = new valueHolder(1, c, "0", new interpretNewUInt(b->setK, "new k set"));
+    action = vals->getMessage();
     screen2d::drawAll();
     OpenGLhandler::reDraw();
     drawUI();

@@ -559,3 +559,12 @@ bool curve2d::save(char* filename){
   userInterface::printError("failed to open save file");
   return false;
 }
+
+void bSpline::setK(unsigned int i){
+  if(i < 2){
+    userInterface::printError("cant Set k less then 2");
+    return;
+  }
+
+  k = i;
+}

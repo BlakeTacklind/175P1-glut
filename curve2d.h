@@ -88,7 +88,9 @@ public:
   pntf* draw(unsigned int resolution);
   pnt3 getColor(){return {0,1,0};};
 
+  void setK(unsigned int i);
   inline unsigned int getK(){return k;};
+
   inline float getU(unsigned int i){return u[i];};
 
   unsigned int getUNum(float);
